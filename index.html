@@ -9,191 +9,191 @@
       font-family: Arial, sans-serif;
       margin: 20px;
     }
-    textarea {
+
+    #templateEditor {
       width: 100%;
-      box-sizing: border-box;
+      min-height: 120px;
+      border: 1px solid #ccc;
       padding: 10px;
       font-size: 16px;
-      resize: none;
-      overflow-y: hidden;
+      white-space: pre-wrap;
+      outline: none;
     }
+
     #fieldsContainer {
       padding-top: 20px;
     }
-    .field-label {
-      margin-top: 10px;
+
+    .inputField {
       display: block;
-      font-weight: bold;
-    }
-    .field-input {
       width: 100%;
-      min-height: 30px;
-      box-sizing: border-box;
-      font-size: 14px;
-      padding: 6px;
+      max-width: 600px;
       margin-bottom: 10px;
+      font-size: 16px;
+      padding: 6px;
+      box-sizing: border-box;
       resize: none;
-      overflow-y: hidden;
+      overflow: hidden;
     }
+
     #result {
-      border: 1px solid #ccc;
-      padding: 15px;
       margin-top: 20px;
-      background-color: #f9f9f9;
       white-space: pre-wrap;
+      border: 1px solid #ddd;
+      padding: 10px;
     }
-    #alert {
-      color: green;
+
+    button {
       margin-top: 10px;
+      margin-right: 10px;
+      padding: 8px 12px;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
 
-  <h2>📝 Template Editor</h2>
+  <h2>Template Editor</h2>
 
-  <textarea id="templateInput" rows="1" placeholder="Enter your template here..." oninput="autoResize(this); generateFields()">
-A {{Years | 50}}-year-old {{sex | male}} presents to the clinic with complaints of {{symptoms | persistent fatigue, central obesity, and decreased libido}}. 
-On examination, he exhibits signs of {{signs | gynecomastia, alopecia, and increased abdominal adiposity}}. Laboratory investigations reveal a {{lab_findings | low TSH with normal free T4, and elevated LDL cholesterol}}. 
+  <div id="templateEditor" contenteditable="true" oninput="onEditorInput()"></div>
+  <textarea id="templateInput" style="display:none;"></textarea>
 
-What is the most appropriate initial management step?
-  </textarea>
-
-  <br><br>
-
-  <button onclick="showAddFieldBox()">➕ Add Field</button>
-  
-  <button onclick="saveAsHtml()">💾 Save as HTML</button>
-
-  
-
-  <div id="addFieldBox" style="display:none; margin-top: 10px;">
-    <input id="newFieldName" placeholder="Field name">
-    <input id="newDefaultValue" placeholder="Default value">
-    <button onclick="insertFieldAtCursor()">Insert</button>
-  </div>
-
+  <button onclick="insertField()">Insert Field</button>
   <div id="fieldsContainer"></div>
 
+  <h3>Result</h3>
   <div id="result"></div>
-<button onclick="copyResult()" style="margin-top:10px">📋 Copy Result</button>
-  <div id="alert"></div>
+  <button onclick="copyResult()">Copy Result</button>
+
+  <button onclick="saveAsHTML()">Save as file.html</button>
+
   <script>
-    function autoResize(textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
+    function onEditorInput() {
+      const editor = document.getElementById('templateEditor');
+      const text = editor.innerText;
+      document.getElementById('templateInput').value = text;
+      highlightTemplate();
+      generateFields();
     }
 
-    function getFieldsFromTemplate(template) {
-      const regex = /\{\{\s*(\w+)\s*\|\s*([^}]+?)\s*\}\}/g;
-      const fields = new Map();
-      let match;
-      while ((match = regex.exec(template)) !== null) {
-        fields.set(match[1], match[2]);
-      }
-      return fields;
+    function highlightTemplate() {
+      const editor = document.getElementById('templateEditor');
+      const rawText = editor.innerText;
+
+      const highlighted = rawText.replace(/\{\{\s*(\w+)\s*\|\s*([^}]+?)\s*\}\}/g, (_, field, value) => {
+        return `{{<span style="color:red">${field}</span> | <span style="color:green">${value}</span>}}`;
+      }).replace(/\n/g, "<br>").replace(/ {2}/g, " &nbsp;");
+
+      editor.innerHTML = highlighted;
+      placeCaretAtEnd(editor);
+    }
+
+    function placeCaretAtEnd(el) {
+      el.focus();
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
     }
 
     function generateFields() {
-      const template = document.getElementById('templateInput').value;
-      const fields = getFieldsFromTemplate(template);
-      const container = document.getElementById('fieldsContainer');
-      container.innerHTML = '';
+      const text = document.getElementById('templateInput').value;
+      const matches = [...text.matchAll(/\{\{\s*(\w+)\s*\|\s*([^}]+?)\s*\}\}/g)];
 
-      fields.forEach((defaultValue, fieldName) => {
+      const fieldsContainer = document.getElementById('fieldsContainer');
+      fieldsContainer.innerHTML = '';
+
+      matches.forEach(([_, field, defaultValue]) => {
         const label = document.createElement('label');
-        label.textContent = fieldName;
-        label.className = 'field-label';
+        label.textContent = field;
 
-        const input = document.createElement('textarea');
-        input.className = 'field-input';
-        input.value = defaultValue;
-        input.rows = 1;
-        input.oninput = function () {
-          autoResize(this);
-          updateResult();
-        };
+        const textarea = document.createElement('textarea');
+        textarea.className = 'inputField';
+        textarea.name = field;
+        textarea.value = defaultValue;
+        textarea.oninput = updateResult;
 
-        input.setAttribute('data-field', fieldName);
-        container.appendChild(label);
-        container.appendChild(input);
+        textarea.addEventListener('input', () => autoResize(textarea));
 
-        // Auto resize initially
-        autoResize(input);
+        fieldsContainer.appendChild(label);
+        fieldsContainer.appendChild(textarea);
+
+        // Fix: defer resizing until layout is complete
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            autoResize(textarea);
+          });
+        });
       });
 
       updateResult();
     }
 
+    function autoResize(el) {
+      el.style.height = '40px';
+      el.style.height = el.scrollHeight + 'px';
+    }
+
     function updateResult() {
       let result = document.getElementById('templateInput').value;
-      const inputs = document.querySelectorAll('.field-input');
+
+      const inputs = document.querySelectorAll('.inputField');
       inputs.forEach(input => {
-        const field = input.getAttribute('data-field');
+        const field = input.name;
         const value = input.value;
-        const regex = new RegExp(`\\{\\{\\s*${field}\\s*\\|[^}]+\\s*\\}\\}`, 'g');
+        const regex = new RegExp(`\\{\\{\\s*${field}\\s*\\|\\s*[^}]+?\\s*\\}\\}`, 'g');
         result = result.replace(regex, value);
       });
+
       document.getElementById('result').textContent = result;
     }
 
     function copyResult() {
-      const resultText = document.getElementById('result').textContent;
-      navigator.clipboard.writeText(resultText).then(() => {
-        document.getElementById('alert').textContent = '✅ Copied!';
-        setTimeout(() => {
-          document.getElementById('alert').textContent = '';
-        }, 2000);
+      const result = document.getElementById('result').innerText;
+      navigator.clipboard.writeText(result).then(() => {
+        alert("Result copied to clipboard.");
       });
     }
 
-    function showAddFieldBox() {
-      document.getElementById('addFieldBox').style.display = 'block';
+    function insertField() {
+      const fieldName = prompt("Field name:");
+      if (!fieldName) return;
+      const defaultValue = prompt("Default value:");
+      const insertText = `{{${fieldName} | ${defaultValue}}}`;
+
+      const editor = document.getElementById('templateEditor');
+      const selection = window.getSelection();
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      range.insertNode(document.createTextNode(insertText));
+
+      onEditorInput();
     }
 
-    function insertFieldAtCursor() {
-      const name = document.getElementById('newFieldName').value.trim();
-      const value = document.getElementById('newDefaultValue').value.trim();
-      if (!name || !value) return;
-
-      const textarea = document.getElementById('templateInput');
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const text = textarea.value;
-      const insertText = `{{${name} | ${value}}}`;
-
-      textarea.value = text.slice(0, start) + insertText + text.slice(end);
-      textarea.focus();
-      textarea.selectionEnd = start + insertText.length;
-
-      autoResize(textarea);
-      generateFields();
-
-      document.getElementById('addFieldBox').style.display = 'none';
-      document.getElementById('newFieldName').value = '';
-      document.getElementById('newDefaultValue').value = '';
-    }
-
-    function saveAsHtml() {
-      let doc = document.documentElement.outerHTML;
-      const templateText = document.getElementById('templateInput').value;
-      doc = doc.replace(
-        /<textarea id="templateInput"[\s\S]*?>[\s\S]*?<\/textarea>/,
-        `<textarea id="templateInput" rows="1" placeholder="Enter your template here..." oninput="autoResize(this); generateFields()">${templateText.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</textarea>`
+    function saveAsHTML() {
+      const content = document.getElementById('templateInput').value;
+      const blob = new Blob(
+        [`<html><body><pre>${content.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre></body></html>`],
+        { type: "text/html" }
       );
-      const blob = new Blob([doc], { type: 'text/html' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'file.html';
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "file.html";
       a.click();
-      URL.revokeObjectURL(a.href);
+      URL.revokeObjectURL(url);
     }
 
-    // Initialize on load
-    window.onload = function () {
-      autoResize(document.getElementById('templateInput'));
+    window.onload = () => {
+      const defaultTemplate = `A {{Years | 50}}-year-old {{sex | male}} presents to the clinic with complaints of {{symptoms | persistent fatigue, central obesity, and decreased libido}}.\nOn examination, he exhibits signs of {{signs | gynecomastia, alopecia, and increased abdominal adiposity}}.\nLaboratory investigations reveal a {{lab_findings | low TSH with normal free T4, and elevated LDL cholesterol}}.\n\nWhat is the most appropriate initial management step?`;
+      document.getElementById('templateInput').value = defaultTemplate;
+      document.getElementById('templateEditor').innerText = defaultTemplate;
+      highlightTemplate();
       generateFields();
     };
   </script>
 </body>
 </html>
+
