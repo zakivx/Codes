@@ -1,129 +1,402 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Three Timers with Cookies</title>
+<meta charset="UTF-8" />
+<title>4 Timers with Password, Auto Timer, Reset All & Event History Table</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #f3f4f6; padding: 20px; }
-  .timer-container { display: flex; gap: 20px; flex-wrap: wrap; }
-  .timer {
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    width: 200px;
-    text-align: center;
-  }
-  .time-display {
-    font-size: 2em;
-    margin: 10px 0;
-  }
-  button {
-    padding: 6px 12px;
-    margin: 4px;
-    cursor: pointer;
-  }
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background: #f5f5f5;
+        margin: 0; padding: 20px;
+    }
+    .timer-container {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    .timer-box {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 0 8px rgba(0,0,0,0.2);
+        width: 200px;
+    }
+    .timer-name {
+        font-weight: bold;
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+    .time {
+        font-size: 22px;
+        font-weight: bold;
+    }
+    .added-time {
+        font-size: 16px;
+        color: #777;
+    }
+    button {
+        margin-top: 8px;
+        margin-right: 5px;
+        padding: 5px 10px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    #resetAllBtn {
+        margin-top: 0;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    #eventHistory {
+        max-width: 650px;
+        margin: 30px auto 0 auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 0 8px rgba(0,0,0,0.2);
+        padding: 15px;
+        height: 220px;
+        overflow-y: auto;
+        text-align: left;
+        font-family: monospace;
+        font-size: 14px;
+        user-select: none;
+        position: relative;
+    }
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+    }
+    thead tr {
+        background: #ddd;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 6px 8px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    #clearHistoryBtn {
+        margin-top: 10px;
+        padding: 8px 20px;
+        font-size: 14px;
+        cursor: pointer;
+        background-color: #d9534f;
+        color: white;
+        border: none;
+        border-radius: 4px;
+    }
+    #clearHistoryBtn:hover {
+        background-color: #c9302c;
+    }
+    #eventHeaderContainer {
+        max-width: 650px;
+        margin: 30px auto 0 auto;
+        text-align: center;
+    }
+    #clearButtonContainer {
+        max-width: 650px;
+        margin: 10px auto 0 auto;
+        text-align: center;
+    }
 </style>
 </head>
 <body>
 
-<h1>Three Timers with Cookies</h1>
+<h2>Timers</h2>
 <div class="timer-container">
-  <div class="timer" data-name="Taha">
-    <h2>Taha</h2>
-    <div class="time-display">00:00:00</div>
-    <button onclick="startTimer('Taha')">Start</button>
-    <button onclick="stopTimer('Taha')">Stop</button>
-  </div>
-  <div class="timer" data-name="Hamza">
-    <h2>Hamza</h2>
-    <div class="time-display">00:00:00</div>
-    <button onclick="startTimer('Hamza')">Start</button>
-    <button onclick="stopTimer('Hamza')">Stop</button>
-  </div>
-  <div class="timer" data-name="Tesnim">
-    <h2>Tesnim</h2>
-    <div class="time-display">00:00:00</div>
-    <button onclick="startTimer('Tesnim')">Start</button>
-    <button onclick="stopTimer('Tesnim')">Stop</button>
-  </div>
+    <div class="timer-box" id="tahaBox">
+        <div class="timer-name">Taha</div>
+        <div class="time" id="tahaTime">00:00:00</div>
+        <div class="added-time" id="tahaAdded">+00:00:00</div>
+        <button onclick="startTimer('taha')">Start</button>
+        <button onclick="stopTimer('taha')">Stop</button>
+    </div>
+
+    <div class="timer-box" id="hamzaBox">
+        <div class="timer-name">Hamza</div>
+        <div class="time" id="hamzaTime">00:00:00</div>
+        <div class="added-time" id="hamzaAdded">+00:00:00</div>
+        <button onclick="startTimer('hamza')">Start</button>
+        <button onclick="stopTimer('hamza')">Stop</button>
+    </div>
+
+    <div class="timer-box" id="tesnimBox">
+        <div class="timer-name">Tesnim</div>
+        <div class="time" id="tesnimTime">00:00:00</div>
+        <div class="added-time" id="tesnimAdded">+00:00:00</div>
+        <button onclick="startTimer('tesnim')">Start</button>
+        <button onclick="stopTimer('tesnim')">Stop</button>
+    </div>
+
+    <div class="timer-box" id="autoBox">
+        <div class="timer-name">Auto Timer</div>
+        <div class="time" id="autoTime">00:00:00</div>
+        <div class="added-time" id="autoAdded">+00:00:00</div>
+    </div>
+</div>
+
+<button id="resetAllBtn" onclick="resetAllTimers()">Reset All Timers</button>
+
+<!-- Event History Header -->
+<div id="eventHeaderContainer">
+    <h3>Event History</h3>
+</div>
+
+<!-- Event History Table -->
+<div id="eventHistory">
+    <table>
+        <thead>
+            <tr>
+                <th>Event</th>
+                <th>Timer</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody id="eventTableBody">
+            <!-- Events go here -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Clear Button BELOW the eventHistory div -->
+<div id="clearButtonContainer">
+    <button id="clearHistoryBtn" onclick="clearEventHistory()">Clear Event History</button>
 </div>
 
 <script>
-  // Passwords for each timer
-  const PASSWORDS = {
-    Taha: "1280",
-    Hamza: "3040",
-    Tesnim: "5080"
-  };
+let timers = {
+    taha: {password: "111", ref: 0, start: null, running: false, added: 0},
+    hamza: {password: "222", ref: 0, start: null, running: false, added: 0},
+    tesnim: {password: "333", ref: 0, start: null, running: false, added: 0},
+    auto: {ref: 0, start: null, running: false, added: 0}
+};
 
-  let timers = {
-    Taha: { seconds: getCookie("Taha") || 0, interval: null },
-    Hamza: { seconds: getCookie("Hamza") || 0, interval: null },
-    Tesnim: { seconds: getCookie("Tesnim") || 0, interval: null }
-  };
-
-  let runningTimer = null;
-
-  // Restore display on load
-  for (let name in timers) {
-    updateDisplay(name);
-  }
-
-  function startTimer(name) {
-    if (!checkPassword(name)) return;
-
-    if (runningTimer && runningTimer !== name) {
-      stopTimer(runningTimer, true); // stop other without asking
+// Load from cookies
+for (let key in timers) {
+    let saved = getCookie(key);
+    if (saved) {
+        let obj = JSON.parse(saved);
+        timers[key].ref = obj.ref;
+        timers[key].added = obj.added;
     }
+}
 
-    if (timers[name].interval) return; // already running
-
-    runningTimer = name;
-    timers[name].interval = setInterval(() => {
-      timers[name].seconds++;
-      setCookie(name, timers[name].seconds, 30); // store in cookie (30 days)
-      updateDisplay(name);
-    }, 1000);
-  }
-
-  function stopTimer(name, skipPassword = false) {
-    if (!skipPassword && !checkPassword(name)) return;
-    clearInterval(timers[name].interval);
-    timers[name].interval = null;
-    if (runningTimer === name) runningTimer = null;
-  }
-
-  function updateDisplay(name) {
-    const timerEl = document.querySelector(`.timer[data-name="${name}"] .time-display`);
-    let sec = timers[name].seconds;
+// Helper: format time HH:MM:SS
+function formatTime(sec) {
     let h = String(Math.floor(sec / 3600)).padStart(2, '0');
     let m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
     let s = String(sec % 60).padStart(2, '0');
-    timerEl.textContent = `${h}:${m}:${s}`;
-  }
+    return `${h}:${m}:${s}`;
+}
+// Helper: format time for event (12h AM/PM)
+function formatEventTime(date = new Date()) {
+    let h = date.getHours();
+    let ampm = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+    let m = String(date.getMinutes()).padStart(2,'0');
+    return `${h}:${m}${ampm}`;
+}
 
-  function checkPassword(name) {
-    let input = prompt(`Enter password for ${name}:`);
-    return input === PASSWORDS[name];
-  }
+// Update the event history table UI
+function addEvent(type, timerName) {
+    const tbody = document.getElementById("eventTableBody");
+    const timeStr = formatEventTime();
+    const tr = document.createElement("tr");
 
-  // Cookie helpers
-  function setCookie(name, value, days) {
-    let expires = "";
-    if (days) {
-      let date = new Date();
-      date.setTime(date.getTime() + (days*24*60*60*1000));
-      expires = "; expires=" + date.toUTCString();
+    let tdType = document.createElement("td");
+    tdType.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+    tr.appendChild(tdType);
+
+    let tdName = document.createElement("td");
+    tdName.textContent = timerName.charAt(0).toUpperCase() + timerName.slice(1);
+    tr.appendChild(tdName);
+
+    let tdTime = document.createElement("td");
+    tdTime.textContent = timeStr;
+    tr.appendChild(tdTime);
+
+    // Insert new event at the top
+    if(tbody.firstChild){
+        tbody.insertBefore(tr, tbody.firstChild);
+    } else {
+        tbody.appendChild(tr);
     }
-    document.cookie = name + "=" + value + expires + "; path=/";
-  }
+}
 
-  function getCookie(name) {
-    let match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
-    if (match) return parseInt(match[2]);
-    return 0;
-  }
+function clearEventHistory() {
+    let pass = prompt("Enter password to clear event history:");
+    if (pass !== "999") {
+        alert("Wrong password!");
+        return;
+    }
+    const tbody = document.getElementById("eventTableBody");
+    tbody.innerHTML = "";
+    addEvent("cleared", "system");
+}
+
+let autoStartTimeout = null;
+
+// Timer controls
+function startTimer(name) {
+    let pass = prompt("Enter password for " + name);
+    if (pass !== timers[name].password) return alert("Wrong password");
+
+    // Stop the auto timer first if running and add its stop event
+    if (timers.auto.running) {
+        stopAutoTimer();
+    }
+
+    // Stop all manual timers first and add their stop events BEFORE start event
+    stopAllTimers(true);
+
+    // Now start the requested timer
+    timers[name].running = true;
+    timers[name].start = Date.now();
+
+    addEvent("start", name);
+}
+
+function stopTimer(name) {
+    let pass = prompt("Enter password to stop " + name);
+    if (pass !== timers[name].password) return alert("Wrong password");
+
+    if (timers[name].running) {
+        let elapsed = Math.floor((Date.now() - timers[name].start) / 1000);
+        timers[name].ref += elapsed;
+        timers[name].added = 0;
+        timers[name].running = false;
+        timers[name].start = null;
+        saveToCookie(name);
+        addEvent("stop", name);
+
+        // Schedule auto timer start after a short delay
+        scheduleAutoStart();
+    }
+}
+
+// Modified stopAllTimers to accept param and add stops first
+function stopAllTimers(suppressEvent = false) {
+    let stoppedTimers = [];
+    for (let t in timers) {
+        if (t !== "auto" && timers[t].running) {
+            let elapsed = Math.floor((Date.now() - timers[t].start) / 1000);
+            timers[t].ref += elapsed;
+            timers[t].added = 0;
+            timers[t].running = false;
+            timers[t].start = null;
+            saveToCookie(t);
+            stoppedTimers.push(t);
+        }
+    }
+    if (!suppressEvent) {
+        stoppedTimers.forEach(t => addEvent("stop", t));
+    } else {
+        stoppedTimers.forEach(t => addEvent("stop", t));
+    }
+
+    // Schedule auto timer start after manual timers stop
+    scheduleAutoStart();
+}
+
+// Auto timer controls
+function startAutoTimer() {
+    if (!timers.auto.running) {
+        timers.auto.running = true;
+        timers.auto.start = Date.now();
+        addEvent("start", "auto");
+    }
+}
+function stopAutoTimer() {
+    if (timers.auto.running) {
+        let elapsed = Math.floor((Date.now() - timers.auto.start) / 1000);
+        timers.auto.ref += elapsed;
+        timers.auto.added = 0;
+        timers.auto.running = false;
+        timers.auto.start = null;
+        saveToCookie("auto");
+        addEvent("stop", "auto");
+    }
+}
+
+// Schedule auto timer start with delay to keep event order correct
+function scheduleAutoStart() {
+    if (autoStartTimeout) clearTimeout(autoStartTimeout);
+    autoStartTimeout = setTimeout(() => {
+        if (!timers.taha.running && !timers.hamza.running && !timers.tesnim.running) {
+            startAutoTimer();
+        }
+    }, 100);
+}
+
+function resetAllTimers() {
+    let masterPass = prompt("Enter master password to reset all timers:");
+    if(masterPass !== "999") {
+        alert("Wrong password!");
+        return;
+    }
+    ["taha", "hamza", "tesnim", "auto"].forEach(name => {
+        timers[name].ref = 0;
+        timers[name].added = 0;
+        timers[name].running = false;
+        timers[name].start = null;
+        saveToCookie(name);
+    });
+    updateDisplay();
+    addEvent("reset all timers", "system");
+}
+
+function saveToCookie(name) {
+    setCookie(name, JSON.stringify({ref: timers[name].ref, added: timers[name].added}), 365);
+}
+
+function setCookie(cname, cvalue, exdays) {
+    let d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    let expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function getCookie(cname) {
+    let name = cname + "=";
+    let ca = document.cookie.split(';');
+    for(let i=0; i<ca.length; i++) {
+        let c = ca[i].trim();
+        if (c.indexOf(name) === 0) return c.substring(name.length, c.length);
+    }
+    return "";
+}
+
+function updateDisplay() {
+    for (let name of ["taha", "hamza", "tesnim", "auto"]) {
+        let total = timers[name].ref;
+        let added = timers[name].added;
+        if (timers[name].running) {
+            added = Math.floor((Date.now() - timers[name].start) / 1000);
+        }
+        document.getElementById(name + "Time").innerText = formatTime(total);
+        document.getElementById(name + "Added").innerText = "+" + formatTime(added);
+    }
+}
+
+// Run updateDisplay every second for live display
+setInterval(() => {
+    updateDisplay();
+}, 1000);
+
+window.onload = () => {
+    updateDisplay();
+
+    // If no manual timers running at load, start auto timer automatically
+    if (!timers.taha.running && !timers.hamza.running && !timers.tesnim.running) {
+        startAutoTimer();
+    }
+}
 </script>
 
 </body>
