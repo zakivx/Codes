@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Three Timers with Cookies</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f3f4f6; padding: 20px; }
+  .timer-container { display: flex; gap: 20px; flex-wrap: wrap; }
+  .timer {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    width: 200px;
+    text-align: center;
+  }
+  .time-display {
+    font-size: 2em;
+    margin: 10px 0;
+  }
+  button {
+    padding: 6px 12px;
+    margin: 4px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h1>Three Timers with Cookies</h1>
+<div class="timer-container">
+  <div class="timer" data-name="Taha">
+    <h2>Taha</h2>
+    <div class="time-display">00:00:00</div>
+    <button onclick="startTimer('Taha')">Start</button>
+    <button onclick="stopTimer('Taha')">Stop</button>
+  </div>
+  <div class="timer" data-name="Hamza">
+    <h2>Hamza</h2>
+    <div class="time-display">00:00:00</div>
+    <button onclick="startTimer('Hamza')">Start</button>
+    <button onclick="stopTimer('Hamza')">Stop</button>
+  </div>
+  <div class="timer" data-name="Tesnim">
+    <h2>Tesnim</h2>
+    <div class="time-display">00:00:00</div>
+    <button onclick="startTimer('Tesnim')">Start</button>
+    <button onclick="stopTimer('Tesnim')">Stop</button>
+  </div>
+</div>
+
+<script>
+  // Passwords for each timer
+  const PASSWORDS = {
+    Taha: "passTaha",
+    Hamza: "passHamza",
+    Tesnim: "passTesnim"
+  };
+
+  let timers = {
+    Taha: { seconds: getCookie("Taha") || 0, interval: null },
+    Hamza: { seconds: getCookie("Hamza") || 0, interval: null },
+    Tesnim: { seconds: getCookie("Tesnim") || 0, interval: null }
+  };
+
+  let runningTimer = null;
+
+  // Restore display on load
+  for (let name in timers) {
+    updateDisplay(name);
+  }
+
+  function startTimer(name) {
+    if (!checkPassword(name)) return;
+
+    if (runningTimer && runningTimer !== name) {
+      stopTimer(runningTimer, true); // stop other without asking
+    }
+
+    if (timers[name].interval) return; // already running
+
+    runningTimer = name;
+    timers[name].interval = setInterval(() => {
+      timers[name].seconds++;
+      setCookie(name, timers[name].seconds, 30); // store in cookie (30 days)
+      updateDisplay(name);
+    }, 1000);
+  }
+
+  function stopTimer(name, skipPassword = false) {
+    if (!skipPassword && !checkPassword(name)) return;
+    clearInterval(timers[name].interval);
+    timers[name].interval = null;
+    if (runningTimer === name) runningTimer = null;
+  }
+
+  function updateDisplay(name) {
+    const timerEl = document.querySelector(`.timer[data-name="${name}"] .time-display`);
+    let sec = timers[name].seconds;
+    let h = String(Math.floor(sec / 3600)).padStart(2, '0');
+    let m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+    let s = String(sec % 60).padStart(2, '0');
+    timerEl.textContent = `${h}:${m}:${s}`;
+  }
+
+  function checkPassword(name) {
+    let input = prompt(`Enter password for ${name}:`);
+    return input === PASSWORDS[name];
+  }
+
+  // Cookie helpers
+  function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+      let date = new Date();
+      date.setTime(date.getTime() + (days*24*60*60*1000));
+      expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + value + expires + "; path=/";
+  }
+
+  function getCookie(name) {
+    let match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+    if (match) return parseInt(match[2]);
+    return 0;
+  }
+</script>
+
+</body>
+</html>
