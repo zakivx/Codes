@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8" />
-<title>4 Timers with Password, Auto Timer, Reset All & Event History Table</title>
+<title>4 Timers with Password, Auto Timer, Reset All & Event History Table + Persistent Cookies</title>
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -177,14 +177,56 @@ let timers = {
     auto: {ref: 0, start: null, running: false, added: 0}
 };
 
-// Load from cookies
+// Load timers from cookies
 for (let key in timers) {
     let saved = getCookie(key);
     if (saved) {
-        let obj = JSON.parse(saved);
-        timers[key].ref = obj.ref;
-        timers[key].added = obj.added;
+        try {
+            let obj = JSON.parse(saved);
+            timers[key].ref = obj.ref;
+            timers[key].added = obj.added;
+        } catch {
+            // ignore parse errors
+        }
     }
+}
+
+// Load event history from cookie
+function loadEventHistoryFromCookie() {
+    const historyJSON = getCookie("eventHistory");
+    if (!historyJSON) return;
+
+    try {
+        const events = JSON.parse(historyJSON);
+        const tbody = document.getElementById("eventTableBody");
+        tbody.innerHTML = "";
+        // Add oldest first, so insertBefore puts newest on top
+        events.forEach(ev => {
+            const tr = document.createElement("tr");
+            ["event", "timer", "time"].forEach(key => {
+                const td = document.createElement("td");
+                td.textContent = ev[key];
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+    } catch {
+        // ignore parse errors
+    }
+}
+
+// Save event history to cookie
+function saveEventHistoryToCookie() {
+    const tbody = document.getElementById("eventTableBody");
+    const events = [];
+    for (let row of tbody.rows) {
+        events.push({
+            event: row.cells[0].textContent,
+            timer: row.cells[1].textContent,
+            time: row.cells[2].textContent
+        });
+    }
+    setCookie("eventHistory", JSON.stringify(events), 365);
 }
 
 // Helper: format time HH:MM:SS
@@ -203,7 +245,7 @@ function formatEventTime(date = new Date()) {
     return `${h}:${m}${ampm}`;
 }
 
-// Update the event history table UI
+// Update the event history table UI and save to cookie
 function addEvent(type, timerName) {
     const tbody = document.getElementById("eventTableBody");
     const timeStr = formatEventTime();
@@ -227,6 +269,8 @@ function addEvent(type, timerName) {
     } else {
         tbody.appendChild(tr);
     }
+
+    saveEventHistoryToCookie();
 }
 
 function clearEventHistory() {
@@ -237,6 +281,7 @@ function clearEventHistory() {
     }
     const tbody = document.getElementById("eventTableBody");
     tbody.innerHTML = "";
+    saveEventHistoryToCookie();
     addEvent("cleared", "system");
 }
 
@@ -348,6 +393,10 @@ function resetAllTimers() {
         saveToCookie(name);
     });
     updateDisplay();
+
+    const tbody = document.getElementById("eventTableBody");
+    tbody.innerHTML = "";
+    saveEventHistoryToCookie();
     addEvent("reset all timers", "system");
 }
 
@@ -359,7 +408,7 @@ function setCookie(cname, cvalue, exdays) {
     let d = new Date();
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
     let expires = "expires="+ d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    document.cookie = cname + "=" + encodeURIComponent(cvalue) + ";" + expires + ";path=/";
 }
 
 function getCookie(cname) {
@@ -367,7 +416,7 @@ function getCookie(cname) {
     let ca = document.cookie.split(';');
     for(let i=0; i<ca.length; i++) {
         let c = ca[i].trim();
-        if (c.indexOf(name) === 0) return c.substring(name.length, c.length);
+        if (c.indexOf(name) === 0) return decodeURIComponent(c.substring(name.length, c.length));
     }
     return "";
 }
@@ -391,6 +440,9 @@ setInterval(() => {
 
 window.onload = () => {
     updateDisplay();
+
+    // Load event history from cookie
+    loadEventHistoryFromCookie();
 
     // If no manual timers running at load, start auto timer automatically
     if (!timers.taha.running && !timers.hamza.running && !timers.tesnim.running) {
