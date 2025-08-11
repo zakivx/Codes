@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8" />
-<title>4 Timers with Password, Auto Timer, Reset All & Event History Table + Persistent Cookies</title>
+<title>4 Timers with Password, Auto Timer, Reset All & Event History + Persistent Running State</title>
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -177,14 +177,16 @@ let timers = {
     auto: {ref: 0, start: null, running: false, added: 0}
 };
 
-// Load timers from cookies
+// Load timers from cookies, restore running state and start timestamps
 for (let key in timers) {
     let saved = getCookie(key);
     if (saved) {
         try {
             let obj = JSON.parse(saved);
-            timers[key].ref = obj.ref;
-            timers[key].added = obj.added;
+            timers[key].ref = obj.ref || 0;
+            timers[key].added = obj.added || 0;
+            timers[key].start = obj.start || null;
+            timers[key].running = !!obj.start;
         } catch {
             // ignore parse errors
         }
@@ -200,7 +202,7 @@ function loadEventHistoryFromCookie() {
         const events = JSON.parse(historyJSON);
         const tbody = document.getElementById("eventTableBody");
         tbody.innerHTML = "";
-        // Add oldest first, so insertBefore puts newest on top
+        // Add oldest first so newest events appear on top by insertBefore
         events.forEach(ev => {
             const tr = document.createElement("tr");
             ["event", "timer", "time"].forEach(key => {
@@ -303,6 +305,7 @@ function startTimer(name) {
     // Now start the requested timer
     timers[name].running = true;
     timers[name].start = Date.now();
+    saveToCookie(name);
 
     addEvent("start", name);
 }
@@ -354,6 +357,7 @@ function startAutoTimer() {
     if (!timers.auto.running) {
         timers.auto.running = true;
         timers.auto.start = Date.now();
+        saveToCookie("auto");
         addEvent("start", "auto");
     }
 }
@@ -401,7 +405,14 @@ function resetAllTimers() {
 }
 
 function saveToCookie(name) {
-    setCookie(name, JSON.stringify({ref: timers[name].ref, added: timers[name].added}), 365);
+    const timer = timers[name];
+    // Save start only if running, else null
+    const obj = {
+        ref: timer.ref,
+        added: timer.added,
+        start: timer.running && timer.start ? timer.start : null
+    };
+    setCookie(name, JSON.stringify(obj), 365);
 }
 
 function setCookie(cname, cvalue, exdays) {
@@ -425,7 +436,7 @@ function updateDisplay() {
     for (let name of ["taha", "hamza", "tesnim", "auto"]) {
         let total = timers[name].ref;
         let added = timers[name].added;
-        if (timers[name].running) {
+        if (timers[name].running && timers[name].start) {
             added = Math.floor((Date.now() - timers[name].start) / 1000);
         }
         document.getElementById(name + "Time").innerText = formatTime(total);
