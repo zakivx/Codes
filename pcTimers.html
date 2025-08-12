@@ -389,6 +389,15 @@ function resetAllTimers() {
         alert("Wrong password!");
         return;
     }
+    // Remember which manual timer was running before reset
+    let runningTimer = null;
+    for(let t of ["taha","hamza","tesnim"]) {
+        if(timers[t].running) {
+            runningTimer = t;
+            break;
+        }
+    }
+
     ["taha", "hamza", "tesnim", "auto"].forEach(name => {
         timers[name].ref = 0;
         timers[name].added = 0;
@@ -402,6 +411,17 @@ function resetAllTimers() {
     tbody.innerHTML = "";
     saveEventHistoryToCookie();
     addEvent("reset all timers", "system");
+
+    // Restart the previously running manual timer (if any)
+    if(runningTimer) {
+        timers[runningTimer].running = true;
+        timers[runningTimer].start = Date.now();
+        saveToCookie(runningTimer);
+        addEvent("start", runningTimer);
+    } else {
+        // No manual timer was running - start auto timer
+        startAutoTimer();
+    }
 }
 
 function saveToCookie(name) {
@@ -449,11 +469,15 @@ setInterval(() => {
     updateDisplay();
 }, 1000);
 
+// --- NEW: Add refresh event on page load ---
 window.onload = () => {
     updateDisplay();
 
     // Load event history from cookie
     loadEventHistoryFromCookie();
+
+    // Add refresh event to event history
+    addEvent("refresh", "system");
 
     // If no manual timers running at load, start auto timer automatically
     if (!timers.taha.running && !timers.hamza.running && !timers.tesnim.running) {
