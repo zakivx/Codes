@@ -1,1 +1,23 @@
-<svg width="1280" height="2256" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" overflow="hidden"><defs><clipPath id="clip0"><rect x="0" y="0" width="6905625" height="2676525"/></clipPath><image width="387" height="130" xlink:href="xx1" preserveAspectRatio="none" id="img1"></image><clipPath id="clip2"><rect x="0" y="0" width="6905626" height="2674830"/></clipPath></defs><g><rect x="0" y="0" width="1280" height="2256" fill="#FFFFFF"/><g clip-path="url(#clip0)" transform="matrix(0.000104987 0 0 0.000104987 222 987)"><g clip-path="url(#clip2)" transform="scale(1 1.00063)"><use width="100%" height="100%" xlink:href="#img1" transform="scale(20575.6 20575.6)"></use></g></g><text fill="#FF0000" font-family="Calibri,Calibri_MSFontService,sans-serif" font-weight="400" font-size="16" transform="translate(500.633 1242)">19</text><text fill="#FF0000" font-family="Calibri,Calibri_MSFontService,sans-serif" font-weight="400" font-size="16" transform="translate(915.719 1242)">18</text><rect x="344" y="1075" width="62" height="68" fill="#FF0000" fill-opacity="0.2"/><rect x="776" y="1094" width="51" height="68" fill="#FF0000" fill-opacity="0.2"/></g></svg>
+<svg width="1280" height="2256" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" overflow="hidden">
+  <defs>
+    <clipPath id="clip0">
+      <rect x="0" y="0" width="6905625" height="2676525" />
+    </clipPath>
+    <image width="387" height="130" xlink:href="xx1" preserveAspectRatio="none" id="img1"></image>
+    <clipPath id="clip2">
+      <rect x="0" y="0" width="6905626" height="2674830" />
+    </clipPath>
+  </defs>
+  <g>
+    <rect x="0" y="0" width="1280" height="2256" fill="#FFFFFF" />
+    <g clip-path="url(#clip0)" transform="matrix(0.000104987 0 0 0.000104987 222 987)">
+      <g clip-path="url(#clip2)" transform="scale(1 1.00063)">
+        <use width="100%" height="100%" xlink:href="#img1" transform="scale(20575.6 20575.6)"></use>
+      </g>
+    </g>
+    <text fill="#FF0000" font-family="Calibri,Calibri_MSFontService,sans-serif" font-weight="400" font-size="16" transform="translate(500.633 1242)">19</text>
+    <text fill="#FF0000" font-family="Calibri,Calibri_MSFontService,sans-serif" font-weight="400" font-size="16" transform="translate(915.719 1242)">18</text>
+    <rect x="344" y="1075" width="62" height="68" fill="#FF0000" fill-opacity="0.2" />
+    <rect x="776" y="1094" width="51" height="68" fill="#FF0000" fill-opacity="0.2" />
+  </g>
+</svg>
