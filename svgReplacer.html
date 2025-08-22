@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SVG Replacer</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 30px; }
+    svg { max-width: 90%; height: auto; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h2>SVG Replacer</h2>
+  <div id="output">Loading...</div>
+
+  <script>
+    // Example "database" mapping image URL -> SVG file + placeholder string
+    const data = {
+      "https://othersite.com/image.jpg": {
+        svg: "svg1500.svg",   // filename in /svg folder
+        placeholder: "xx1"
+      }
+    };
+
+    function getQueryParam() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(''); // because you use ?=value
+    }
+
+    async function renderSVG() {
+      const imageUrl = getQueryParam();
+      const outputDiv = document.getElementById("output");
+
+      if (!imageUrl) {
+        outputDiv.textContent = "No image URL found in query string.";
+        return;
+      }
+
+      const entry = data[imageUrl];
+      if (!entry) {
+        outputDiv.textContent = "No SVG mapping found for this image.";
+        return;
+      }
+
+      try {
+        // Fetch SVG file from /svg/ folder
+        const response = await fetch("svg/" + entry.svg);
+        if (!response.ok) throw new Error("SVG not found");
+        let svgCode = await response.text();
+
+        // Replace placeholder with actual image URL
+        svgCode = svgCode.replace(new RegExp(entry.placeholder, "g"), imageUrl);
+
+        // Insert final SVG into the page
+        outputDiv.innerHTML = svgCode;
+
+      } catch (err) {
+        outputDiv.textContent = "Error loading SVG: " + err.message;
+      }
+    }
+
+    renderSVG();
+  </script>
+</body>
+</html>
