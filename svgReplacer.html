@@ -2,113 +2,98 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SVG Multi-Image Replacer</title>
+  <title>SVG Image Replacer</title>
   <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      text-align: center; 
-      margin: 20px; 
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
     }
-    svg, img { 
-      max-width: 100%; 
-      height: auto; 
-      border: 1px solid #ccc; 
-      margin: 10px 0; 
-      display: block; 
+    .item {
+      margin-bottom: 40px;
     }
-    .notice { 
-      color: red; 
-      font-size: 14px; 
-      margin-bottom: 20px; 
+    svg, img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+    }
+    .notice {
+      color: red;
+      font-size: 14px;
+      margin-top: 5px;
     }
   </style>
 </head>
 <body>
-  <h2>SVG Multi-Image Replacer</h2>
-  <div id="output">Loading...</div>
+  <h1>SVG Image Replacer</h1>
+  <div id="output"></div>
 
   <script>
-    // Library of known images with their SVG + placeholders
-    const data = {
-      "https://othersite.com/image.jpg": {
-        svg: "svg1500.svg",
-        placeholders: ["xx1", "xx2"]
-      },
-      "https://othersite.com/image2.jpg": {
-        svg: "svg1501.svg",
-        placeholders: ["xx1"]
-      }
+    // Example library mapping
+    const library = {
+      "https://othersite.com/image.jpg": ["svg1500", "xx1"],
+      "https://othersite.com/image2.jpg": ["svg1501", "xx1"],
+      "https://othersite.com/image3.jpg,https://othersite.com/image4.jpg": ["svg1502", "xx1", "xx2"]
     };
 
-    // Get query param RAW (keeps encoding like %3A, %2F intact)
-    function getQueryParamRaw() {
-      const q = window.location.search;
-      if (q.startsWith("?=")) {
-        return q.substring(2); // everything after ?=
-      }
-      return "";
+    function getQueryImages() {
+      const query = window.location.search.substring(2); 
+      return query ? query.split(",") : [];
     }
 
-    async function renderSVG() {
-      const rawParam = getQueryParamRaw();
-      const outputDiv = document.getElementById("output");
+    async function loadSVG(svgName) {
+      const response = await fetch(`svg/${svgName}.svg`);
+      if (!response.ok) throw new Error("SVG not found: " + svgName);
+      return await response.text();
+    }
 
-      if (!rawParam) {
-        outputDiv.textContent = "No image URLs found in query string.";
+    async function render() {
+      const container = document.getElementById("output");
+      const queryImages = getQueryImages();
+
+      if (queryImages.length === 0) {
+        container.innerHTML = "<p>No image URL provided.</p>";
         return;
       }
 
-      // Split multiple URLs by comma
-      const imageUrls = rawParam.split(",");
+      const joinedKey = queryImages.join(",");
+      const entry = library[joinedKey];
 
-      // Clear output
-      outputDiv.innerHTML = "";
+      if (entry) {
+        const [svgName, ...placeholders] = entry;
+        try {
+          let svgCode = await loadSVG(svgName);
+          queryImages.forEach((url, index) => {
+            const safeUrl = decodeURIComponent(url.trim());
+            const placeholder = placeholders[index];
+            svgCode = svgCode.replaceAll(placeholder, safeUrl);
+          });
 
-      for (const imageUrl of imageUrls) {
-        const entry = data[imageUrl];
-        if (entry) {
-          // Case 1: Image is in the library
-          try {
-            const response = await fetch("svg/" + entry.svg);
-            if (!response.ok) throw new Error("SVG not found");
-            let svgCode = await response.text();
+          const div = document.createElement("div");
+          div.className = "item";
+          div.innerHTML = `<h3>${svgName}.svg</h3>${svgCode}`;
+          container.appendChild(div);
 
-            // Replace placeholders with image URL
-            entry.placeholders.forEach((ph, idx) => {
-              if (idx === 0) {
-                svgCode = svgCode.replace(new RegExp(ph, "g"), imageUrl);
-              }
-            });
-
-            const container = document.createElement("div");
-            container.innerHTML = svgCode;
-            outputDiv.appendChild(container);
-
-          } catch (err) {
-            const msg = document.createElement("div");
-            msg.textContent = `Error loading SVG for ${imageUrl}: ${err.message}`;
-            outputDiv.appendChild(msg);
-          }
-        } else {
-          // Case 2: Image is not in the library → show raw image + notice
-          const img = document.createElement("img");
-          img.src = imageUrl;   // stays encoded (%3A etc.)
-          img.alt = "Unlabeled image";
-
-          const notice = document.createElement("div");
-          notice.className = "notice";
-          notice.textContent = `⚠️ This image has no labels in the library`;
-
-          const container = document.createElement("div");
-          container.appendChild(img);
-          container.appendChild(notice);
-
-          outputDiv.appendChild(container);
+        } catch (err) {
+          container.innerHTML = `<p class="notice">Error loading SVG: ${err.message}</p>`;
         }
+
+      } else {
+        // Show all input images as <img> when no match
+        queryImages.forEach(url => {
+          const div = document.createElement("div");
+          div.className = "item";
+          div.innerHTML = `
+            <img src="${decodeURIComponent(url)}" alt="Unlabeled image">
+            <p class="notice">⚠️ No labels found for this image.5</p>
+          `;
+          container.appendChild(div);
+        });
       }
     }
 
-    renderSVG();
+    render();
   </script>
 </body>
 </html>
