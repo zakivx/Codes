@@ -6,6 +6,7 @@
   <style>
     body { font-family: Arial, sans-serif; text-align: center; margin-top: 30px; }
     svg { max-width: 90%; height: auto; border: 1px solid #ccc; margin: 10px 0; }
+    img { margin: 10px 0; }
     .notice { color: red; font-size: 14px; margin-top: 5px; }
   </style>
 </head>
@@ -26,13 +27,17 @@
       }
     };
 
-    function getQueryParam() {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(''); // because query is like ?=value
+    // Get query param RAW (keep encoding like %3A, %2F intact)
+    function getQueryParamRaw() {
+      const q = window.location.search;
+      if (q.startsWith("?=")) {
+        return q.substring(2); // everything after ?=
+      }
+      return "";
     }
 
     async function renderSVG() {
-      const rawParam = getQueryParam();
+      const rawParam = getQueryParamRaw();
       const outputDiv = document.getElementById("output");
 
       if (!rawParam) {
@@ -46,11 +51,8 @@
       // Clear output
       outputDiv.innerHTML = "";
 
-      for (const rawUrl of imageUrls) {
-        // Important: re-encode so %3A, %2F, etc. are preserved
-        const imageUrl = encodeURI(rawUrl.trim());
-
-        const entry = data[rawUrl.trim()];
+      for (const imageUrl of imageUrls) {
+        const entry = data[imageUrl];
         if (entry) {
           // Case 1: Image is in the library
           try {
@@ -58,7 +60,7 @@
             if (!response.ok) throw new Error("SVG not found");
             let svgCode = await response.text();
 
-            // Replace placeholders with encoded URL
+            // Replace placeholders
             entry.placeholders.forEach((ph, idx) => {
               if (idx === 0) {
                 svgCode = svgCode.replace(new RegExp(ph, "g"), imageUrl);
@@ -77,14 +79,14 @@
         } else {
           // Case 2: Image is not in the library → show raw image + notice
           const img = document.createElement("img");
-          img.src = imageUrl;  // already safely encoded
+          img.src = imageUrl;   // stays encoded (%3A etc.)
           img.alt = "Unlabeled image";
           img.style.maxWidth = "400px";
           img.style.border = "1px solid #ccc";
 
           const notice = document.createElement("div");
           notice.className = "notice";
-          notice.textContent = `⚠️ This image has no labels in the library3`;
+          notice.textContent = `⚠️ This image has no labels in the library4`;
 
           const container = document.createElement("div");
           container.appendChild(img);
