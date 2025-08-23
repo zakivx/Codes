@@ -32,7 +32,7 @@
   <script>
     // Example library mapping
     const library = {
-      "https://othersite.com/image.jpg": ["svg1500", "xx1"],
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Testosterone_estradiol_conversion.png/500px-Testosterone_estradiol_conversion.png": ["svg1500", "xx1"],
       "https://othersite.com/image2.jpg": ["svg1501", "xx1"],
       "https://www.pnas.org/cms/10.1073/pnas.1202588109/asset/c5f4bd03-2d62-47ed-9f11-bf233a019a6d/assets/graphic/pnas.1202588109fig06.jpeg,https://www.researchgate.net/publication/351724955/figure/fig3/AS:11431281210625239@1702062574530/Mannose-binding-lectin-pathway-and-downstream-effects-Initiation-of-the-lectin-pathway.tif": ["svg1502", "xx1", "xx2"]
     };
@@ -46,6 +46,27 @@
       const response = await fetch(`svg/${svgName}.svg`);
       if (!response.ok) throw new Error("SVG not found: " + svgName);
       return await response.text();
+    }
+
+    function makeSVGResponsive(svgCode) {
+      // Remove width/height attributes
+      svgCode = svgCode.replace(/(width|height)="[^"]*"/g, "");
+
+      // Add viewBox if missing
+      if (!/viewBox=/i.test(svgCode)) {
+        const match = svgCode.match(/<svg[^>]*>/i);
+        if (match) {
+          // Try to get original width/height if they exist
+          const widthMatch = svgCode.match(/width="(\d+)"/);
+          const heightMatch = svgCode.match(/height="(\d+)"/);
+          let w = widthMatch ? widthMatch[1] : "100";
+          let h = heightMatch ? heightMatch[1] : "100";
+          const viewBox = ` viewBox="0 0 ${w} ${h}"`;
+          svgCode = svgCode.replace(/<svg([^>]*)>/i, `<svg$1${viewBox}>`);
+        }
+      }
+
+      return svgCode;
     }
 
     async function render() {
@@ -65,10 +86,13 @@
         try {
           let svgCode = await loadSVG(svgName);
           queryImages.forEach((url, index) => {
-            const safeUrl = url.trim(); // keep original encoded url
+            const safeUrl = url.trim(); // keep encoded URL intact
             const placeholder = placeholders[index];
             svgCode = svgCode.replaceAll(placeholder, safeUrl);
           });
+
+          // 🔥 make SVG responsive
+          svgCode = makeSVGResponsive(svgCode);
 
           const div = document.createElement("div");
           div.className = "item";
