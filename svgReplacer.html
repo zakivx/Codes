@@ -2,59 +2,94 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SVG Replacer</title>
+  <title>SVG Multi-Image Replacer</title>
   <style>
     body { font-family: Arial, sans-serif; text-align: center; margin-top: 30px; }
-    svg { max-width: 90%; height: auto; border: 1px solid #ccc; }
+    svg { max-width: 90%; height: auto; border: 1px solid #ccc; margin: 10px 0; }
+    .notice { color: red; font-size: 14px; margin-top: 5px; }
   </style>
 </head>
 <body>
-  <h2>SVG Replacer</h2>
+  <h2>SVG Multi-Image Replacer</h2>
   <div id="output">Loading...</div>
 
   <script>
-    // Example "database" mapping image URL -> SVG file + placeholder string
+    // Library of known images with their SVG + placeholders
     const data = {
       "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Testosterone_estradiol_conversion.png/500px-Testosterone_estradiol_conversion.png": {
-        svg: "svg1500.svg",   // filename in /svg folder
-        placeholder: "xx1"
+        svg: "svg1500.svg",
+        placeholders: ["xx1", "xx2"]
+      },
+      "https://othersite.com/image2.jpg": {
+        svg: "svg1501.svg",
+        placeholders: ["xx1"]
       }
     };
 
     function getQueryParam() {
       const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(''); // because you use ?=value
+      return urlParams.get(''); // because ?=value
     }
 
     async function renderSVG() {
-      const imageUrl = getQueryParam();
+      const rawParam = getQueryParam();
       const outputDiv = document.getElementById("output");
 
-      if (!imageUrl) {
-        outputDiv.textContent = "No image URL found in query string.";
+      if (!rawParam) {
+        outputDiv.textContent = "No image URLs found in query string.";
         return;
       }
 
-      const entry = data[imageUrl];
-      if (!entry) {
-        outputDiv.textContent = "No SVG mapping found for this image.";
-        return;
-      }
+      // Split multiple URLs by comma
+      const imageUrls = rawParam.split(",");
 
-      try {
-        // Fetch SVG file from /svg/ folder
-        const response = await fetch("svg/" + entry.svg);
-        if (!response.ok) throw new Error("SVG not found");
-        let svgCode = await response.text();
+      // Clear output
+      outputDiv.innerHTML = "";
 
-        // Replace placeholder with actual image URL
-        svgCode = svgCode.replace(new RegExp(entry.placeholder, "g"), imageUrl);
+      for (const imageUrl of imageUrls) {
+        const entry = data[imageUrl];
+        if (entry) {
+          // Case 1: Image is in the library
+          try {
+            const response = await fetch("svg/" + entry.svg);
+            if (!response.ok) throw new Error("SVG not found");
+            let svgCode = await response.text();
 
-        // Insert final SVG into the page
-        outputDiv.innerHTML = svgCode;
+            // Replace placeholders
+            entry.placeholders.forEach((ph, idx) => {
+              if (idx === 0) {
+                svgCode = svgCode.replace(new RegExp(ph, "g"), imageUrl);
+              }
+              // (extra placeholders could be filled differently if needed)
+            });
 
-      } catch (err) {
-        outputDiv.textContent = "Error loading SVG: " + err.message;
+            const container = document.createElement("div");
+            container.innerHTML = svgCode;
+            outputDiv.appendChild(container);
+
+          } catch (err) {
+            const msg = document.createElement("div");
+            msg.textContent = `Error loading SVG for ${imageUrl}: ${err.message}`;
+            outputDiv.appendChild(msg);
+          }
+        } else {
+          // Case 2: Image is not in the library → show raw image + notice
+          const img = document.createElement("img");
+          img.src = imageUrl;
+          img.alt = "Unlabeled image";
+          img.style.maxWidth = "400px";
+          img.style.border = "1px solid #ccc";
+
+          const notice = document.createElement("div");
+          notice.className = "notice";
+          notice.textContent = `⚠️ This image has no labels in the library`;
+
+          const container = document.createElement("div");
+          container.appendChild(img);
+          container.appendChild(notice);
+
+          outputDiv.appendChild(container);
+        }
       }
     }
 
