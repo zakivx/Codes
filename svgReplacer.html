@@ -65,7 +65,7 @@
         try {
           let svgCode = await loadSVG(svgName);
           queryImages.forEach((url, index) => {
-            const safeUrl = decodeURIComponent(url.trim());
+            const safeUrl = url.trim(); // keep original encoded url
             const placeholder = placeholders[index];
             svgCode = svgCode.replaceAll(placeholder, safeUrl);
           });
@@ -85,8 +85,8 @@
           const div = document.createElement("div");
           div.className = "item";
           div.innerHTML = `
-            <img src="${decodeURIComponent(url)}" alt="Unlabeled image">
-            <p class="notice">⚠️ No labels found for this image.5</p>
+            <img src="${url}" alt="Unlabeled image">
+            <p class="notice">⚠️ No labels found for this image.</p>
           `;
           container.appendChild(div);
         });
