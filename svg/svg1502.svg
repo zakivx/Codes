@@ -1,0 +1,33 @@
+<svg width="1280" height="2256" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" overflow="hidden">
+  <defs>
+    <image width="1280" height="918" xlink:href="xx1" preserveAspectRatio="none" id="img0"></image>
+    <clipPath id="clip1">
+      <rect x="0" y="0" width="8972550" height="6435000" />
+    </clipPath>
+    <clipPath id="clip2">
+      <rect x="0" y="0" width="6286500" height="6438900" />
+    </clipPath>
+    <image width="850" height="871" xlink:href="xx2" preserveAspectRatio="none" id="img3"></image>
+    <clipPath id="clip4">
+      <rect x="0" y="0" width="6283657" height="6438900" />
+    </clipPath>
+  </defs>
+  <g>
+    <rect x="0" y="0" width="1280" height="2256" fill="#FFFFFF" />
+    <g transform="matrix(0.000104987 0 0 0.000104987 169 243)">
+      <g clip-path="url(#clip1)" transform="scale(1 1.00061)">
+        <use width="100%" height="100%" xlink:href="#img0" transform="scale(7009.8 7009.8)"></use>
+      </g>
+    </g>
+    <rect x="206" y="633" width="318" height="81" fill="#FF0000" fill-opacity="0.2" />
+    <text font-family="Calibri,Calibri_MSFontService,sans-serif" font-weight="400" font-size="24" transform="translate(533.365 785)">bonjour</text>
+    <g clip-path="url(#clip2)" transform="matrix(0.000104987 0 0 0.000104987 310 989)">
+      <g clip-path="url(#clip4)" transform="matrix(1.00045 0 0 1 -0.25 -1)">
+        <use width="100%" height="100%" xlink:href="#img3" transform="scale(7392.54 7392.54)"></use>
+      </g>
+    </g>
+    <rect x="740" y="1087" width="240" height="424" fill="#FF0000" fill-opacity="0.2" />
+    <text font-family="Calibri,Calibri_MSFontService,sans-serif" font-weight="400" font-size="37.3333" transform="translate(677.835 1550)">youtub</text>
+    <text font-family="Calibri,Calibri_MSFontService,sans-serif" font-weight="400" font-size="37.3333" transform="translate(785.395 1550)">e</text>
+  </g>
+</svg>
