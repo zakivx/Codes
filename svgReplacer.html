@@ -11,6 +11,7 @@
     .item {
       margin-bottom: 40px;
     }
+    /* You can switch to width:100% if you want full-bleed scaling */
     svg, img {
       max-width: 100%;
       height: auto;
@@ -49,24 +50,51 @@
     }
 
     function makeSVGResponsive(svgCode) {
-      // Remove width/height attributes
-      svgCode = svgCode.replace(/(width|height)="[^"]*"/g, "");
+      // Parse as XML so we only edit the root <svg>
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgCode, "image/svg+xml");
+      const svgEl = doc.documentElement;
 
-      // Add viewBox if missing
-      if (!/viewBox=/i.test(svgCode)) {
-        const match = svgCode.match(/<svg[^>]*>/i);
-        if (match) {
-          // Try to get original width/height if they exist
-          const widthMatch = svgCode.match(/width="(\d+)"/);
-          const heightMatch = svgCode.match(/height="(\d+)"/);
-          let w = widthMatch ? widthMatch[1] : "100";
-          let h = heightMatch ? heightMatch[1] : "100";
-          const viewBox = ` viewBox="0 0 ${w} ${h}"`;
-          svgCode = svgCode.replace(/<svg([^>]*)>/i, `<svg$1${viewBox}>`);
+      if (!svgEl || svgEl.tagName.toLowerCase() !== "svg") {
+        return svgCode; // not an SVG; bail out
+      }
+
+      // Read original width/height from root (may include units like "1280px")
+      const rawW = svgEl.getAttribute("width");
+      const rawH = svgEl.getAttribute("height");
+      const numW = rawW ? parseFloat(rawW) : null;
+      const numH = rawH ? parseFloat(rawH) : null;
+
+      // If no viewBox, try to set one
+      if (!svgEl.hasAttribute("viewBox")) {
+        if (numW && numH) {
+          svgEl.setAttribute("viewBox", `0 0 ${numW} ${numH}`);
+        } else {
+          // Try to infer from a large background <rect>
+          const bgRect = doc.querySelector("rect[width][height]");
+          const rW = bgRect ? parseFloat(bgRect.getAttribute("width")) : null;
+          const rH = bgRect ? parseFloat(bgRect.getAttribute("height")) : null;
+          if (rW && rH) {
+            svgEl.setAttribute("viewBox", `0 0 ${rW} ${rH}`);
+          } else {
+            // Last-resort fallback that won't crash layout
+            svgEl.setAttribute("viewBox", "0 0 100 100");
+          }
         }
       }
 
-      return svgCode;
+      // Remove ONLY root width/height so CSS controls size
+      svgEl.removeAttribute("width");
+      svgEl.removeAttribute("height");
+
+      // Ensure predictable scaling (optional)
+      if (!svgEl.hasAttribute("preserveAspectRatio")) {
+        svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet");
+      }
+
+      // Serialize back to string
+      const serializer = new XMLSerializer();
+      return serializer.serializeToString(svgEl);
     }
 
     async function render() {
@@ -85,13 +113,14 @@
         const [svgName, ...placeholders] = entry;
         try {
           let svgCode = await loadSVG(svgName);
+          // Keep URLs encoded exactly as provided
           queryImages.forEach((url, index) => {
-            const safeUrl = url.trim(); // keep encoded URL intact
+            const safeUrl = url.trim();
             const placeholder = placeholders[index];
             svgCode = svgCode.replaceAll(placeholder, safeUrl);
           });
 
-          // 🔥 make SVG responsive
+          // Make only the ROOT <svg> responsive
           svgCode = makeSVGResponsive(svgCode);
 
           const div = document.createElement("div");
