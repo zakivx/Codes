@@ -7,7 +7,6 @@
     body { font-family: Arial, sans-serif; text-align: center; margin-top: 30px; }
     svg { max-width: 90%; height: auto; border: 1px solid #ccc; margin: 10px 0; }
     .notice { color: red; font-size: 14px; margin-top: 5px; }
-    img { max-width: 400px; border: 1px solid #ccc; margin: 10px 0; }
   </style>
 </head>
 <body>
@@ -15,9 +14,9 @@
   <div id="output">Loading...</div>
 
   <script>
-    // 🔹 Library of known images with their SVG + placeholders
+    // Library of known images with their SVG + placeholders
     const data = {
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Testosterone_estradiol_conversion.png/500px-Testosterone_estradiol_conversion.png": {
+      "https://othersite.com/image.jpg": {
         svg: "svg1500.svg",
         placeholders: ["xx1", "xx2"]
       },
@@ -27,15 +26,9 @@
       }
     };
 
-    // 🔹 Get ?= query parameter
     function getQueryParam() {
       const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(''); // because you use ?=value
-    }
-
-    // 🔹 Ensure URL stays encoded (so %3A etc. don’t decode into :)
-    function safeEncode(url) {
-      return encodeURI(url);
+      return urlParams.get(''); // because query is like ?=value
     }
 
     async function renderSVG() {
@@ -54,11 +47,12 @@
       outputDiv.innerHTML = "";
 
       for (const rawUrl of imageUrls) {
-        const encodedUrl = safeEncode(rawUrl.trim()); // keep %3A form
-        const entry = data[rawUrl.trim()]; // check library using original raw value
+        // Important: re-encode so %3A, %2F, etc. are preserved
+        const imageUrl = encodeURI(rawUrl.trim());
 
+        const entry = data[rawUrl.trim()];
         if (entry) {
-          // ✅ Case 1: Image is in the library
+          // Case 1: Image is in the library
           try {
             const response = await fetch("svg/" + entry.svg);
             if (!response.ok) throw new Error("SVG not found");
@@ -67,7 +61,7 @@
             // Replace placeholders with encoded URL
             entry.placeholders.forEach((ph, idx) => {
               if (idx === 0) {
-                svgCode = svgCode.replace(new RegExp(ph, "g"), encodedUrl);
+                svgCode = svgCode.replace(new RegExp(ph, "g"), imageUrl);
               }
             });
 
@@ -77,18 +71,20 @@
 
           } catch (err) {
             const msg = document.createElement("div");
-            msg.textContent = `Error loading SVG for ${rawUrl}: ${err.message}`;
+            msg.textContent = `Error loading SVG for ${imageUrl}: ${err.message}`;
             outputDiv.appendChild(msg);
           }
         } else {
-          // ⚠️ Case 2: Not in library → show raw image + notice
+          // Case 2: Image is not in the library → show raw image + notice
           const img = document.createElement("img");
-          img.src = encodedUrl;
+          img.src = imageUrl;  // already safely encoded
           img.alt = "Unlabeled image";
+          img.style.maxWidth = "400px";
+          img.style.border = "1px solid #ccc";
 
           const notice = document.createElement("div");
           notice.className = "notice";
-          notice.textContent = `⚠️ This image has no labels in the library2`;
+          notice.textContent = `⚠️ This image has no labels in the library3`;
 
           const container = document.createElement("div");
           container.appendChild(img);
