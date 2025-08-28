@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TinyMCE Local HTML Editor</title>
+  <!-- Load TinyMCE from your local folder -->
+  <script src="tinymce/tinymce.min.js"></script>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    button { margin: 5px; padding: 8px 16px; border: none; border-radius: 6px; background: #0078d4; color: white; cursor: pointer; }
+    button:hover { background: #005a9e; }
+    input[type="file"] { display: none; }
+  </style>
+</head>
+<body>
+
+  <h2>TinyMCE Local HTML Editor (Self-Hosted)</h2>
+
+  <!-- Controls -->
+  <label for="openFile"><button>Open HTML</button></label>
+  <input type="file" id="openFile" accept=".html,.htm">
+  <button onclick="saveFile()">Save as HTML</button>
+
+  <!-- Editor -->
+  <textarea id="editor"></textarea>
+
+  <script>
+    // Initialize TinyMCE
+    tinymce.init({
+      selector: '#editor',
+      height: 500,
+      plugins: 'code lists link table',
+      toolbar: 'undo redo | bold italic underline | bullist numlist | link table | code',
+      menubar: false
+    });
+
+    // Open file
+    document.getElementById('openFile').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        tinymce.get('editor').setContent(e.target.result);
+      };
+      reader.readAsText(file);
+    });
+
+    // Save file
+    function saveFile() {
+      const content = tinymce.get('editor').getContent();
+      const blob = new Blob([content], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'document.html'; // Default filename
+      a.click();
+
+      URL.revokeObjectURL(url);
+    }
+  </script>
+
+</body>
+</html>
