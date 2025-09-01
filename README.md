@@ -3,7 +3,7 @@ my codes
 
 https://zakivx.github.io/Codes/pcTimers.html
 
-https://zakivx.github.io/Codes/promptGenerator.html.html
+https://zakivx.github.io/Codes/promptGenerator.html
 
 https://zakivx.github.io/Codes/svgReplacer.html
 
