@@ -161,21 +161,31 @@ function autoResize(el){ el.style.height='40px'; el.style.height=el.scrollHeight
 function updateResult() {
     let result = document.getElementById('templateInput').value;
     const inputs = document.querySelectorAll('#fieldsContainer textarea, #fieldsContainer input[type="checkbox"], #fieldsContainer .titleItem');
-    inputs.forEach(input => {
-        if(input.classList.contains("titleItem")) {
-            const value = input.textContent;
-            const regex = new RegExp(`\\{\\{\\s*title\\s*\\|\\s*[^}]+?\\s*\\}\\}`,'g');
-            result = result.replace(regex, value);
-        } else {
-            const field = input.name;
-            const escapedField = field.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-            let value;
-            if(input.type==="checkbox") value = `${field} : ${input.checked?"yes":"no"}`;
-            else value = input.value;
-            const regex = new RegExp(`\\{\\{\\s*${escapedField}\\s*\\|\\s*[^}]+?\\s*\\}\\}`,'g');
-            result = result.replace(regex,value);
+
+    // Handle titles one by one
+    let titleIndex = 0;
+    result = result.replace(/\{\{\s*title\s*\|\s*[^}]+?\s*\}\}/g, () => {
+        while(titleIndex < inputs.length && !inputs[titleIndex].classList.contains('titleItem')) titleIndex++;
+        if(titleIndex < inputs.length) {
+            const value = inputs[titleIndex].textContent;
+            titleIndex++;
+            return value;
         }
+        return "";
     });
+
+    // Handle other fields
+    inputs.forEach(input => {
+        if(input.classList.contains("titleItem")) return;
+        const field = input.name;
+        const escapedField = field.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+        let value;
+        if(input.type==="checkbox") value = `${field} : ${input.checked?"yes":"no"}`;
+        else value = input.value;
+        const regex = new RegExp(`\\{\\{\\s*${escapedField}\\s*\\|\\s*[^}]+?\\s*\\}\\}`,'g');
+        result = result.replace(regex,value);
+    });
+
     document.getElementById('result').textContent=result;
 }
 
@@ -256,8 +266,7 @@ Further plan: {{plan | referral to cardiology for PCI}}.`;
         editor.innerText = defaultTemplate;
     }
 
-    // **Trigger onEditorInput to render fields immediately**
-    onEditorInput();
+    onEditorInput(); // render fields immediately
 };
 </script>
 </body>
