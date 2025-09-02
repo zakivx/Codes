@@ -232,6 +232,7 @@ window.onload = ()=>{
     const editor = document.getElementById('templateEditor');
     if(editor.innerText.trim() === "") {
         const defaultTemplate = `Patient Information:
+{{title | General}}
 A {{age | 45}}-year-old {{sex | female}} with a history of {{history | hypertension}} 
 presents with {{chief_complaint | chest pain}}.
 
