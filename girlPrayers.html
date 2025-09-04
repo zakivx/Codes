@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>متابعة الصلوات - تصميم للبنات</title>
+  <style>
+    :root{
+      --bg:#fff8fb;
+      --accent:#ff6fa3;
+      --accent-2:#ffd6e8;
+      --muted:#6b6b7a;
+      --card:#ffffffcc;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:'Cairo', Tahoma, Arial, sans-serif;
+      background: radial-gradient(circle at 10% 10%, #fff0f6 0%, transparent 20%), radial-gradient(circle at 90% 90%, #fff7f0 0%, transparent 20%), var(--bg);
+      color:#2a2a35; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+    }
+    .wrap{width:100%; max-width:980px}
+
+    .hero{
+      background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.6));
+      border-radius:20px; padding:18px; display:flex; gap:18px; align-items:center; box-shadow:0 6px 30px rgba(45,20,50,0.08);
+      margin-bottom:18px; overflow:hidden;
+    }
+    .hero .text{flex:1}
+    .title{font-size:22px; font-weight:700; margin:0 0 6px}
+    .subtitle{margin:0; color:var(--muted)}
+    .card{background:var(--card); border-radius:14px; padding:14px; margin-bottom:14px; box-shadow:0 6px 20px rgba(60,20,60,0.06)}
+
+    .prayers{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px}
+    .prayer-btn{background:linear-gradient(180deg, #ffffff, #fff7fb); border:2px solid #ffe0ee; padding:12px; border-radius:12px; text-align:center; cursor:pointer; user-select:none}
+    .prayer-btn.done{background:linear-gradient(180deg,#ffe9f4,#ffd6ea); border-color:var(--accent); transform:translateY(-2px)}
+    .prayer-label{font-weight:700; display:block}
+    .prayer-time{font-size:12px; color:var(--muted)}
+
+    .controls{display:flex; gap:8px; margin-top:12px}
+    button.small{padding:8px 12px;border-radius:10px;border:none;cursor:pointer}
+    .clear{background:#fff;border:1px solid #ffb9d6}
+    .today{background:var(--accent); color:white}
+
+    .history-title{display:flex; align-items:center; justify-content:space-between}
+    .history-list{display:flex; gap:10px; overflow:auto; padding-top:10px}
+    .day{min-width:200px; background:linear-gradient(180deg,#fff,#fff8fb); border-radius:12px; padding:10px; border:1px solid #ffeef6}
+    .day h4{margin:0 0 8px}
+    .done-item{display:flex; align-items:center; gap:8px; font-size:14px}
+    .undone{opacity:0.45; text-decoration:line-through}
+
+    .note{font-size:13px; color:var(--muted); margin-top:6px}
+    @media (max-width:600px){.hero{flex-direction:column; align-items:flex-start}.history-list{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="text">
+        <h1 class="title">متابعة الصلوات</h1>
+        <p class="subtitle">اضغطي على الصلاة بعد أن تؤديها الطفلة — لتُعلَّم أنها أُنجزت لهذا اليوم. يظهر سجل الأيام السابقة (7 أيام) في الأسفل.</p>
+        <p class="note">تصميم مزين بالفراشات والزهور للبنات.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between">
+        <strong>صلوات اليوم</strong>
+        <div class="controls">
+          <button id="todayBtn" class="small today">الذهاب لأعلى الصفحة</button>
+          <button id="clearHistory" class="small clear">مسح السجل</button>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="prayers" id="prayersContainer"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="history-title">
+        <strong>سجل آخر 7 أيام</strong>
+        <small class="note">يوضح الصلوات المنجزة وغير المنجزة.</small>
+      </div>
+      <div class="history-list" id="historyList" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <script>
+    const PRAYERS = [
+      {key:'fajr', label:'الفجر', time:'الفجر'},
+      {key:'dhuhr', label:'الظهر', time:'الظهر'},
+      {key:'asr', label:'العصر', time:'العصر'},
+      {key:'maghrib', label:'المغرب', time:'المغرب'},
+      {key:'isha', label:'العشاء', time:'العشاء'}
+    ];
+
+    const STORAGE_KEY = 'prayer_tracker_history_ar';
+
+    function todayISO(offsetDays=0){
+      const d = new Date(); d.setDate(d.getDate()+offsetDays);
+      const year = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,'0');
+      const day = String(d.getDate()).padStart(2,'0');
+      return `${year}-${m}-${day}`;
+    }
+
+    function loadHistory(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      }catch(e){return{}};
+    }
+    function saveHistory(data){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+    function ensureDay(history, iso){
+      if(!history[iso]){
+        history[iso] = {};
+        PRAYERS.forEach(p=> history[iso][p.key]=false);
+      }
+    }
+    function togglePrayerForToday(key){
+      const history = loadHistory();
+      const iso = todayISO(0);
+      ensureDay(history, iso);
+      history[iso][key] = !history[iso][key];
+      saveHistory(history);
+      render();
+    }
+    function clearHistory(){
+      if(!confirm('هل تريدين مسح جميع السجلات؟')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      render();
+    }
+
+    function buildPrayerButtons(container){
+      container.innerHTML='';
+      PRAYERS.forEach(p=>{
+        const btn = document.createElement('button');
+        btn.className='prayer-btn';
+        btn.setAttribute('data-key',p.key);
+        btn.innerHTML = `<span class="prayer-label">${p.label}</span><span class="prayer-time">${p.time}</span>`;
+        btn.addEventListener('click', ()=> togglePrayerForToday(p.key));
+        container.appendChild(btn);
+      });
+    }
+
+    function render(){
+      const history = loadHistory();
+      const container = document.getElementById('prayersContainer');
+      const iso = todayISO(0);
+      ensureDay(history, iso);
+
+      document.querySelectorAll('.prayer-btn').forEach(btn=>{
+        const k = btn.getAttribute('data-key');
+        const done = !!(history[iso] && history[iso][k]);
+        btn.classList.toggle('done', done);
+        btn.setAttribute('aria-pressed', done? 'true':'false');
+      });
+
+      const historyList = document.getElementById('historyList');
+      historyList.innerHTML='';
+      for(let i=0;i<7;i++){
+        const dIso = todayISO(-i);
+        ensureDay(history, dIso);
+        const dayBox = document.createElement('div'); dayBox.className='day';
+        const dt = new Date(); dt.setDate(dt.getDate()-i);
+        const title = document.createElement('h4');
+        title.textContent = dt.toLocaleDateString('ar-EG',{weekday:'short', day:'numeric', month:'short'});
+        dayBox.appendChild(title);
+
+        PRAYERS.forEach(p=>{
+          const di = document.createElement('div'); di.className='done-item';
+          if(history[dIso] && history[dIso][p.key]){
+            di.innerHTML = `✔️ <strong>${p.label}</strong>`;
+          } else {
+            di.innerHTML = `❌ <span class="undone">${p.label}</span>`;
+          }
+          dayBox.appendChild(di);
+        });
+
+        historyList.appendChild(dayBox);
+      }
+      saveHistory(history);
+    }
+
+    document.getElementById('todayBtn').addEventListener('click', ()=>{
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+    document.getElementById('clearHistory').addEventListener('click', clearHistory);
+
+    document.addEventListener('DOMContentLoaded', ()=>{
+      buildPrayerButtons(document.getElementById('prayersContainer'));
+      render();
+    });
+  </script>
+</body>
+</html>
