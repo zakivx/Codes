@@ -10,3 +10,5 @@ https://zakivx.github.io/Codes/svgReplacer.html
 https://zakivx.github.io/Codes/editorTinyMCE.html
 
 https://zakivx.github.io/Codes/girlPrayers.html
+
+https://zakivx.github.io/Codes/youtubeBlur.html
