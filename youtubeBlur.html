@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YouTube Blur Player</title>
   <style>
     body {
@@ -9,24 +10,71 @@
       text-align: center;
       padding: 20px;
       background: #f7f7f7;
+      margin: 0;
     }
-    iframe {
-      margin-top: 20px;
-      border-radius: 12px;
-      transition: filter 0.3s ease;
+
+    h2 {
+      font-size: 1.5rem;
     }
-    .controls {
-      margin-top: 20px;
-    }
+
     input[type="text"] {
-      width: 60%;
+      width: 90%;
+      max-width: 400px;
       padding: 8px;
       border: 1px solid #ccc;
       border-radius: 6px;
-    }
-    input[type="range"] {
-      width: 300px;
       margin-top: 10px;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 8px 12px;
+      margin-left: 5px;
+      border: none;
+      border-radius: 6px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .controls {
+      margin-top: 20px;
+    }
+
+    input[type="range"] {
+      width: 80%;
+      max-width: 300px;
+      margin-top: 10px;
+    }
+
+    #playerContainer {
+      margin-top: 20px;
+      width: 100%;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+    }
+
+    #playerContainer iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 12px;
+      transition: filter 0.3s ease;
+    }
+
+    @media (max-width: 400px) {
+      h2 {
+        font-size: 1.2rem;
+      }
+
+      input[type="range"] {
+        width: 90%;
+      }
     }
   </style>
 </head>
@@ -48,7 +96,6 @@
     const blurValueText = document.getElementById("blurValue");
     let iframe;
 
-    // Load YouTube video
     function loadVideo() {
       const url = document.getElementById("videoUrl").value;
       const videoId = extractVideoId(url);
@@ -57,21 +104,19 @@
         return;
       }
       document.getElementById("playerContainer").innerHTML = `
-        <iframe id="ytplayer" width="560" height="315"
+        <iframe id="ytplayer"
           src="https://www.youtube.com/embed/${videoId}"
           frameborder="0" allowfullscreen></iframe>
       `;
       iframe = document.getElementById("ytplayer");
     }
 
-    // Extract video ID from YouTube URL
     function extractVideoId(url) {
       const regex = /(?:youtube\.com\/.*v=|youtu\.be\/)([^&]+)/;
       const match = url.match(regex);
       return match ? match[1] : null;
     }
 
-    // Slider to control blur
     slider.addEventListener("input", () => {
       if (iframe) {
         const blurValue = slider.value;
