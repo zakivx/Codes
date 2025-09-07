@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DOCX viewer — fixed URL</title>
+
+  <!-- Mammoth (client-side docx -> html) -->
+  <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+
+  <style>
+    :root{
+      --page-width: 800px;
+      --page-margin: 40px;
+      --bg: #f4f6f8;
+      --paper-bg: #fff;
+      --text: #222;
+      --muted: #666;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: Inter, Roboto, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .topbar{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 16px;
+      background: #fff;
+      box-shadow:0 1px 0 rgba(0,0,0,0.06);
+      position:sticky;
+      top:0;
+      z-index:20;
+    }
+
+    .controls{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    button{
+      padding:8px 12px;
+      border-radius:8px;
+      border:1px solid #ddd;
+      background:#fff;
+      cursor:pointer;
+      font-weight:600;
+    }
+    button.active{
+      background:linear-gradient(180deg,#0b74ff,#0764e0);
+      color:white;
+      border-color:rgba(7,100,224,0.9);
+    }
+
+    .main{
+      padding:20px;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      gap:20px;
+    }
+
+    /* The viewer area */
+    .viewer{
+      width:100%;
+      max-width:1200px;
+      display:flex;
+      justify-content:center;
+    }
+
+    /* Web layout (fluid, minimal margins) */
+    .layout-web .paper {
+      width: 100%;
+      max-width: var(--page-width);
+      background: transparent;
+      box-shadow:none;
+      margin:0;
+      padding:0;
+    }
+
+    /* Print layout (paper-like pages, centered, margins, drop shadow) */
+    .layout-print .paper {
+      width: calc(var(--page-width));
+      background: var(--paper-bg);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      margin: var(--page-margin) 0;
+      padding: 48px;
+      border-radius: 6px;
+    }
+
+    .paper {
+      box-sizing: border-box;
+      color: var(--text);
+      line-height:1.55;
+      font-size:16px;
+    }
+
+    /* Simulate pages for long docs in print layout: separate every ~1120px vertically */
+    .layout-print .paper > .mammoth-root {
+      counter-reset: page;
+    }
+
+    /* Basic styling for content produced by mammoth */
+    .mammoth-root h1, .mammoth-root h2, .mammoth-root h3 {
+      margin: 1.1rem 0 0.5rem;
+      font-weight:700;
+    }
+    .mammoth-root p { margin: 0.6rem 0; }
+    .mammoth-root img { max-width:100%; height:auto; display:block; margin:12px 0; }
+    .mammoth-root table { border-collapse: collapse; width:100%; margin:12px 0; }
+    .mammoth-root table td, .mammoth-root table th { border:1px solid #ddd; padding:6px 8px; }
+
+    .status {
+      color: var(--muted);
+      font-size:13px;
+      margin-left:8px;
+    }
+
+    /* Print-specific @media when user prints from browser: make it look like paper */
+    @media print{
+      body { background: white; }
+      .topbar, .controls { display:none !important; }
+      .layout-print .paper { box-shadow:none; margin:0; padding:10mm; border-radius:0; }
+    }
+
+    /* Small screens: reduce page width */
+    @media (max-width:900px){
+      :root { --page-width: 92vw; --page-margin: 20px; }
+      .layout-print .paper { padding:20px; }
+    }
+  </style>
+</head>
+<body class="layout-web">
+  <div class="topbar">
+    <div style="display:flex;gap:12px;align-items:center">
+      <strong>DOCX viewer</strong>
+      <span class="status" id="source">Source: https://www2.hu-berlin.de/stadtlabor/wp-content/uploads/2021/12/sample3.docx</span>
+    </div>
+
+    <div class="controls">
+      <div style="display:flex;gap:6px;align-items:center">
+        <button id="btnWeb" class="active" title="Web layout">Web layout</button>
+        <button id="btnPrint" title="Print (paged) layout">Print layout</button>
+      </div>
+      <button id="btnRefresh" title="Reload document">Reload</button>
+      <button id="btnDownload" title="Download original docx">Download .docx</button>
+    </div>
+  </div>
+
+  <main class="main">
+    <div class="viewer">
+      <article class="paper" id="paper">
+        <div id="content" class="mammoth-root" aria-live="polite">
+          <p style="color:var(--muted)">Loading document…</p>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <script>
+    // --- Configuration: only this URL is allowed (hardcoded) ---
+    const DOCX_URL = "doc/sample3.docx";
+
+    // UI elements
+    const btnWeb = document.getElementById('btnWeb');
+    const btnPrint = document.getElementById('btnPrint');
+    const btnRefresh = document.getElementById('btnRefresh');
+    const btnDownload = document.getElementById('btnDownload');
+    const content = document.getElementById('content');
+    const paper = document.getElementById('paper');
+    const body = document.body;
+
+    // Layout toggles
+    btnWeb.addEventListener('click', () => {
+      body.classList.remove('layout-print');
+      body.classList.add('layout-web');
+      btnWeb.classList.add('active'); btnPrint.classList.remove('active');
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+
+    btnPrint.addEventListener('click', () => {
+      body.classList.remove('layout-web');
+      body.classList.add('layout-print');
+      btnPrint.classList.add('active'); btnWeb.classList.remove('active');
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+
+    // Download link for original docx (opens in new tab)
+    btnDownload.addEventListener('click', () => {
+      // open in new tab so user can save
+      window.open(DOCX_URL, '_blank', 'noopener');
+    });
+
+    // reload behavior
+    btnRefresh.addEventListener('click', () => {
+      loadAndRenderDocx();
+    });
+
+    // Render docx using mammoth
+    async function loadAndRenderDocx(){
+      content.innerHTML = '<p style="color:var(--muted)">Loading document…</p>';
+      try {
+        const resp = await fetch(DOCX_URL);
+        if (!resp.ok) {
+          throw new Error('Network response was not ok: ' + resp.status + ' ' + resp.statusText);
+        }
+        const arrayBuffer = await resp.arrayBuffer();
+
+        // mammoth.convertToHtml expects {arrayBuffer: ...}
+        const result = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+        // result.value contains HTML string, result.messages contains warnings
+        content.innerHTML = result.value || '<p>(document converted to empty content)</p>';
+
+        // show any helpful warnings to console for debugging
+        if (result.messages && result.messages.length) {
+          console.info('mammoth messages:', result.messages);
+        }
+      } catch (err) {
+        console.error(err);
+        content.innerHTML = `
+          <div style="padding:18px;border-radius:8px;background:#fff3f3;border:1px solid #ffd2d2;">
+            <strong style="display:block;margin-bottom:8px">Failed to load or convert document</strong>
+            <div style="color:var(--muted);font-size:13px;white-space:pre-wrap;">${String(err)}</div>
+            <div style="margin-top:10px;font-size:13px;color:var(--muted)">If this is a CORS issue you may need to open the page in a browser that allows cross-origin fetch for that host, or run a small proxy. This viewer intentionally only loads the fixed URL above.</div>
+          </div>
+        `;
+      }
+    }
+
+    // Initial load
+    loadAndRenderDocx();
+
+    // SECURITY: disable any possible user change of URL via drag/drop of a new file into the page
+    // If user drags a .docx onto page, ignore it.
+    window.addEventListener('dragover', (e) => { e.preventDefault(); });
+    window.addEventListener('drop', (e) => {
+      e.preventDefault();
+      // inform user that external files/URLs are blocked
+      const msg = document.createElement('div');
+      msg.textContent = 'Dropping files or other URLs is disabled in this viewer.';
+      msg.style = 'position:fixed;right:20px;bottom:20px;background:#111;color:#fff;padding:8px 12px;border-radius:8px;z-index:9999;';
+      document.body.appendChild(msg);
+      setTimeout(()=>msg.remove(),2500);
+    });
+
+    // Also block attempts to navigate via window.location changes from within converted HTML
+    // (sanity)
+    document.addEventListener('click', (e) => {
+      // if an anchor is clicked and is external, prevent navigation and open in new tab
+      const a = e.target.closest('a');
+      if (a) {
+        const href = a.getAttribute('href');
+        if (href && !href.startsWith('#')) {
+          e.preventDefault();
+          // Open in new tab safely
+          try { window.open(href, '_blank', 'noopener'); } catch (err) { /* ignore */ }
+        }
+      }
+    }, true);
+  </script>
+</body>
+</html>
