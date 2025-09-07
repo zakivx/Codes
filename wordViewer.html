@@ -26,7 +26,7 @@
 
     /* Print layout: emulate A4 pages stacked */
     .print .doc-content{padding:24px;display:flex;flex-direction:column;gap:18px;align-items:center}
-    .page{width:210mm;min-height:297mm;padding:24mm 18mm;border:1px solid #e5e7eb;box-shadow:0 6px 18px rgba(0,0,0,.08);background:white;page-break-after:always}
+    .page{width:210mm;min-height:297mm;padding:24mm 18mm;border:1px solid #e5e7eb;box-shadow:0 6px 18px rgba(0,0,0,.08);background:white;page-break-after:always;margin-bottom:18px;overflow:visible}
     .page:last-child{page-break-after:auto}
 
     /* Loading */
@@ -86,6 +86,56 @@
       const statusEl = document.getElementById('status');
       const rootBody = document.body;
 
+      // Utility: create a page element
+      function createPage(){
+        const page = document.createElement('div');
+        page.className = 'page';
+        return page;
+      }
+
+      // Simple pagination: split top-level nodes into multiple .page containers
+      function paginateHtml(html){
+        // source container sized like a page so measurements match
+        const source = document.createElement('div');
+        source.style.width = '210mm';
+        source.style.visibility = 'hidden';
+        source.style.position = 'absolute';
+        source.style.left = '-9999px';
+        source.innerHTML = html;
+        document.body.appendChild(source);
+
+        // measure page height using a sample page
+        const sample = createPage();
+        sample.style.visibility = 'hidden';
+        sample.style.position = 'absolute';
+        sample.style.left = '-9999px';
+        document.body.appendChild(sample);
+        const pageHeight = sample.clientHeight;
+        document.body.removeChild(sample);
+
+        // create pages and fill them with top-level nodes
+        docEl.innerHTML = '';
+        let currentPage = createPage();
+        docEl.appendChild(currentPage);
+
+        const nodes = Array.from(source.childNodes);
+        for(const node of nodes){
+          // clone node so we don't disturb the original
+          const clone = node.cloneNode(true);
+          currentPage.appendChild(clone);
+
+          // if current page overflowed, move the node to a new page
+          if(currentPage.scrollHeight > pageHeight){
+            currentPage.removeChild(clone);
+            currentPage = createPage();
+            docEl.appendChild(currentPage);
+            currentPage.appendChild(clone);
+          }
+        }
+
+        document.body.removeChild(source);
+      }
+
       // Fetch and convert docx
       async function loadDoc(asPrintLayout = false){
         statusEl.style.display = '';
@@ -99,12 +149,8 @@
           const html = result.value;
 
           if(asPrintLayout){
-            // wrap in a printed page container for a page-like view
-            docEl.innerHTML = '';
-            const page = document.createElement('div');
-            page.className = 'page';
-            page.innerHTML = html;
-            docEl.appendChild(page);
+            // paginate top-level elements into pages
+            paginateHtml(html);
           } else {
             docEl.innerHTML = html;
           }
