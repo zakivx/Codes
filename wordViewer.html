@@ -3,197 +3,161 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DOCX viewer — fixed URL</title>
-
-  <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
-
+  <title>Fixed DOCX Viewer</title>
   <style>
-    :root{
-      --page-width: 800px;
-      --page-margin: 40px;
-      --bg: #f4f6f8;
-      --paper-bg: #fff;
-      --text: #222;
-      --muted: #666;
-    }
+    :root{--toolbar-bg:#111827;--toolbar-fg:#ffffff;--accent:#2563eb}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial}
+    body{background:#f3f4f6;display:flex;flex-direction:column}
 
-    html,body{
-      height:100%;
-      margin:0;
-      font-family: Inter, Roboto, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial;
-      background: var(--bg);
-      color: var(--text);
-    }
+    /* Toolbar */
+    .toolbar{background:var(--toolbar-bg);color:var(--toolbar-fg);padding:10px 12px;display:flex;gap:8px;align-items:center;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+    .title{font-weight:600;margin-right:8px}
+    .btn{background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--toolbar-fg);padding:8px 12px;border-radius:8px;cursor:pointer;font-size:14px}
+    .btn:focus{outline:2px solid rgba(255,255,255,.12)}
+    .btn.primary{background:var(--accent);border-color:transparent}
+    .spacer{flex:1}
 
-    /* Toolbar with stronger contrast */
-    .topbar{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      justify-content:space-between;
-      padding:12px 16px;
-      background: #222;
-      color: #fff;
-      box-shadow:0 2px 4px rgba(0,0,0,0.3);
-      position:sticky;
-      top:0;
-      z-index:20;
-    }
+    /* Viewer area */
+    .viewer-wrap{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:18px;overflow:auto;background:white}
+    .viewer{max-width:1000px;width:100%;background:white}
 
-    .controls{
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
+    /* Web layout: display content full width */
+    .web .doc-content{padding:20px}
 
-    button{
-      padding:8px 12px;
-      border-radius:8px;
-      border:1px solid #444;
-      background:#333;
-      cursor:pointer;
-      font-weight:600;
-      color:#fff;
-    }
-    button.active{
-      background:linear-gradient(180deg,#0b74ff,#0764e0);
-      border-color:rgba(7,100,224,0.9);
-      color:white;
-    }
+    /* Print layout: emulate A4 pages stacked */
+    .print .doc-content{padding:24px;display:flex;flex-direction:column;gap:18px;align-items:center}
+    .page{width:210mm;min-height:297mm;padding:24mm 18mm;border:1px solid #e5e7eb;box-shadow:0 6px 18px rgba(0,0,0,.08);background:white}
 
-    .main{
-      padding:20px;
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
-      gap:20px;
-    }
+    /* Loading */
+    .loading{display:flex;gap:10px;align-items:center}
+    .dot{width:8px;height:8px;border-radius:999px;background:rgba(0,0,0,.3);animation:blink 1s infinite}
+    .dot:nth-child(2){animation-delay:0.15s}
+    .dot:nth-child(3){animation-delay:0.3s}
+    @keyframes blink{0%,50%,100%{opacity:1}25%{opacity:.2}}
 
-    .viewer{
-      width:100%;
-      max-width:1200px;
-      display:flex;
-      justify-content:center;
-    }
+    /* Make content text readable */
+    .doc-content p{line-height:1.55}
+    .doc-content img{max-width:100%;height:auto}
 
-    /* Web layout → white background */
-    .layout-web .paper {
-      width: 100%;
-      max-width: var(--page-width);
-      background: var(--paper-bg);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      margin:0;
-      padding:24px;
-      border-radius:6px;
-    }
-
-    /* Print layout */
-    .layout-print .paper {
-      width: calc(var(--page-width));
-      background: var(--paper-bg);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-      margin: var(--page-margin) 0;
-      padding: 48px;
-      border-radius: 6px;
-    }
-
-    .paper {
-      box-sizing: border-box;
-      color: var(--text);
-      line-height:1.55;
-      font-size:16px;
-    }
-
-    .mammoth-root h1, .mammoth-root h2, .mammoth-root h3 {
-      margin: 1.1rem 0 0.5rem;
-      font-weight:700;
-    }
-    .mammoth-root p { margin: 0.6rem 0; }
-    .mammoth-root img { max-width:100%; height:auto; display:block; margin:12px 0; }
-    .mammoth-root table { border-collapse: collapse; width:100%; margin:12px 0; }
-    .mammoth-root table td, .mammoth-root table th { border:1px solid #ddd; padding:6px 8px; }
-
-    .status {
-      color: #ccc;
-      font-size:13px;
-      margin-left:8px;
-    }
-
+    /* Print-friendly rules */
     @media print{
-      body { background: white; }
-      .topbar, .controls { display:none !important; }
-      .layout-print .paper { box-shadow:none; margin:0; padding:10mm; border-radius:0; }
+      body{background:white}
+      .toolbar{display:none}
+      .page{box-shadow:none;border:none;width:auto;min-height:auto;padding:0}
     }
 
-    @media (max-width:900px){
-      :root { --page-width: 92vw; --page-margin: 20px; }
-      .layout-print .paper { padding:20px; }
+    /* Small screens adjustments */
+    @media (max-width:700px){
+      .page{width:100%;min-height:unset;padding:16px}
     }
   </style>
 </head>
-<body class="layout-web">
-  <div class="topbar">
-    <div style="display:flex;gap:12px;align-items:center">
-      <strong>DOCX viewer</strong>
-      <span class="status" id="source">Source: https://www2.hu-berlin.de/stadtlabor/wp-content/uploads/2021/12/sample3.docx</span>
-    </div>
-
-    <div class="controls">
-      <div style="display:flex;gap:6px;align-items:center">
-        <button id="btnWeb" class="active">Web layout</button>
-        <button id="btnPrint">Print layout</button>
-      </div>
-      <button id="btnRefresh">Reload</button>
-      <button id="btnDownload">Download</button>
-    </div>
+<body class="web">
+  <div class="toolbar" role="toolbar" aria-label="DOCX viewer toolbar">
+    <div class="title">DOCX Viewer</div>
+    <button id="btnWeb" class="btn primary" title="Web layout">Web layout</button>
+    <button id="btnPrint" class="btn" title="Print layout">Print layout</button>
+    <button id="btnPrintNow" class="btn" title="Print document">Print</button>
+    <div class="spacer"></div>
+    <div style="color:rgba(255,255,255,.8);font-size:13px">Source: <span style="font-weight:600">sample3.docx</span></div>
   </div>
 
-  <main class="main">
-    <div class="viewer">
-      <article class="paper" id="paper">
-        <div id="content" class="mammoth-root" aria-live="polite">
-          <p style="color:#666">Loading document…</p>
-        </div>
-      </article>
+  <main class="viewer-wrap">
+    <div class="viewer" id="viewer">
+      <div id="status" style="padding:32px;text-align:center">
+        <div class="loading" aria-hidden="true"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="margin-top:10px;color:#374151">Loading document...</div>
+      </div>
+      <div id="doc" class="doc-content" style="display:none"></div>
     </div>
   </main>
 
+  <!-- Mammoth.js to convert docx to HTML in-browser -->
+  <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
   <script>
-    const DOCX_URL = "doc/sample3.docx";
-    const btnWeb = document.getElementById('btnWeb');
-    const btnPrint = document.getElementById('btnPrint');
-    const btnRefresh = document.getElementById('btnRefresh');
-    const btnDownload = document.getElementById('btnDownload');
-    const content = document.getElementById('content');
-    const body = document.body;
+    (function(){
+      // Fixed file URL (user cannot change it)
+      const DOCX_URL = 'doc/sample3.docx';
 
-    btnWeb.addEventListener('click', () => {
-      body.classList.remove('layout-print');
-      body.classList.add('layout-web');
-      btnWeb.classList.add('active'); btnPrint.classList.remove('active');
-    });
+      const viewerEl = document.getElementById('viewer');
+      const docEl = document.getElementById('doc');
+      const statusEl = document.getElementById('status');
+      const rootBody = document.body;
 
-    btnPrint.addEventListener('click', () => {
-      body.classList.remove('layout-web');
-      body.classList.add('layout-print');
-      btnPrint.classList.add('active'); btnWeb.classList.remove('active');
-    });
+      // Fetch and convert docx
+      async function loadDoc(asPrintLayout = false){
+        statusEl.style.display = '';
+        docEl.style.display = 'none';
+        statusEl.querySelector('div[style]').textContent = 'Loading document...';
+        try{
+          const resp = await fetch(DOCX_URL);
+          if(!resp.ok) throw new Error('Failed to fetch docx: ' + resp.status);
+          const arrayBuffer = await resp.arrayBuffer();
+          const result = await mammoth.convertToHtml({arrayBuffer: arrayBuffer});
+          const html = result.value;
 
-    btnDownload.addEventListener('click', () => window.open(DOCX_URL, '_blank'));
-    btnRefresh.addEventListener('click', () => loadAndRenderDocx());
+          if(asPrintLayout){
+            // wrap in a printed page container for a page-like view
+            docEl.innerHTML = '';
+            const page = document.createElement('div');
+            page.className = 'page';
+            page.innerHTML = html;
+            docEl.appendChild(page);
+          } else {
+            docEl.innerHTML = html;
+          }
 
-    async function loadAndRenderDocx(){
-      content.innerHTML = '<p style="color:#666">Loading document…</p>';
-      try {
-        const resp = await fetch(DOCX_URL);
-        const arrayBuffer = await resp.arrayBuffer();
-        const result = await mammoth.convertToHtml({ arrayBuffer });
-        content.innerHTML = result.value || '<p>(empty)</p>';
-      } catch (err) {
-        content.innerHTML = `<p style="color:red">Error loading document: ${err}</p>`;
+          // hide status, show doc
+          statusEl.style.display = 'none';
+          docEl.style.display = '';
+
+        }catch(err){
+          statusEl.querySelector('div[style]').textContent = 'Error loading document.';
+          console.error(err);
+        }
       }
-    }
-    loadAndRenderDocx();
+
+      // Initial load: web layout
+      loadDoc(false);
+
+      // Toolbar buttons
+      document.getElementById('btnWeb').addEventListener('click', ()=>{
+        rootBody.classList.remove('print');
+        rootBody.classList.add('web');
+        document.getElementById('btnWeb').classList.add('primary');
+        document.getElementById('btnPrint').classList.remove('primary');
+        // re-render as web
+        loadDoc(false);
+      });
+
+      document.getElementById('btnPrint').addEventListener('click', ()=>{
+        rootBody.classList.remove('web');
+        rootBody.classList.add('print');
+        document.getElementById('btnPrint').classList.add('primary');
+        document.getElementById('btnWeb').classList.remove('primary');
+        // re-render as print
+        loadDoc(true);
+      });
+
+      document.getElementById('btnPrintNow').addEventListener('click', ()=>{
+        window.print();
+      });
+
+      // Accessibility: keyboard shortcuts
+      window.addEventListener('keydown', (e)=>{
+        if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='p'){
+          e.preventDefault();
+          window.print();
+        }
+      });
+
+      // Ensure viewer area has white background
+      document.querySelector('.viewer-wrap').style.background = '#ffffff';
+
+      // Security: do not expose or allow changing the DOCX_URL
+      Object.defineProperty(window, 'DOCX_URL', {value: DOCX_URL, writable:false, configurable:false});
+
+    })();
   </script>
 </body>
 </html>
