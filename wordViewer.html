@@ -26,7 +26,8 @@
 
     /* Print layout: emulate A4 pages stacked */
     .print .doc-content{padding:24px;display:flex;flex-direction:column;gap:18px;align-items:center}
-    .page{width:210mm;min-height:297mm;padding:24mm 18mm;border:1px solid #e5e7eb;box-shadow:0 6px 18px rgba(0,0,0,.08);background:white}
+    .page{width:210mm;min-height:297mm;padding:24mm 18mm;border:1px solid #e5e7eb;box-shadow:0 6px 18px rgba(0,0,0,.08);background:white;page-break-after:always}
+    .page:last-child{page-break-after:auto}
 
     /* Loading */
     .loading{display:flex;gap:10px;align-items:center}
@@ -43,7 +44,8 @@
     @media print{
       body{background:white}
       .toolbar{display:none}
-      .page{box-shadow:none;border:none;width:auto;min-height:auto;padding:0}
+      .page{box-shadow:none;border:none;width:auto;min-height:auto;padding:0;page-break-after:always}
+      .page:last-child{page-break-after:auto}
     }
 
     /* Small screens adjustments */
