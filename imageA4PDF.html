@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Image → A4 PDF (centered)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; padding: 24px; max-width: 720px; margin: auto; }
+    label { display: inline-block; margin-bottom: 8px; font-weight: 600; }
+    .controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
+    button { padding: 8px 12px; border-radius:6px; border:1px solid #888; background:#f5f5f5; cursor:pointer; }
+    .preview { margin-top: 12px; max-width:100%; }
+    small { color:#666; display:block; margin-top:6px; }
+  </style>
+  <!-- jsPDF (UMD build) from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <h1>Image → A4 PDF (centered)</h1>
+  <div class="controls">
+    <div>
+      <label for="imageInput">Choose an image</label><br>
+      <input id="imageInput" type="file" accept="image/*">
+      <small>Supported: PNG, JPEG, GIF (will be rasterized)</small>
+    </div>
+
+    <div>
+      <label for="marginMM">Margin (mm)</label><br>
+      <input id="marginMM" type="number" value="10" min="0" max="50" step="1" style="width:70px">
+      <small>Image will be placed inside A4 minus margins</small>
+    </div>
+
+    <div style="align-self:flex-end">
+      <button id="makePdfBtn" disabled>Open PDF in new tab</button>
+    </div>
+  </div>
+
+  <div id="previewWrap">
+    <img id="preview" class="preview" alt="" style="display:none;"/>
+  </div>
+
+<script>
+(function () {
+  const { jsPDF } = window.jspdf;
+  const input = document.getElementById('imageInput');
+  const preview = document.getElementById('preview');
+  const makePdfBtn = document.getElementById('makePdfBtn');
+  const marginMMInput = document.getElementById('marginMM');
+
+  let lastDataUrl = null;
+  let lastMime = 'image/jpeg';
+
+  input.addEventListener('change', (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) {
+      preview.style.display = 'none';
+      makePdfBtn.disabled = true;
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      lastDataUrl = ev.target.result;
+      lastMime = f.type || 'image/jpeg';
+      preview.src = lastDataUrl;
+      preview.style.display = 'block';
+      makePdfBtn.disabled = false;
+    };
+    reader.readAsDataURL(f);
+  });
+
+  makePdfBtn.addEventListener('click', async () => {
+    if (!lastDataUrl) return;
+    const marginMM = Math.max(0, Number(marginMMInput.value) || 10);
+
+    // Create Image element to measure natural size
+    const img = new Image();
+    img.src = lastDataUrl;
+
+    img.onload = function() {
+      // Create A4 pdf portrait in mm
+      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+      const pageW = pdf.internal.pageSize.getWidth();   // mm
+      const pageH = pdf.internal.pageSize.getHeight();  // mm
+
+      // Available area (respecting margins)
+      const availW = Math.max(1, pageW - 2 * marginMM);
+      const availH = Math.max(1, pageH - 2 * marginMM);
+
+      // Image natural size in pixels
+      const imgPxW = img.naturalWidth;
+      const imgPxH = img.naturalHeight;
+
+      // Convert pixel dimensions to mm by assuming 96 DPI for browser images:
+      // 1 inch = 25.4 mm, 1 px at 96 DPI = 25.4 / 96 mm ≈ 0.264583333 mm
+      const pxToMm = 25.4 / 96;
+      const imgMmW = imgPxW * pxToMm;
+      const imgMmH = imgPxH * pxToMm;
+
+      // Scale to fit within availW x availH while keeping aspect ratio
+      const scale = Math.min(availW / imgMmW, availH / imgMmH, 1); // don't upscale beyond original size in mm
+      const drawW = imgMmW * scale;
+      const drawH = imgMmH * scale;
+
+      // Center coordinates
+      const x = (pageW - drawW) / 2;
+      const y = (pageH - drawH) / 2;
+
+      // Choose image format param for jsPDF: prefer 'JPEG' for photos, 'PNG' otherwise
+      const typeUpper = (lastMime || '').toUpperCase();
+      const imgFormat = typeUpper.includes('PNG') ? 'PNG' : 'JPEG';
+
+      // Add image to PDF
+      // jsPDF's addImage can take a dataURL directly
+      pdf.addImage(img.src, imgFormat, x, y, drawW, drawH, undefined, 'FAST');
+
+      // Open in new tab as blob URL
+      try {
+        const blob = pdf.output('blob');
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      } catch (err) {
+        // Fallback: open dataurl (may be large)
+        const dataUrl = pdf.output('datauristring');
+        window.open(dataUrl, '_blank');
+      }
+    };
+
+    img.onerror = function() {
+      alert('Could not load the image. Try a different file.');
+    };
+  });
+})();
+</script>
+</body>
+</html>
