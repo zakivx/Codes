@@ -10,25 +10,25 @@
   <script src="https://cdn.jsdelivr.net/gh/alvaro-prieto/colResizable/colResizable-1.6.min.js"></script>
 </head>
 <body>
-  <div id="tableContainer"></div>
+  <h2>Resizable Table</h2>
+  <div id="tableContainer">Waiting for table...</div>
 
   <script>
-    // Read table HTML from URL
-    const params = new URLSearchParams(window.location.search);
-    const tableHTML = params.get('table');
-    if (tableHTML) {
-      const container = document.getElementById('tableContainer');
-      container.innerHTML = decodeURIComponent(tableHTML);
+    // Listen for table HTML from parent
+    window.addEventListener("message", (event) => {
+      if (event.data.type === "tableData") {
+        console.log("Table received:", event.data.html);
+        const container = document.getElementById("tableContainer");
+        container.innerHTML = event.data.html;
 
-      // Make columns resizable
-      $(function(){
+        // Enable column resizing
         $('#tableContainer table').colResizable({
           liveDrag: true,
           gripInnerHtml: "<div class='grip'></div>",
           draggingClass: "dragging"
         });
-      });
-    }
+      }
+    });
   </script>
 </body>
 </html>
