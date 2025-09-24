@@ -37,13 +37,13 @@
   </div>
 
   <script>
-    window.addEventListener("load", () => {
+    window.addEventListener("message", (event) => {
+      // Optionally check origin in real use:
+      // if (event.origin !== "https://keep.google.com") return;
+
       const container = document.getElementById("container");
-      const html = localStorage.getItem("viewerHTML");
-      if (html) {
-        container.innerHTML = html;
-      } else {
-        container.innerHTML = "<p>No content found.</p>";
+      if (event.data && event.data.html) {
+        container.innerHTML = event.data.html;
       }
     });
   </script>
