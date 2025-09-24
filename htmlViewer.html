@@ -36,7 +36,7 @@
 
     window.addEventListener("message", (event) => {
       // Optional: restrict origin for security
-      if(event.origin !== "https://zakivx.github.io") return;
+      //if(event.origin !== "https://zakivx.github.io") return;
 
       if(event.data && event.data.html) {
         container.innerHTML = event.data.html;
