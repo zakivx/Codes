@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Clipboard Image Splitter with PDF Export</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9; color: #333; }
+    h2 { color: #444; }
+    #canvasContainer { 
+        position: relative; 
+        border: 2px dashed #ccc; 
+        display: inline-block; 
+        margin-top: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    canvas { display: block; }
+    .line { 
+      position: absolute; 
+      width: 100%; 
+      height: 2px; 
+      background: rgba(255, 0, 0, 0.7); 
+      cursor: ns-resize; 
+      box-shadow: 0 0 5px red;
+    }
+    .line.selected { 
+        background: rgba(0, 100, 255, 0.9);
+        height: 3px;
+        box-shadow: 0 0 8px blue;
+    }
+    button { 
+        margin: 5px; 
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        background-color: #007bff;
+        color: white;
+        transition: background-color 0.2s ease;
+    }
+    button:hover { background-color: #0056b3; }
+    #pasteBtn { background-color: #28a745; }
+    #pasteBtn:hover { background-color: #218838; }
+    #pdfBtn { background-color: #dc3545; }
+    #pdfBtn:hover { background-color: #c82333; }
+    #pdfOpenBtn { background-color: #17a2b8; }
+    #pdfOpenBtn:hover { background-color: #117a8b; }
+  </style>
+</head>
+<body>
+
+<h2>Clipboard Image Splitter</h2>
+<p>Paste an image, add horizontal lines by clicking, drag to adjust, select/delete lines. Export slices as PNGs or PDF. Open PDF in a new tab if desired.</p>
+
+<button id="pasteBtn">Paste from Clipboard</button>
+<div id="canvasContainer"></div>
+<br>
+<button id="splitBtn">Split and Save PNGs</button>
+<button id="pdfBtn">Export as PDF</button>
+<button id="pdfOpenBtn">Open PDF in New Tab</button>
+
+<script>
+  const { jsPDF } = window.jspdf;
+
+  let canvas, ctx;
+  let image = new Image();
+  let lines = [];
+  let selectedLine = null;
+  const canvasContainer = document.getElementById('canvasContainer');
+
+  // --- Paste Image from Clipboard ---
+  document.getElementById('pasteBtn').addEventListener('click', async () => {
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+      for (const item of clipboardItems) {
+        if (item.types.some(type => type.startsWith('image/'))) {
+          const imageType = item.types.find(type => type.startsWith('image/'));
+          const blob = await item.getType(imageType);
+          image.src = URL.createObjectURL(blob);
+          break;
+        }
+      }
+    } catch (err) {
+      alert('Failed to read image from clipboard. Please copy an image and grant permission if prompted.');
+      console.error('Clipboard read error:', err);
+    }
+  });
+
+  // --- Draw Image on Canvas When Loaded ---
+  image.onload = () => {
+    canvasContainer.innerHTML = ''; // Clear previous canvas and lines
+    canvas = document.createElement('canvas');
+    ctx = canvas.getContext('2d');
+    canvas.width = image.width;
+    canvas.height = image.height;
+    ctx.drawImage(image, 0, 0);
+    canvasContainer.appendChild(canvas);
+    lines = [];
+    selectedLine = null;
+  };
+
+  // --- Handle Lines (Add, Select, Drag) ---
+  canvasContainer.addEventListener('click', e => {
+    if (!canvas || e.target.classList.contains('line')) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    addLine(y);
+  });
+
+  function addLine(y) {
+    const line = document.createElement('div');
+    line.className = 'line';
+    line.style.top = y + 'px';
+    canvasContainer.appendChild(line);
+    lines.push(line);
+
+    let isDragging = false;
+
+    line.addEventListener('mousedown', (ev) => {
+      isDragging = true;
+      ev.stopPropagation();
+      if (selectedLine) selectedLine.classList.remove('selected');
+      selectedLine = line;
+      selectedLine.classList.add('selected');
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (isDragging) {
+        const rect = canvas.getBoundingClientRect();
+        let newY = e.clientY - rect.top;
+        newY = Math.max(0, Math.min(canvas.height, newY));
+        line.style.top = newY + 'px';
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+  }
+
+  // --- Delete Selected Line ---
+  document.addEventListener('keydown', e => {
+    if (e.key === "Delete" && selectedLine) {
+      canvasContainer.removeChild(selectedLine);
+      lines = lines.filter(l => l !== selectedLine);
+      selectedLine = null;
+    }
+  });
+
+  // --- Core Splitting Logic ---
+  function getSplitPositions() {
+    let positions = lines.map(l => parseInt(l.style.top)).sort((a, b) => a - b);
+    positions.unshift(0);
+    positions.push(canvas.height);
+    return positions;
+  }
+
+  function createImageSlice(yStart, height) {
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = height;
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCtx.drawImage(canvas, 0, yStart, canvas.width, height, 0, 0, canvas.width, height);
+      return tempCanvas;
+  }
+
+  // --- Split and Save as PNGs ---
+  document.getElementById('splitBtn').addEventListener('click', () => {
+    if (!canvas) return alert("Please paste an image first.");
+    const positions = getSplitPositions();
+
+    for (let i = 0; i < positions.length - 1; i++) {
+      const yStart = positions[i];
+      const height = positions[i + 1] - yStart;
+      if (height <= 0) continue;
+
+      const tempCanvas = createImageSlice(yStart, height);
+
+      tempCanvas.toBlob(blob => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `slice_${String(i + 1).padStart(2, '0')}.png`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+    }
+  });
+
+  // --- Export PDF ---
+  document.getElementById('pdfBtn').addEventListener('click', () => {
+    generatePDF('download');
+  });
+
+  // --- Open PDF in New Tab ---
+  document.getElementById('pdfOpenBtn').addEventListener('click', () => {
+    generatePDF('open');
+  });
+
+  // --- Generate PDF function ---
+  function generatePDF(mode='download') {
+    if (!canvas) return alert("Please paste an image first.");
+    
+    const positions = getSplitPositions();
+    const firstSliceHeight = positions[1] - positions[0];
+    if (firstSliceHeight <= 0) return;
+
+    const pdf = new jsPDF({
+      orientation: canvas.width > firstSliceHeight ? 'landscape' : 'portrait',
+      unit: 'pt',
+      format: [canvas.width, firstSliceHeight]
+    });
+
+    for (let i = 0; i < positions.length - 1; i++) {
+      const yStart = positions[i];
+      const height = positions[i + 1] - yStart;
+      if (height <= 0) continue;
+
+      const tempCanvas = createImageSlice(yStart, height);
+      const imgData = tempCanvas.toDataURL('image/jpeg', 0.9);
+
+      if (i > 0) {
+        pdf.addPage([canvas.width, height], canvas.width > height ? 'landscape' : 'portrait');
+      }
+      pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, height);
+    }
+
+    if (mode === 'download') {
+      pdf.save('split-document.pdf');
+    } else if (mode === 'open') {
+      const pdfBlob = pdf.output('blob');
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      window.open(pdfUrl, '_blank');
+    }
+  }
+
+</script>
+
+</body>
+</html>
