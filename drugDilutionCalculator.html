@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enhanced Drug Dilution Calculator (V5)</title>
+<style>
+/* --- BASE & TYPOGRAPHY --- */
+  body {
+    font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #eef2f5; /* Light, cool background */
+    margin: 0;
+    padding: 40px 20px;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  
+/* --- CARD CONTAINER --- */
+  .card {
+    background: white;
+    padding: 35px;
+    max-width: 580px;
+    width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05); /* Softer shadow */
+    border-top: 6px solid #0078D4;
+  }
+  h2 {
+    color: #0078D4;
+    margin-top: 0;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 15px;
+    font-weight: 700;
+    font-size: 1.8em;
+  }
+  label {
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #1a1a1a;
+    font-size: 0.95em;
+  }
+
+/* --- FORM ELEMENTS (Inputs, Selects) --- */
+  select, input:not([type="radio"]), button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d9e6; /* Softer border */
+    box-sizing: border-box;
+    font-size: 1em;
+    color: #333;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  input:not([type="radio"]):focus, select:focus {
+    border-color: #0078D4;
+    box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.2);
+    background-color: #fff;
+    outline: none;
+  }
+  select:disabled, input:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+  }
+  
+/* --- BUTTON --- */
+  button {
+    background-color: #0078D4;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 30px;
+    font-size: 1.1em;
+    letter-spacing: 0.5px;
+    border: none;
+    padding: 14px;
+  }
+  button:hover {
+    background-color: #005fa3;
+    box-shadow: 0 4px 15px rgba(0, 120, 212, 0.4);
+  }
+
+/* --- LAYOUTS --- */
+  .inline-inputs {
+    display: flex;
+    gap: 10px;
+  }
+  .inline-inputs > * {
+    flex: 1;
+  }
+  .radio-group {
+    display: flex;
+    gap: 25px;
+    margin-top: 5px;
+    align-items: center;
+    padding: 10px 0;
+  }
+  .radio-group div {
+    display: flex;
+    align-items: center;
+  }
+  .radio-group label {
+    font-weight: normal;
+    margin: 0 0 0 6px;
+    display: inline;
+    color: #333;
+    cursor: pointer;
+  }
+  .radio-group input[type="radio"] {
+    width: auto;
+    cursor: pointer;
+  }
+  
+/* --- SECTION STYLING --- */
+  .method-section {
+    border: 1px solid #e0e0e0;
+    padding: 15px 20px 20px;
+    border-radius: 10px;
+    margin-top: 25px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+  }
+  .stock-info {
+    margin-top: 10px;
+    padding: 12px;
+    background: #f0f8ff; /* Very light blue background */
+    border: 1px solid #cce0ff;
+    border-radius: 6px;
+    font-size: 0.9em;
+    color: #444;
+    font-style: italic;
+    line-height: 1.4;
+  }
+
+/* --- RESULT & ERROR --- */
+  .result {
+    margin-top: 30px;
+    padding: 25px;
+    background: #e0f7fa; /* Result background */
+    border: 1px solid #b2ebf2;
+    border-radius: 10px;
+    font-size: 1.1em;
+    line-height: 1.6;
+    color: #004d40; /* Darker text for contrast */
+  }
+  .result h3 {
+    color: #0078D4;
+    margin-top: 0;
+    border-bottom: 1px dashed #b2ebf2;
+    padding-bottom: 5px;
+    font-weight: 700;
+    font-size: 1.3em;
+  }
+  .result strong {
+    color: #0078D4;
+    font-weight: 700;
+  }
+  .result hr {
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 15px 0;
+  }
+  .error {
+    color: #d32f2f;
+    font-weight: bold;
+    background: #ffebee;
+    border: 1px solid #ef9a9a;
+  }
+
+/* --- KEY ENHANCEMENT: Highlight calculated volumes --- */
+  .key-value {
+    font-weight: 800;
+    color: #d32f2f; /* Use a clinical/alert red for critical volumes */
+    font-size: 1.15em;
+    background-color: #fff3f3;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #d32f2f;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>💉 Drug Dilution Calculator</h2>
+
+    <label for="product">Select Product:</label>
+  <select id="product" onchange="updateProductInfo()">
+    <option value="atropine">Atropine sulfate</option>
+    <option value="norad">Noradrenaline tartrate</option>
+  </select>
+  <div id="stockInfo" class="stock-info"></div>
+
+  <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #e0e0e0;">
+
+    <div class="method-section">
+    <label style="margin-top: 0;">Concentration Method:</label>
+    <div class="radio-group">
+      <div>
+        <input type="radio" name="concMethod" id="concPredefined" value="predefined" checked onchange="toggleConcMethod()"> 
+        <label for="concPredefined">Predefined</label>
+      </div>
+      <div>
+        <input type="radio" name="concMethod" id="concCustom" value="custom" onchange="toggleConcMethod()"> 
+        <label for="concCustom">Custom Value</label>
+      </div>
+    </div>
+
+        <label for="finalConc">Desired Final Concentration:</label>
+    <select id="finalConc"></select>
+
+        <div class="inline-inputs" style="margin-top: 10px;">
+      <input type="number" id="customConc" placeholder="Enter custom concentration" min="0.01" step="0.01" disabled>
+      <select id="customConcUnit" disabled>
+        <option value="µg/mL">µg/mL</option>
+        <option value="mg/mL">mg/mL</option>
+      </select>
+    </div>
+  </div>
+
+    <div class="method-section">
+    <label style="margin-top: 0;">Volume Method:</label>
+    <div class="radio-group">
+      <div>
+        <input type="radio" name="volMethod" id="volPredefined" value="predefined" checked onchange="toggleVolMethod()"> 
+        <label for="volPredefined">Predefined</label>
+      </div>
+      <div>
+        <input type="radio" name="volMethod" id="volCustom" value="custom" onchange="toggleVolMethod()"> 
+        <label for="volCustom">Custom Value</label>
+      </div>
+      
+    </div>
+
+        <label for="predefinedVol">Select Final Volume (mL):</label>
+    <select id="predefinedVol"></select>
+
+        <label for="finalVol" style="margin-top: 10px;">Custom Final Volume:</label>
+    <div class="inline-inputs">
+      <input type="number" id="finalVol" placeholder="Enter custom volume" min="1" step="1" disabled>
+      <select id="finalVolUnit" disabled>
+        <option value="mL">mL</option>
+        <option value="L" disabled>L (coming soon)</option>
+      </select>
+    </div>
+  </div>
+
+    <button onclick="calculateDilution()">Calculate Dilution</button>
+
+    <div id="result" class="result" style="display:none;"></div>
+</div>
+
+<script>
+// --- Configuration Object for Product Data ---
+const PRODUCTS = {
+  "atropine": {
+    name: "Atropine sulfate",
+    stockConc: 1000, // in µg/mL (1 mg/mL)
+    stockDisplay: "1 mg/mL (1000 µg/mL)",
+    diluent: "Normal saline (0.9% NaCl)",
+    predefined: [
+      {val: 100, label: "100 µg/mL"},
+      {val: 50, label: "50 µg/mL"},
+      {val: 20, label: "20 µg/mL"}
+    ],
+    finalVolumes: [
+      {val: 10, label: "10 mL"},
+    ]
+  },
+  "norad": {
+    name: "Noradrenaline tartrate",
+    stockConc: 2000, // in µg/mL (8 mg/4 mL = 2 mg/mL)
+    stockDisplay: "8 mg/4 mL (2 mg/mL or 2000 µg/mL)",
+    diluent: "5% Dextrose (D5W) or Normal Saline",
+    predefined: [
+      {val: 50, label: "<10 kg (50 µg/mL)"},
+      {val: 100, label: "10–25 kg (100 µg/mL)"},
+      {val: 200, label: "25–50 kg (200 µg/mL)"},
+      {val: 250, label: ">50 kg (250 µg/mL)"}
+    ],
+    finalVolumes: [
+      {val: 40, label: "40 mL"},
+    ]
+  }
+};
+
+// --- Helper Functions ---
+
+function getProductData() {
+  return PRODUCTS[document.getElementById("product").value];
+}
+
+// --- Toggle Functions ---
+
+function toggleConcMethod() {
+  const useCustom = document.getElementById("concCustom").checked;
+  
+  document.getElementById("finalConc").disabled = useCustom;
+  document.getElementById("customConc").disabled = !useCustom;
+  document.getElementById("customConcUnit").disabled = !useCustom;
+  
+  if (!useCustom) {
+    document.getElementById("customConc").value = '';
+  }
+}
+
+function toggleVolMethod() {
+  const useCustom = document.getElementById("volCustom").checked;
+  
+  document.getElementById("predefinedVol").disabled = useCustom;
+  document.getElementById("finalVol").disabled = !useCustom;
+  document.getElementById("finalVolUnit").disabled = !useCustom;
+
+  if (useCustom) {
+    document.getElementById("finalVol").value = '';
+  } else {
+    // Revert to the selected predefined volume on toggle
+    document.getElementById("finalVol").value = document.getElementById("predefinedVol").value; 
+  }
+}
+
+
+// --- Update Product Info (Populates Selects) ---
+
+function updateProductInfo() {
+  const productData = getProductData();
+  const concSelect = document.getElementById("finalConc");
+  const volSelect = document.getElementById("predefinedVol");
+  const stockInfoDiv = document.getElementById("stockInfo");
+
+  // 1. Update Stock Info Display (removed ** for consistency with CSS emphasis)
+  stockInfoDiv.innerHTML = `Stock Concentration: ${productData.stockDisplay}<br>Recommended Diluent: ${productData.diluent}`;
+
+  // 2. Update Predefined Concentration Options
+  concSelect.innerHTML = "";
+  productData.predefined.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.val;
+    opt.text = c.label;
+    concSelect.appendChild(opt);
+  });
+  
+  // 3. Update Predefined Volume Options
+  volSelect.innerHTML = "";
+  productData.finalVolumes.forEach(v => {
+    const opt = document.createElement("option");
+    opt.value = v.val;
+    opt.text = v.label;
+    volSelect.appendChild(opt);
+  });
+  
+  // 4. Ensure methods are correctly set on product change
+  toggleConcMethod();
+  toggleVolMethod();
+}
+
+
+// --- Core Calculation ---
+
+function calculateDilution() {
+  const productData = getProductData();
+  const useConcCustom = document.getElementById("concCustom").checked;
+  const useVolCustom = document.getElementById("volCustom").checked;
+  const resultDiv = document.getElementById("result");
+  resultDiv.style.display = "block";
+  resultDiv.classList.remove('error');
+
+  let finalConc_ug_mL; 
+  let finalVolume_mL; 
+
+  // --- 1. Determine Target Concentration (C2) ---
+  if (useConcCustom) {
+    const customConcVal = parseFloat(document.getElementById("customConc").value);
+    const customConcUnit = document.getElementById("customConcUnit").value;
+    
+    if (isNaN(customConcVal) || customConcVal <= 0) {
+      resultDiv.innerHTML = "⚠️ **Input Error:** Enter a valid custom concentration (> 0).";
+      resultDiv.classList.add('error');
+      return;
+    }
+    finalConc_ug_mL = customConcUnit === "mg/mL" ? customConcVal * 1000 : customConcVal;
+  } else {
+    finalConc_ug_mL = parseFloat(document.getElementById("finalConc").value);
+  }
+
+  // Check concentration limits
+  if (finalConc_ug_mL > productData.stockConc) {
+    resultDiv.innerHTML = `⚠️ **Calculation Error:** The desired concentration (${finalConc_ug_mL} µg/mL) cannot be greater than the stock concentration (${productData.stockConc} µg/mL).`;
+    resultDiv.classList.add('error');
+    return;
+  }
+
+  // --- 2. Determine Final Volume (V2) ---
+  if (useVolCustom) {
+    const volVal = parseFloat(document.getElementById("finalVol").value);
+    const volUnit = document.getElementById("finalVolUnit").value;
+    
+    if (isNaN(volVal) || volVal <= 0) {
+      resultDiv.innerHTML = "⚠️ **Input Error:** Enter a valid custom final volume (> 0 mL).";
+      resultDiv.classList.add('error');
+      return;
+    }
+    finalVolume_mL = volUnit === "L" ? volVal * 1000 : volVal;
+  } else {
+    finalVolume_mL = parseFloat(document.getElementById("predefinedVol").value);
+  }
+  
+  // --- 3. Perform Calculation (C1 * V1 = C2 * V2) ---
+  const stockVolume_mL = (finalConc_ug_mL * finalVolume_mL) / productData.stockConc;
+  const diluentVolume_mL = finalVolume_mL - stockVolume_mL;
+
+  // Check for required stock volume
+  if (stockVolume_mL < 0) {
+    resultDiv.innerHTML = "⚠️ **Calculation Error:** The required stock volume is negative. Check concentrations.";
+    resultDiv.classList.add('error');
+    return;
+  }
+
+  // --- 4. Format and Display Result ---
+  
+  let displayConc = `${finalConc_ug_mL} µg/mL`;
+  if (useConcCustom && document.getElementById("customConcUnit").value === "mg/mL") {
+    displayConc = `${(finalConc_ug_mL / 1000).toFixed(2)} mg/mL`;
+  }
+  
+  // Used <strong> tags for emphasis on 'Final Check', but removed the double asterisks for a cleaner look.
+  const message = `
+    <h3>✅ Dilution Recipe for ${productData.name}</h3>
+    <p>
+      Desired Final Concentration: <strong>${displayConc}</strong><br>
+      Target Total Volume: <strong>${finalVolume_mL.toFixed(0)} mL</strong>
+    </p>
+    <hr>
+    <h4>Preparation Steps:</h4>
+    <p>
+      1. Draw <span class="key-value">${stockVolume_mL.toFixed(2)} mL</span> of ${productData.name} stock solution (${productData.stockDisplay}).<br>
+      2. Add <span class="key-value">${diluentVolume_mL.toFixed(2)} mL</span> of ${productData.diluent} to the syringe/bag.<br>
+    </p>
+    <p style="margin-top: 15px;">
+      <strong>Final Check:</strong> Total volume is <strong>${(stockVolume_mL + diluentVolume_mL).toFixed(2)} mL</strong>.
+    </p>
+  `;
+
+  resultDiv.innerHTML = message;
+}
+
+// --- Initialization ---
+updateProductInfo();
+</script>
+
+</body>
+</html>
