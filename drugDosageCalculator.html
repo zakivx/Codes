@@ -9,6 +9,24 @@
   label { display: block; margin-top: 10px; }
   input, select { padding: 5px; margin-top: 5px; width: 300px; }
   .result { margin-top: 20px; font-weight: bold; }
+  /* Searchable dropdown styling */
+  .dropdown { position: relative; display: inline-block; width: 320px; }
+  .dropdown input { width: 100%; box-sizing: border-box; }
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    z-index: 1000;
+    width: 100%;
+  }
+  .dropdown-content div {
+    padding: 5px;
+    cursor: pointer;
+  }
+  .dropdown-content div:hover { background-color: #ddd; }
 </style>
 </head>
 <body>
@@ -30,23 +48,13 @@
   </label>
 </div>
 
-<label>
-  Select predefined dilution or custom:
-  <input list="drugDilutions" id="dilutionSelect" placeholder="Search drug/dilution...">
-  <datalist id="drugDilutions">
-    <option value="noradrenaline <10kg (50ug/ml)">
-    <option value="noradrenaline 10-25kg (100ug/ml)">
-    <option value="noradrenaline 25-50kg (200ug/ml)">
-    <option value="noradrenaline >50kg (250ug/ml)">
-    <option value="sufentanil <5kg (1ug/ml)">
-    <option value="sufentanil 5-10kg (2ug/ml)">
-    <option value="sufentanil 10-25kg (2ug/ml)">
-    <option value="sufentanil 25-50kg (5ug/ml)">
-    <option value="custom">Custom</option>
-  </datalist>
-</label>
+<label>Select predefined dilution or custom:</label>
+<div class="dropdown">
+  <input type="text" id="searchDropdown" placeholder="Search drug/dilution...">
+  <div class="dropdown-content" id="dropdownContent"></div>
+</div>
 
-<div id="customDilution" style="display:none;">
+<div id="customDilution" style="display:none; margin-top:10px;">
   <label>
     Custom dilution:
     <input type="number" id="customNumber" min="0" step="0.01">
@@ -75,7 +83,8 @@
 <script>
 const weightDep = document.getElementById('weightDep');
 const weightDiv = document.getElementById('weightDiv');
-const dilutionSelect = document.getElementById('dilutionSelect');
+const searchDropdown = document.getElementById('searchDropdown');
+const dropdownContent = document.getElementById('dropdownContent');
 const customDilution = document.getElementById('customDilution');
 const dosageInput = document.getElementById('dosageInput');
 const dosageUnit = document.getElementById('dosageUnit');
@@ -83,9 +92,48 @@ const weightInput = document.getElementById('weight');
 const customNumberInput = document.getElementById('customNumber');
 const customUnitInput = document.getElementById('customUnit');
 
-// Save all unit options
-const allUnits = Array.from(dosageUnit.options);
+// Dropdown options
+const options = [
+  "noradrenaline <10kg (50ug/ml)",
+  "noradrenaline 10-25kg (100ug/ml)",
+  "noradrenaline 25-50kg (200ug/ml)",
+  "noradrenaline >50kg (250ug/ml)",
+  "sufentanil <5kg (1ug/ml)",
+  "sufentanil 5-10kg (2ug/ml)",
+  "sufentanil 10-25kg (2ug/ml)",
+  "sufentanil 25-50kg (5ug/ml)",
+  "custom"
+];
 
+// Populate dropdown
+function filterDropdown() {
+  const val = searchDropdown.value.toLowerCase();
+  dropdownContent.innerHTML = '';
+  const filtered = options.filter(opt => opt.toLowerCase().includes(val));
+  filtered.forEach(opt => {
+    const div = document.createElement('div');
+    div.textContent = opt;
+    div.addEventListener('click', () => {
+      searchDropdown.value = opt;
+      dropdownContent.style.display = 'none';
+      customDilution.style.display = opt.toLowerCase() === 'custom' ? 'block' : 'none';
+      calculate();
+    });
+    dropdownContent.appendChild(div);
+  });
+  dropdownContent.style.display = filtered.length ? 'block' : 'none';
+}
+
+searchDropdown.addEventListener('input', filterDropdown);
+searchDropdown.addEventListener('focus', filterDropdown);
+document.addEventListener('click', e => {
+  if(!e.target.closest('.dropdown')) {
+    dropdownContent.style.display = 'none';
+  }
+});
+
+// Unit filtering based on weight-dependent
+const allUnits = Array.from(dosageUnit.options);
 weightDep.addEventListener('change', () => {
   weightDiv.style.display = weightDep.value === 'yes' ? 'block' : 'none';
   updateDosageUnitOptions();
@@ -103,16 +151,7 @@ function updateDosageUnitOptions() {
   });
 }
 
-// Show custom dilution input if "custom" selected
-dilutionSelect.addEventListener('input', () => {
-  customDilution.style.display = dilutionSelect.value.toLowerCase() === 'custom' ? 'block' : 'none';
-  calculate();
-});
-
-[dosageInput, dosageUnit, weightInput, customNumberInput, customUnitInput, dilutionSelect].forEach(el => {
-  el.addEventListener('input', calculate);
-});
-
+// Parse dilution from selected option
 function parseDilution(input) {
   const match = input.match(/\(([\d.]+)\s*ug\/ml\)/i);
   if(match) return parseFloat(match[1]);
@@ -120,13 +159,18 @@ function parseDilution(input) {
   return null;
 }
 
+// Calculation
+[dosageInput, dosageUnit, weightInput, customNumberInput, customUnitInput, searchDropdown].forEach(el => {
+  el.addEventListener('input', calculate);
+});
+
 function calculate() {
-  let dilution = parseDilution(dilutionSelect.value);
+  let dilution = parseDilution(searchDropdown.value);
   const customNum = parseFloat(customNumberInput.value);
   const customUnit = customUnitInput.value;
   const weight = parseFloat(weightInput.value);
 
-  if(dilutionSelect.value.toLowerCase() === 'custom') {
+  if(searchDropdown.value.toLowerCase() === 'custom') {
     if(isNaN(customNum) || customNum <= 0) {
       document.getElementById('result').innerText = "";
       return;
@@ -142,7 +186,6 @@ function calculate() {
     return;
   }
 
-  // Parse single value or range
   const match = dosageStr.match(/^([\d.]+)(?:-([\d.]+))?$/);
   if(!match) {
     document.getElementById('result').innerText = "Invalid dosage format";
