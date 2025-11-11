@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drug Dosage Calculator</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  label { display: block; margin-top: 10px; }
+  input, select { padding: 5px; margin-top: 5px; width: 300px; }
+  .result { margin-top: 20px; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h2>Drug Dosage Calculator</h2>
+
+<label>
+  Is the dosage weight-dependent?
+  <select id="weightDep">
+    <option value="no">No</option>
+    <option value="yes">Yes</option>
+  </select>
+</label>
+
+<div id="weightDiv" style="display:none;">
+  <label>
+    Patient weight (kg):
+    <input type="number" id="weight" min="0" step="0.1">
+  </label>
+</div>
+
+<label>
+  Select predefined dilution or custom:
+  <input list="drugDilutions" id="dilutionSelect" placeholder="Search drug/dilution...">
+  <datalist id="drugDilutions">
+    <option value="noradrenaline <10kg (50ug/ml)">
+    <option value="noradrenaline 10-25kg (100ug/ml)">
+    <option value="noradrenaline 25-50kg (200ug/ml)">
+    <option value="noradrenaline >50kg (250ug/ml)">
+    <option value="sufentanil <5kg (1ug/ml)">
+    <option value="sufentanil 5-10kg (2ug/ml)">
+    <option value="sufentanil 10-25kg (2ug/ml)">
+    <option value="sufentanil 25-50kg (5ug/ml)">
+    <option value="custom">Custom</option>
+  </datalist>
+</label>
+
+<div id="customDilution" style="display:none;">
+  <label>
+    Custom dilution:
+    <input type="number" id="customNumber" min="0" step="0.01">
+    <select id="customUnit">
+      <option value="ug/ml">μg/ml</option>
+      <option value="mg/ml">mg/ml</option>
+    </select>
+  </label>
+</div>
+
+<label>
+  Enter dosage (single value or range, e.g., 8 or 8-12):
+  <input type="text" id="dosageInput" placeholder="e.g., 8 or 0.01-3.3">
+</label>
+
+<label>
+  Select dosage unit:
+  <select id="dosageUnit">
+    <option value="ug/min">μg/min</option>
+    <option value="mcg/kg/min">μg/kg/min</option>
+  </select>
+</label>
+
+<div class="result" id="result"></div>
+
+<script>
+const weightDep = document.getElementById('weightDep');
+const weightDiv = document.getElementById('weightDiv');
+const dilutionSelect = document.getElementById('dilutionSelect');
+const customDilution = document.getElementById('customDilution');
+const dosageInput = document.getElementById('dosageInput');
+const dosageUnit = document.getElementById('dosageUnit');
+const weightInput = document.getElementById('weight');
+const customNumberInput = document.getElementById('customNumber');
+const customUnitInput = document.getElementById('customUnit');
+
+// Save all unit options
+const allUnits = Array.from(dosageUnit.options);
+
+weightDep.addEventListener('change', () => {
+  weightDiv.style.display = weightDep.value === 'yes' ? 'block' : 'none';
+  updateDosageUnitOptions();
+  calculate();
+});
+
+function updateDosageUnitOptions() {
+  const weightDepended = weightDep.value === 'yes';
+  dosageUnit.innerHTML = '';
+  allUnits.forEach(opt => {
+    const isWeightUnit = opt.value.includes('kg');
+    if ((weightDepended && isWeightUnit) || (!weightDepended && !isWeightUnit)) {
+      dosageUnit.appendChild(opt);
+    }
+  });
+}
+
+// Show custom dilution input if "custom" selected
+dilutionSelect.addEventListener('input', () => {
+  customDilution.style.display = dilutionSelect.value.toLowerCase() === 'custom' ? 'block' : 'none';
+  calculate();
+});
+
+[dosageInput, dosageUnit, weightInput, customNumberInput, customUnitInput, dilutionSelect].forEach(el => {
+  el.addEventListener('input', calculate);
+});
+
+function parseDilution(input) {
+  const match = input.match(/\(([\d.]+)\s*ug\/ml\)/i);
+  if(match) return parseFloat(match[1]);
+  if(input.toLowerCase() === 'custom') return null;
+  return null;
+}
+
+function calculate() {
+  let dilution = parseDilution(dilutionSelect.value);
+  const customNum = parseFloat(customNumberInput.value);
+  const customUnit = customUnitInput.value;
+  const weight = parseFloat(weightInput.value);
+
+  if(dilutionSelect.value.toLowerCase() === 'custom') {
+    if(isNaN(customNum) || customNum <= 0) {
+      document.getElementById('result').innerText = "";
+      return;
+    }
+    dilution = customUnit === 'mg/ml' ? customNum * 1000 : customNum;
+  }
+
+  if(!dilution) return;
+
+  const dosageStr = dosageInput.value.trim();
+  if(!dosageStr) {
+    document.getElementById('result').innerText = "";
+    return;
+  }
+
+  // Parse single value or range
+  const match = dosageStr.match(/^([\d.]+)(?:-([\d.]+))?$/);
+  if(!match) {
+    document.getElementById('result').innerText = "Invalid dosage format";
+    return;
+  }
+
+  const lowValue = parseFloat(match[1]);
+  const highValue = match[2] ? parseFloat(match[2]) : lowValue;
+
+  let dosageUgPerMin;
+  if(dosageUnit.value === 'mcg/kg/min') {
+    if(isNaN(weight) || weight <= 0) {
+      document.getElementById('result').innerText = "";
+      return;
+    }
+    dosageUgPerMin = [lowValue * weight, highValue * weight];
+  } else {
+    dosageUgPerMin = [lowValue, highValue];
+  }
+
+  const mlLow = (dosageUgPerMin[0] / dilution).toFixed(2);
+  const mlHigh = (dosageUgPerMin[1] / dilution).toFixed(2);
+
+  const resultText = mlLow === mlHigh ? `${mlLow} mL/min` : `${mlLow} - ${mlHigh} mL/min`;
+  document.getElementById('result').innerText = `Infusion rate: ${resultText}`;
+}
+
+// Initial setup
+updateDosageUnitOptions();
+calculate();
+</script>
+
+</body>
+</html>
