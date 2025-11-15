@@ -31,7 +31,6 @@
 
 <script>
 function interpretABG() {
-
     const ph = parseFloat(document.getElementById('ph').value);
     const pco2 = parseFloat(document.getElementById('pco2').value);
     const hco3 = parseFloat(document.getElementById('hco3').value);
@@ -46,7 +45,7 @@ function interpretABG() {
 
     const normal = { ph:[7.35,7.45], pco2:[35,45], hco3:[22,26] };
 
-    // Optional Anion Gap
+    // Anion gap
     let ag = NaN, ag_corr = NaN;
     if (!isNaN(na) && !isNaN(cl)) {
         ag = na - (cl + hco3);
@@ -54,121 +53,98 @@ function interpretABG() {
         if (!isNaN(albumin) && albumin < 40) ag_corr += 0.25 * (40 - albumin);
     }
 
-    let disorder="", compensationHTML="", associated="", metaAcidType="", delta=NaN;
+    let disorder = "", compensationHTML = "", associated = "", metaAcidType = "", delta = NaN;
 
     // Primary disorder detection
     if (ph < normal.ph[0] || ph > normal.ph[1]) {
-
         if ((ph < normal.ph[0] && pco2 < normal.pco2[0]) || (ph > normal.ph[1] && pco2 > normal.pco2[1])) {
             // Metabolic primary
             disorder = ph < normal.ph[0] ? "Metabolic Acidosis" : "Metabolic Alkalosis";
+            const expected_pco2 = disorder === "Metabolic Acidosis" ? 1.5*hco3+8 : 40+0.7*(hco3-24);
 
-            let expected_pco2 = disorder === "Metabolic Acidosis" ? 1.5 * hco3 + 8 : 40 + 0.7 * (hco3 - 24);
-
-            if (Math.abs(pco2 - expected_pco2) <= 2) {
+            if (Math.abs(pco2-expected_pco2) <= 2) {
                 compensationHTML = `Expected PCO₂ ≈ ${pco2.toFixed(1)} mmHg (Compensation appropriate)`;
             } else {
                 compensationHTML = `Expected PCO₂ ≈ ${expected_pco2.toFixed(1)} mmHg (Compensation not appropriate)`;
                 associated = pco2 > expected_pco2 ? "Associated Respiratory Acidosis" : "Associated Respiratory Alkalosis";
             }
-
         } else {
             // Respiratory primary
             disorder = ph < normal.ph[0] ? "Respiratory Acidosis" : "Respiratory Alkalosis";
-
             let hco3_acute, hco3_chronic;
-            if (disorder === "Respiratory Acidosis") {
-                hco3_acute = 24 + ((pco2 - 40) / 10);
-                hco3_chronic = 24 + 4 * ((pco2 - 40) / 10);
+            if (disorder==="Respiratory Acidosis"){
+                hco3_acute = 24 + ((pco2-40)/10);
+                hco3_chronic = 24 + 4*((pco2-40)/10);
             } else {
-                hco3_acute = 24 - 2 * ((40 - pco2) / 10);
-                hco3_chronic = 24 - 5 * ((40 - pco2) / 10);
+                hco3_acute = 24 - 2*((40-pco2)/10);
+                hco3_chronic = 24 - 5*((40-pco2)/10);
             }
 
-            let acute_status = (hco3 >= hco3_acute - 2 && hco3 <= hco3_acute + 2) ? "Compensation appropriate" : "Compensation not appropriate";
-            let chronic_status = (hco3 >= hco3_chronic - 2 && hco3 <= hco3_chronic + 2) ? "Compensation appropriate" : "Compensation not appropriate";
+            const acute_status = (hco3>=hco3_acute-2 && hco3<=hco3_acute+2) ? "Compensation appropriate" : "Compensation not appropriate";
+            const chronic_status = (hco3>=hco3_chronic-2 && hco3<=hco3_chronic+2) ? "Compensation appropriate" : "Compensation not appropriate";
 
-            if (acute_status === "Compensation not appropriate")
-                associated = hco3 < hco3_acute - 2 ? "Associated Metabolic Acidosis" : "Associated Metabolic Alkalosis";
-            else if (chronic_status === "Compensation not appropriate")
-                associated = hco3 < hco3_chronic - 2 ? "Associated Metabolic Acidosis" : "Associated Metabolic Alkalosis";
+            if (acute_status==="Compensation not appropriate") associated = hco3<hco3_acute-2?"Associated Metabolic Acidosis":"Associated Metabolic Alkalosis";
+            else if (chronic_status==="Compensation not appropriate") associated = hco3<hco3_chronic-2?"Associated Metabolic Acidosis":"Associated Metabolic Alkalosis";
 
-            compensationHTML =
-                `Expected HCO₃⁻ → Acute: ${hco3_acute.toFixed(1)}, (${acute_status})<br>
-                 Chronic: ${hco3_chronic.toFixed(1)}, (${chronic_status})`;
+            compensationHTML = `Expected HCO₃⁻ → Acute: ${hco3_acute.toFixed(1)}, (${acute_status})<br>Chronic: ${hco3_chronic.toFixed(1)}, (${chronic_status})`;
         }
-    } else {
-        disorder = "Normal pH or mixed disorder possible";
-    }
+    } else disorder = "Normal pH or mixed disorder possible";
+
+    // Decide AG to use for delta
+    let ag_for_delta = (!isNaN(albumin) && albumin < 40) ? ag_corr : ag;
 
     // Delta ratio & Metabolic Acidosis Type
-    if ((disorder.includes("Metabolic Acidosis") || associated.includes("Metabolic Acidosis")) && !isNaN(ag_corr) && ag_corr > 12) {
+    if ((disorder.includes("Metabolic Acidosis") || associated.includes("Associated Metabolic Acidosis")) && !isNaN(ag_for_delta)) {
+        delta = (ag_for_delta - 12)/(24 - hco3);
 
-        delta = (ag_corr - 12) / (24 - hco3);
+        if (ag_for_delta <= 12) {
+            metaAcidType = "Normal anion gap metabolic acidosis (NAGMA)";
+        } else {
+            if (delta < 0.4) metaAcidType = "Normal anion gap metabolic acidosis (NAGMA)";
+            else if (delta < 1) metaAcidType = "Mixed NAGMA + High AG MA";
+            else if (delta <= 2) metaAcidType = "High anion gap metabolic acidosis (HAGMA)";
+            else metaAcidType = "High AG Metabolic Acidosis + coexisting metabolic alkalosis";
 
-        if (delta < 0.4) metaAcidType = "Normal anion gap metabolic acidosis (NAGMA)";
-        else if (delta < 1) metaAcidType = "Mixed NAGMA + High AG MA";
-        else if (delta <= 2) metaAcidType = "High anion gap metabolic acidosis (HAGMA)";
-        else if (delta > 2) metaAcidType = "High AG Metabolic Acidosis + coexisting metabolic alkalosis or compensated respiratory acidosis";
-
-        // Add contextual alkalosis
-        if (delta > 2)
-            associated += (associated ? "; " : "") + "Metabolic Alkalosis (Lactic Acidosis context)";
-        else if (delta > 1.2)
-            associated += (associated ? "; " : "") + "Metabolic Alkalosis (Ketoacidosis context)";
+            if (delta > 2) associated += (associated?"; ":"")+"Metabolic Alkalosis (Lactic Acidosis context)";
+            else if (delta > 1.2) associated += (associated?"; ":"")+"Metabolic Alkalosis (Ketoacidosis context)";
+        }
     }
 
-    // Color coding
-    const phColor = (ph >= normal.ph[0] && ph <= normal.ph[1]) ? "normal" : "abnormal";
-    const pco2Color = (pco2 >= normal.pco2[0] && pco2 <= normal.pco2[1]) ? "normal" : "abnormal";
-    const hco3Color = (hco3 >= normal.hco3[0] && hco3 <= normal.hco3[1]) ? "normal" : "abnormal";
+    // Display section
+    const phColor=(ph>=normal.ph[0]&&ph<=normal.ph[1])?"normal":"abnormal";
+    const pco2Color=(pco2>=normal.pco2[0]&&pco2<=normal.pco2[1])?"normal":"abnormal";
+    const hco3Color=(hco3>=normal.hco3[0]&&hco3<=normal.hco3[1])?"normal":"abnormal";
 
-    let resultHTML = `<strong>pH:</strong> <span class="${phColor}">${ph}</span><br>`;
-    resultHTML += `<strong>PaCO₂:</strong> <span class="${pco2Color}">${pco2} mmHg</span><br>`;
-    resultHTML += `<strong>HCO₃⁻:</strong> <span class="${hco3Color}">${hco3} mmol/L</span><br>`;
-    if (!isNaN(ag)) resultHTML += `<strong>Anion Gap:</strong> ${ag.toFixed(1)}<br>`;
-    if (!isNaN(ag_corr) && ag_corr !== ag) resultHTML += `<strong>Corrected Anion Gap:</strong> ${ag_corr.toFixed(1)}<br>`;
-    if (!isNaN(delta)) resultHTML += `<strong>Delta Ratio:</strong> ${delta.toFixed(2)}<br>`;
-    if (metaAcidType) resultHTML += `<strong>Metabolic Acidosis Type:</strong> ${metaAcidType}<br>`;
-    resultHTML += `<strong>Disorder:</strong> ${disorder}<br>`;
-    if (associated) resultHTML += `<strong>Associated Disorders:</strong> ${associated}<br>`;
-    resultHTML += `<strong>Compensation:</strong><br>${compensationHTML}<br>`;
+    let resultHTML=`<strong>pH:</strong> <span class="${phColor}">${ph}</span><br>`;
+    resultHTML+=`<strong>PaCO₂:</strong> <span class="${pco2Color}">${pco2} mmHg</span><br>`;
+    resultHTML+=`<strong>HCO₃⁻:</strong> <span class="${hco3Color}">${hco3} mmol/L</span><br>`;
+    if(!isNaN(ag)) resultHTML+=`<strong>Anion Gap:</strong> ${ag.toFixed(1)}<br>`;
+    if(!isNaN(ag_corr) && ag_corr!==ag) resultHTML+=`<strong>Corrected Anion Gap:</strong> ${ag_corr.toFixed(1)}<br>`;
+    if(!isNaN(delta)) resultHTML+=`<strong>Delta Ratio:</strong> ${delta.toFixed(2)}<br>`;
+    if(metaAcidType) resultHTML+=`<strong>Metabolic Acidosis Type:</strong> ${metaAcidType}<br>`;
+    resultHTML+=`<strong>Disorder:</strong> ${disorder}<br>`;
+    if(associated) resultHTML+=`<strong>Associated Disorders:</strong> ${associated}<br>`;
+    resultHTML+=`<strong>Compensation:</strong><br>${compensationHTML}<br>`;
 
-    // --------------------------
-    // *** FIXED OVERALL DIAGNOSIS ***
-    // --------------------------
+    // Overall Diagnosis
     let overallDiagnosis = "";
-
-    if (disorder === "Metabolic Acidosis" && metaAcidType) {
-
+    if (disorder==="Metabolic Acidosis" && metaAcidType) {
         overallDiagnosis = metaAcidType;
-
-        if (associated) {
-            let filtered = associated
-                .split(";")
-                .filter(s => !s.includes("Associated Metabolic Acidosis"))
-                .join("; ");
-            if (filtered) overallDiagnosis += " + " + filtered;
+        if(associated){
+            let filtered = associated.split(";").filter(s=>!s.includes("Associated Metabolic Acidosis")).join("; ");
+            if(filtered) overallDiagnosis+=" + "+filtered;
         }
-
     } else {
-
         overallDiagnosis = disorder;
-
-        if (metaAcidType) overallDiagnosis += " + " + metaAcidType;
-
-        if (associated) {
-            let filtered = associated
-                .split(";")
-                .filter(s => !s.includes("Associated Metabolic Acidosis"))
-                .join("; ");
-            if (filtered) overallDiagnosis += " + " + filtered;
+        if(metaAcidType) overallDiagnosis+=" + "+metaAcidType;
+        if(associated){
+            let filtered = associated.split(";").filter(s=>!s.includes("Associated Metabolic Acidosis")).join("; ");
+            if(filtered) overallDiagnosis+=" + "+filtered;
         }
     }
 
-    resultHTML += `<div class="overall">Overall Diagnosis: ${overallDiagnosis}</div>`;
-
-    document.getElementById('result').innerHTML = resultHTML;
+    resultHTML+=`<div class="overall">Overall Diagnosis: ${overallDiagnosis}</div>`;
+    document.getElementById('result').innerHTML=resultHTML;
 }
 </script>
 </body>
