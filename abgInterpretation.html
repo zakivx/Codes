@@ -127,21 +127,21 @@ function interpretABG() {
     resultHTML+=`<strong>Compensation:</strong><br>${compensationHTML}<br>`;
 
     // Overall Diagnosis
-    let overallDiagnosis = "";
-    if (disorder==="Metabolic Acidosis" && metaAcidType) {
-        overallDiagnosis = metaAcidType;
-        if(associated){
-            let filtered = associated.split(";").filter(s=>!s.includes("Associated Metabolic Acidosis")).join("; ");
-            if(filtered) overallDiagnosis+=" + "+filtered;
-        }
-    } else {
-        overallDiagnosis = disorder;
-        if(metaAcidType) overallDiagnosis+=" + "+metaAcidType;
-        if(associated){
-            let filtered = associated.split(";").filter(s=>!s.includes("Associated Metabolic Acidosis")).join("; ");
-            if(filtered) overallDiagnosis+=" + "+filtered;
-        }
+ let overallDiagnosis = "";
+if (disorder === "Metabolic Acidosis" && metaAcidType) {
+    overallDiagnosis = metaAcidType;
+    if (associated) {
+        let filtered = associated.split(";").filter(s => !s.includes("Associated Metabolic Acidosis")).join("; ");
+        if (filtered) overallDiagnosis += " + " + filtered;
     }
+} else {
+    overallDiagnosis = disorder;
+    if (metaAcidType) overallDiagnosis += " + " + metaAcidType;
+    if (associated) {
+        // For respiratory disorders, keep all associated disorders (do not filter)
+        overallDiagnosis += " + " + associated;
+    }
+}
 
     resultHTML+=`<div class="overall">Overall Diagnosis: ${overallDiagnosis}</div>`;
     document.getElementById('result').innerHTML=resultHTML;
