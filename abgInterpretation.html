@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ABG Interpretation with Contextual Delta Ratio</title>
+<title>ABG Interpretation Tool</title>
 <style>
   body { font-family: Arial, sans-serif; margin: 20px; }
   label { display: block; margin-top: 10px; }
@@ -45,7 +45,7 @@ function interpretABG() {
 
     const normal = { ph:[7.35,7.45], pco2:[35,45], hco3:[22,26] };
 
-    // Anion gap
+    // --- Anion gap ---
     let ag = NaN, ag_corr = NaN;
     if (!isNaN(na) && !isNaN(cl)) {
         ag = na - (cl + hco3);
@@ -55,45 +55,69 @@ function interpretABG() {
 
     let disorder = "", compensationHTML = "", associated = "", metaAcidType = "", delta = NaN;
 
-    // Primary disorder detection
-    if (ph < normal.ph[0] || ph > normal.ph[1]) {
-        if ((ph < normal.ph[0] && pco2 < normal.pco2[0]) || (ph > normal.ph[1] && pco2 > normal.pco2[1])) {
-            // Metabolic primary
-            disorder = ph < normal.ph[0] ? "Metabolic Acidosis" : "Metabolic Alkalosis";
-            const expected_pco2 = disorder === "Metabolic Acidosis" ? 1.5*hco3+8 : 40+0.7*(hco3-24);
-
-            if (Math.abs(pco2-expected_pco2) <= 2) {
-                compensationHTML = `Expected PCO₂ ≈ ${pco2.toFixed(1)} mmHg (Compensation appropriate)`;
-            } else {
-                compensationHTML = `Expected PCO₂ ≈ ${expected_pco2.toFixed(1)} mmHg (Compensation not appropriate)`;
-                associated = pco2 > expected_pco2 ? "Associated Respiratory Acidosis" : "Associated Respiratory Alkalosis";
-            }
+    // --- Primary disorder detection ---
+    if (pco2 >= normal.pco2[0] && pco2 <= normal.pco2[1]) {
+        // PCO2 normal → use distance rules
+        if (ph > normal.ph[1]) {
+            disorder = (Math.abs(pco2 - 45) < Math.abs(pco2 - 35)) ? "Metabolic Alkalosis" : "Respiratory Alkalosis";
+        } else if (ph < normal.ph[0]) {
+            disorder = (Math.abs(pco2 - 45) < Math.abs(pco2 - 35)) ? "Respiratory Acidosis" : "Metabolic Acidosis";
         } else {
-            // Respiratory primary
-            disorder = ph < normal.ph[0] ? "Respiratory Acidosis" : "Respiratory Alkalosis";
-            let hco3_acute, hco3_chronic;
-            if (disorder==="Respiratory Acidosis"){
-                hco3_acute = 24 + ((pco2-40)/10);
-                hco3_chronic = 24 + 4*((pco2-40)/10);
-            } else {
-                hco3_acute = 24 - 2*((40-pco2)/10);
-                hco3_chronic = 24 - 5*((40-pco2)/10);
-            }
-
-            const acute_status = (hco3>=hco3_acute-2 && hco3<=hco3_acute+2) ? "Compensation appropriate" : "Compensation not appropriate";
-            const chronic_status = (hco3>=hco3_chronic-2 && hco3<=hco3_chronic+2) ? "Compensation appropriate" : "Compensation not appropriate";
-
-            if (acute_status==="Compensation not appropriate") associated = hco3<hco3_acute-2?"Associated Metabolic Acidosis":"Associated Metabolic Alkalosis";
-            else if (chronic_status==="Compensation not appropriate") associated = hco3<hco3_chronic-2?"Associated Metabolic Acidosis":"Associated Metabolic Alkalosis";
-
-            compensationHTML = `Expected HCO₃⁻ → Acute: ${hco3_acute.toFixed(1)}, (${acute_status})<br>Chronic: ${hco3_chronic.toFixed(1)}, (${chronic_status})`;
+            disorder = "Normal pH or mixed disorder possible";
         }
-    } else disorder = "Normal pH or mixed disorder possible";
+    } else if (pco2 > normal.pco2[1]) { 
+        // PCO2 high
+        if (ph < normal.ph[0]) disorder = "Respiratory Acidosis";
+        else if (ph > normal.ph[1]) disorder = "Metabolic Alkalosis";
+        else disorder = "Mixed disorder possible";
+    } else if (pco2 < normal.pco2[0]) { 
+        // PCO2 low
+        if (ph > normal.ph[1]) disorder = "Respiratory Alkalosis";
+        else if (ph < normal.ph[0]) disorder = "Metabolic Acidosis";
+        else disorder = "Mixed disorder possible";
+    } else {
+        disorder = "Normal pH or mixed disorder possible";
+    }
 
-    // Decide AG to use for delta
+    // --- Compensation calculation ---
+    if (disorder.includes("Respiratory")) {
+        // Metabolic compensation for respiratory disorders
+        let hco3_acute, hco3_chronic;
+        if (disorder==="Respiratory Acidosis") {
+            hco3_acute = 24 + ((pco2-40)/10);
+            hco3_chronic = 24 + 4*((pco2-40)/10);
+        } else {
+            hco3_acute = 24 - 2*((40-pco2)/10);
+            hco3_chronic = 24 - 5*((40-pco2)/10);
+        }
+        const acute_status = (hco3 >= hco3_acute-2 && hco3 <= hco3_acute+2) ? "Compensation appropriate" : "Compensation not appropriate";
+        const chronic_status = (hco3 >= hco3_chronic-2 && hco3 <= hco3_chronic+2) ? "Compensation appropriate" : "Compensation not appropriate";
+
+        if (acute_status==="Compensation not appropriate" || chronic_status==="Compensation not appropriate") {
+            if (hco3 < hco3_acute-2 || hco3 < hco3_chronic-2) associated = "Associated Metabolic Acidosis";
+            else associated = "Associated Metabolic Alkalosis";
+        }
+
+        compensationHTML = `Expected HCO₃⁻ → Acute: ${hco3_acute.toFixed(1)}, (${acute_status})<br>Chronic: ${hco3_chronic.toFixed(1)}, (${chronic_status})`;
+    } 
+    else if (disorder.includes("Metabolic")) {
+        // Respiratory compensation for metabolic disorders
+        let expected_pco2;
+        if (disorder === "Metabolic Acidosis") expected_pco2 = 1.5*hco3 + 8;
+        else expected_pco2 = 0.7*(hco3-24) + 40;
+
+        const diff = pco2 - expected_pco2;
+        if (Math.abs(diff) <= 2) {
+            compensationHTML = `Expected PCO₂ ≈ ${expected_pco2.toFixed(1)} mmHg (Compensation appropriate)`;
+        } else {
+            compensationHTML = `Expected PCO₂ ≈ ${expected_pco2.toFixed(1)} mmHg (Compensation not appropriate)`;
+            if (diff > 0) associated = "Associated Respiratory Acidosis";
+            else associated = "Associated Respiratory Alkalosis";
+        }
+    }
+
+    // --- Delta ratio & Metabolic Acidosis Type ---
     let ag_for_delta = (!isNaN(albumin) && albumin < 40) ? ag_corr : ag;
-
-    // Delta ratio & Metabolic Acidosis Type
     if ((disorder.includes("Metabolic Acidosis") || associated.includes("Associated Metabolic Acidosis")) && !isNaN(ag_for_delta)) {
         delta = (ag_for_delta - 12)/(24 - hco3);
 
@@ -110,7 +134,7 @@ function interpretABG() {
         }
     }
 
-    // Display section
+    // --- Display results ---
     const phColor=(ph>=normal.ph[0]&&ph<=normal.ph[1])?"normal":"abnormal";
     const pco2Color=(pco2>=normal.pco2[0]&&pco2<=normal.pco2[1])?"normal":"abnormal";
     const hco3Color=(hco3>=normal.hco3[0]&&hco3<=normal.hco3[1])?"normal":"abnormal";
@@ -126,24 +150,9 @@ function interpretABG() {
     if(associated) resultHTML+=`<strong>Associated Disorders:</strong> ${associated}<br>`;
     resultHTML+=`<strong>Compensation:</strong><br>${compensationHTML}<br>`;
 
-    // Overall Diagnosis
- let overallDiagnosis = "";
-if (disorder === "Metabolic Acidosis" && metaAcidType) {
-    overallDiagnosis = metaAcidType;
-    if (associated) {
-        let filtered = associated.split(";").filter(s => !s.includes("Associated Metabolic Acidosis")).join("; ");
-        if (filtered) overallDiagnosis += " + " + filtered;
-    }
-} else {
-    overallDiagnosis = disorder;
-    if (metaAcidType) overallDiagnosis += " + " + metaAcidType;
-    if (associated) {
-        // For respiratory disorders, keep all associated disorders (do not filter)
-        overallDiagnosis += " + " + associated;
-    }
-}
-
+    let overallDiagnosis = [disorder, metaAcidType, associated].filter(Boolean).join(" + ");
     resultHTML+=`<div class="overall">Overall Diagnosis: ${overallDiagnosis}</div>`;
+
     document.getElementById('result').innerHTML=resultHTML;
 }
 </script>
