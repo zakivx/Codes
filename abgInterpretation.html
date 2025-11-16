@@ -12,6 +12,8 @@
   .result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
   .normal { color: green; }
   .abnormal { color: red; }
+  /* This class is used for all small notes */
+  .sample-type-note { color: #555; font-style: italic; font-size: 0.9em; }
   .overall { margin-top: 15px; font-weight: bold; font-size: 1.1em; }
 </style>
 </head>
@@ -21,43 +23,136 @@
 <label>pH: <input type="number" step="0.01" id="ph"></label>
 <label>PaCO₂ (mmHg): <input type="number" step="0.1" id="pco2"></label>
 <label>HCO₃⁻ (mmol/L): <input type="number" step="0.1" id="hco3"></label>
+<label>PaO₂ (mmHg, optional): <input type="number" step="0.1" id="pao2"></label>
+<label>SaO₂ (%, optional): <input type="number" step="0.1" id="sao2"></label>
 <label>Na⁺ (mmol/L, optional): <input type="number" step="0.1" id="na"></label>
 <label>Cl⁻ (mmol/L, optional): <input type="number" step="0.1" id="cl"></label>
 <label>Albumin (g/L, optional): <input type="number" step="0.1" id="albumin"></label>
+
+<label>Corrected Anion Gap (mmol/L, optional): <input type="number" step="0.1" id="ag_corr_input"></label>
+
 
 <button onclick="interpretABG()">Interpret</button>
 
 <div class="result" id="result"></div>
 
 <script>
+
+// --- Data: Ranges from the provided table ---
+const sampleTypeRanges = {
+    ph: {
+        arterial: [7.35, 7.45],
+        mixedVenous: [7.35, 7.45],
+        centralVenous: [7.35, 7.37],
+        peripheralVenous: [7.29, 7.45]
+    },
+    pao2: { // Corresponds to pO2
+        arterial: [80, 100],
+        mixedVenous: [35, 40],
+        centralVenous: [35, 40],
+        peripheralVenous: [35, 40]
+    },
+    pco2: {
+        arterial: [35, 45],
+        mixedVenous: [41, 51],
+        centralVenous: [35, 48], // Using the 35-48 range
+        peripheralVenous: [43, 48]
+    },
+    hco3: {
+        arterial: [22, 26],
+        mixedVenous: [23, 29],
+        centralVenous: [22, 27], // Using the 22-27 range
+        peripheralVenous: [25, 26]
+    },
+    sao2: { // Corresponds to SO2
+        arterial: [95, 100],
+        mixedVenous: [70, 80], // Interpreting ~75%
+        centralVenous: [70, 75],
+        peripheralVenous: [65, 75]
+    }
+};
+
+/**
+ * HELPER FUNCTION
+ * Checks a value against the sample type ranges and returns a formatted string.
+ */
+function getProbableSampleType(paramName, value) {
+    if (isNaN(value) || !sampleTypeRanges[paramName]) {
+        return ""; // Don't show anything if no value or no data for this param
+    }
+    
+    const ranges = sampleTypeRanges[paramName];
+    let probableTypes = [];
+
+    // Check against each type's range
+    if (value >= ranges.arterial[0] && value <= ranges.arterial[1]) {
+        probableTypes.push("arterial");
+    }
+    if (value >= ranges.mixedVenous[0] && value <= ranges.mixedVenous[1]) {
+        probableTypes.push("mixed venous");
+    }
+    if (value >= ranges.centralVenous[0] && value <= ranges.centralVenous[1]) {
+        probableTypes.push("central venous");
+    }
+    if (value >= ranges.peripheralVenous[0] && value <= ranges.peripheralVenous[1]) {
+        probableTypes.push("peripheral venous");
+    }
+
+    // De-duplicate in case ranges overlap (like for pH)
+    probableTypes = [...new Set(probableTypes)];
+
+    if (probableTypes.length > 0) {
+        return ` <span class="sample-type-note">(fits ${probableTypes.join(' or ')})</span>`;
+    } else {
+        return ` <span class="abnormal sample-type-note">(outside all ranges)</span>`;
+    }
+}
+
+
 function interpretABG() {
     const ph = parseFloat(document.getElementById('ph').value);
     const pco2 = parseFloat(document.getElementById('pco2').value);
     const hco3 = parseFloat(document.getElementById('hco3').value);
+    const pao2 = parseFloat(document.getElementById('pao2').value);
+    const sao2 = parseFloat(document.getElementById('sao2').value);
     const na = parseFloat(document.getElementById('na').value);
     const cl = parseFloat(document.getElementById('cl').value);
     const albumin = parseFloat(document.getElementById('albumin').value);
+    
+    // Read the new optional input
+    const ag_corr_input = parseFloat(document.getElementById('ag_corr_input').value);
 
     if (isNaN(ph) || isNaN(pco2) || isNaN(hco3)) {
         alert("Please enter pH, PaCO₂, and HCO₃⁻ values.");
         return;
     }
 
-    const normal = { ph:[7.35,7.45], pco2:[35,45], hco3:[22,26] };
+    // --- Kassirer-Bleich (Henderson) calculation ---
+    const h_plus = 24 * (pco2 / hco3);
+    const ph_kb = -Math.log10(h_plus * 1e-9);
 
-    // --- Anion gap ---
+    // Note: 'normal' here refers to the *arterial* normal range for the main diagnosis
+    const normal = { ph:[7.35,7.45], pco2:[35,45], hco3:[22,26], pao2:[80,100], sao2:[94,100] };
+
+    // --- Anion gap (MODIFIED LOGIC) ---
     let ag = NaN, ag_corr = NaN;
     if (!isNaN(na) && !isNaN(cl)) {
-        ag = na - (cl + hco3);
-        ag_corr = ag;
-        if (!isNaN(albumin) && albumin < 40) ag_corr += 0.25 * (40 - albumin);
+        ag = na - (cl + hco3); // Calculate regular AG
+        ag_corr = ag; // By default, corrected AG is the same as AG
+
+        if (!isNaN(ag_corr_input)) {
+            // Priority 1: Use user-provided corrected AG
+            ag_corr = ag_corr_input;
+        } else if (!isNaN(albumin) && albumin < 40) {
+            // Priority 2: Calculate from albumin (using original code's logic)
+            ag_corr += 0.25 * (40 - albumin);
+        }
     }
 
     let disorder = "", compensationHTML = "", associated = "", metaAcidType = "", delta = NaN;
 
-    // --- Primary disorder detection ---
+    // --- Primary disorder detection (Unchanged) ---
     if (pco2 >= normal.pco2[0] && pco2 <= normal.pco2[1]) {
-        // PCO2 normal → use distance rules
         if (ph > normal.ph[1]) {
             disorder = (Math.abs(pco2 - 45) < Math.abs(pco2 - 35)) ? "Metabolic Alkalosis" : "Respiratory Alkalosis";
         } else if (ph < normal.ph[0]) {
@@ -65,13 +160,11 @@ function interpretABG() {
         } else {
             disorder = "Normal pH or mixed disorder possible";
         }
-    } else if (pco2 > normal.pco2[1]) { 
-        // PCO2 high
+    } else if (pco2 > normal.pco2[1]) {  
         if (ph < normal.ph[0]) disorder = "Respiratory Acidosis";
         else if (ph > normal.ph[1]) disorder = "Metabolic Alkalosis";
         else disorder = "Mixed disorder possible";
-    } else if (pco2 < normal.pco2[0]) { 
-        // PCO2 low
+    } else if (pco2 < normal.pco2[0]) {  
         if (ph > normal.ph[1]) disorder = "Respiratory Alkalosis";
         else if (ph < normal.ph[0]) disorder = "Metabolic Acidosis";
         else disorder = "Mixed disorder possible";
@@ -79,9 +172,8 @@ function interpretABG() {
         disorder = "Normal pH or mixed disorder possible";
     }
 
-    // --- Compensation calculation ---
+    // --- Compensation calculation (Unchanged) ---
     if (disorder.includes("Respiratory")) {
-        // Metabolic compensation for respiratory disorders
         let hco3_acute, hco3_chronic;
         if (disorder==="Respiratory Acidosis") {
             hco3_acute = 24 + ((pco2-40)/10);
@@ -101,7 +193,6 @@ function interpretABG() {
         compensationHTML = `Expected HCO₃⁻ → Acute: ${hco3_acute.toFixed(1)}, (${acute_status})<br>Chronic: ${hco3_chronic.toFixed(1)}, (${chronic_status})`;
     } 
     else if (disorder.includes("Metabolic")) {
-        // Respiratory compensation for metabolic disorders
         let expected_pco2;
         if (disorder === "Metabolic Acidosis") expected_pco2 = 1.5*hco3 + 8;
         else expected_pco2 = 0.7*(hco3-24) + 40;
@@ -116,11 +207,13 @@ function interpretABG() {
         }
     }
 
-    // --- Delta ratio & Metabolic Acidosis Type ---
-    let ag_for_delta = (!isNaN(albumin) && albumin < 40) ? ag_corr : ag;
+    // --- Delta ratio & Metabolic Acidosis Type (MODIFIED) ---
+    // Use ag_corr for delta ratio. It will be either the user-input value,
+    // the albumin-corrected value, or the original AG if no correction was done.
+    let ag_for_delta = ag_corr; 
+
     if ((disorder.includes("Metabolic Acidosis") || associated.includes("Associated Metabolic Acidosis")) && !isNaN(ag_for_delta)) {
         delta = (ag_for_delta - 12)/(24 - hco3);
-
         if (ag_for_delta <= 12) {
             metaAcidType = "Normal anion gap metabolic acidosis (NAGMA)";
         } else {
@@ -134,16 +227,50 @@ function interpretABG() {
         }
     }
 
-    // --- Display results ---
+    // --- Display results (MODIFIED) ---
     const phColor=(ph>=normal.ph[0]&&ph<=normal.ph[1])?"normal":"abnormal";
     const pco2Color=(pco2>=normal.pco2[0]&&pco2<=normal.pco2[1])?"normal":"abnormal";
     const hco3Color=(hco3>=normal.hco3[0]&&hco3<=normal.hco3[1])?"normal":"abnormal";
 
-    let resultHTML=`<strong>pH:</strong> <span class="${phColor}">${ph}</span><br>`;
-    resultHTML+=`<strong>PaCO₂:</strong> <span class="${pco2Color}">${pco2} mmHg</span><br>`;
-    resultHTML+=`<strong>HCO₃⁻:</strong> <span class="${hco3Color}">${hco3} mmol/L</span><br>`;
+    const phType = getProbableSampleType('ph', ph);
+    const pco2Type = getProbableSampleType('pco2', pco2);
+    const hco3Type = getProbableSampleType('hco3', hco3);
+    const pao2Type = getProbableSampleType('pao2', pao2);
+    const sao2Type = getProbableSampleType('sao2', sao2);
+
+    let resultHTML=`<strong>pH:</strong> <span class="${phColor}">${ph}</span>${phType}<br>`;
+    resultHTML += `<strong>pH (Kassirer-Bleich):</strong> ${ph_kb.toFixed(2)} <span class="sample-type-note">(used only if HCO₃⁻ and PCO₂ are measured, not calculated)</span><br>`;
+    resultHTML+=`<strong>PaCO₂:</strong> <span class="${pco2Color}">${pco2} mmHg</span>${pco2Type}<br>`;
+    resultHTML+=`<strong>HCO₃⁻:</strong> <span class="${hco3Color}">${hco3} mmol/L</span>${hco3Type}<br>`;
+
+    if(!isNaN(pao2)) {
+        let pao2Color = "normal";
+        let pao2Status = "";
+        if (pao2 < normal.pao2[0]) {
+            pao2Color = "abnormal";
+            if (pao2 >= 60) pao2Status = " (Mild hypoxemia)";
+            else if (pao2 >= 40) pao2Status = " (Moderate hypoxemia)";
+            else pao2Status = " (Severe hypoxemia)";
+        } else if (pao2 > normal.pao2[1]) {
+             pao2Color = "abnormal";
+             pao2Status = " (Hyperoxemia)";
+        }
+        resultHTML+=`<strong>PaO₂:</strong> <span class="${pao2Color}">${pao2} mmHg</span>${pao2Status}${pao2Type}<br>`;
+    }
+    if(!isNaN(sao2)) {
+        let sao2Color = (sao2 >= normal.sao2[0]) ? "normal" : "abnormal";
+        let sao2Status = (sao2 < normal.sao2[0]) ? " (Hypoxemia)" : "";
+        resultHTML+=`<strong>SaO₂:</strong> <span class="${sao2Color}">${sao2} %</span>${sao2Status}${sao2Type}<br>`;
+    }
+    
+    // Display AG
     if(!isNaN(ag)) resultHTML+=`<strong>Anion Gap:</strong> ${ag.toFixed(1)}<br>`;
-    if(!isNaN(ag_corr) && ag_corr!==ag) resultHTML+=`<strong>Corrected Anion Gap:</strong> ${ag_corr.toFixed(1)}<br>`;
+    
+    // Display Corrected AG only if it's different from the calculated AG
+    if(!isNaN(ag_corr) && ag_corr.toFixed(1) !== ag.toFixed(1)) {
+        resultHTML+=`<strong>Corrected Anion Gap:</strong> ${ag_corr.toFixed(1)}<br>`;
+    }
+    
     if(!isNaN(delta)) resultHTML+=`<strong>Delta Ratio:</strong> ${delta.toFixed(2)}<br>`;
     if(metaAcidType) resultHTML+=`<strong>Metabolic Acidosis Type:</strong> ${metaAcidType}<br>`;
     resultHTML+=`<strong>Disorder:</strong> ${disorder}<br>`;
