@@ -208,8 +208,6 @@ function generateReport(mode, inputs, commonData) {
     let compensationHTML = "";
     let delta = NaN;
     let metaAcidType = "";
-    
-    // Flag to track if compensation is appropriate (default false until proven true)
     let isCompensated = false; 
 
     const isCustomDiagnosis = [
@@ -246,7 +244,6 @@ function generateReport(mode, inputs, commonData) {
                 }
             }
 
-            // Check Compensation
             isCompensated = (hco3 >= expected_hco3 - 2 && hco3 <= expected_hco3 + 2);
             
             compensationHTML = `Expected HCO₃⁻: ${expected_hco3.toFixed(1)} <br><small>${formulaNote}</small><br>`;
@@ -292,19 +289,28 @@ function generateReport(mode, inputs, commonData) {
     }
 
     // --- Delta Ratio Logic ---
-    const hasMetabolicAcidosisLabel = (disorder.toLowerCase().includes("metabolic acidosis") || associated.toLowerCase().includes("metabolic acidosis"));
-    const hasHighGap = (!isNaN(ag_corr) && ag_corr > 12);
+    let displayDeltaRatio = false;
+    let deltaRatioValue = "";
+    
+    // ALWAYS Calculate if data exists, regardless of AG value
+    if (!isNaN(ag_corr) && !isNaN(hco3)) {
+        const numerator = ag_corr - 12;
+        const denominator = 24 - hco3;
+        if (denominator > 0) {
+            delta = numerator / denominator;
+        } else {
+            delta = 999; 
+        }
 
-    if (hasMetabolicAcidosisLabel || hasHighGap) {
-        if (!isNaN(ag_corr)) {
-            const numerator = ag_corr - 12;
-            const denominator = 24 - hco3;
-            if (denominator > 0) {
-                delta = numerator / denominator;
-            } else {
-                delta = 999; 
-            }
-            
+        displayDeltaRatio = true;
+        // Show value even if normal gap (value will likely be negative)
+        deltaRatioValue = (delta === 999) ? "> 2.0" : delta.toFixed(2);
+
+        // Interpretation Text (only if triggers met)
+        const hasMetabolicAcidosisLabel = (disorder.toLowerCase().includes("metabolic acidosis") || associated.toLowerCase().includes("metabolic acidosis"));
+        const hasHighGap = (ag_corr > 12);
+
+        if (hasMetabolicAcidosisLabel || hasHighGap) {
             if (ag_corr <= 12) {
                 metaAcidType = "Normal anion gap metabolic acidosis (NAGMA)";
             } else {
@@ -317,8 +323,6 @@ function generateReport(mode, inputs, commonData) {
     }
 
     // --- Suppression Rule ---
-    // IF (Resp Alk OR Resp Acid OR Met Alk) AND Compensation is Appropriate AND No Metabolic Acidosis in associated
-    // THEN Suppress Gap Interpretation
     let suppressGapInfo = false;
     const suppressionCandidates = ["Respiratory Alkalosis", "Respiratory Acidosis", "Metabolic Alkalosis"];
     
@@ -328,7 +332,6 @@ function generateReport(mode, inputs, commonData) {
         }
     }
 
-
     // --- Build HTML ---
     const phColor = (ph >= normal.ph[0] && ph <= normal.ph[1]) ? "normal" : "abnormal";
     const pco2Color = (pco2 >= normal.pco2[0] && pco2 <= normal.pco2[1]) ? "normal" : "abnormal";
@@ -336,12 +339,22 @@ function generateReport(mode, inputs, commonData) {
 
     let html = `<div class="section-title">Basic Values</div>`;
     html += `pH: <span class="${phColor}">${ph}</span>${getProbableSampleType('ph', ph)}<br>`;
+    
+    if (!isNaN(ph_kb)) {
+        html += `pH (Kassirer-Bleich): ${ph_kb.toFixed(2)} <span class="sample-type-note">(validity check)</span><br>`;
+    }
+
     html += `PaCO₂: <span class="${pco2Color}">${pco2}</span>${getProbableSampleType('pco2', pco2)}<br>`;
     html += `HCO₃⁻: <span class="${hco3Color}">${hco3}</span>${getProbableSampleType('hco3', hco3)}<br>`;
     
     if (!isNaN(pao2)) {
         let pao2Color = (pao2 >= normal.pao2[0]) ? "normal" : "abnormal";
         html += `PaO₂: <span class="${pao2Color}">${pao2}</span>${getProbableSampleType('pao2', pao2)}<br>`;
+    }
+
+    if (!isNaN(sao2)) {
+        let sao2Color = (sao2 >= normal.sao2[0]) ? "normal" : "abnormal";
+        html += `SaO₂: <span class="${sao2Color}">${sao2}%</span>${getProbableSampleType('sao2', sao2)}<br>`;
     }
     
     if (!isNaN(pao2) && !isNaN(fio2) && fio2 > 0) {
@@ -351,10 +364,12 @@ function generateReport(mode, inputs, commonData) {
     }
 
     if (!isNaN(ag_corr)) html += `<br><strong>Anion Gap (Corr):</strong> ${ag_corr.toFixed(1)}`;
-    if (!isNaN(delta) && delta !== 999) html += `<br><strong>Delta Ratio:</strong> ${delta.toFixed(2)}`;
-    else if (delta === 999) html += `<br><strong>Delta Ratio:</strong> > 2.0 (Significant Metabolic Alkalosis)`;
+    
+    // Always show Delta Ratio numeric field if calculated
+    if (displayDeltaRatio) {
+        html += `<br><strong>Delta Ratio:</strong> ${deltaRatioValue}`;
+    }
 
-    // Only show Gap Interpretation if NOT suppressed
     if (metaAcidType && !suppressGapInfo) {
         html += `<br><strong>Gap Interpretation:</strong> ${metaAcidType}`;
     }
@@ -376,7 +391,6 @@ function generateReport(mode, inputs, commonData) {
     
     finalDiagnosisParts.push(disorder);
 
-    // Only add Gap details if NOT suppressed
     if (metaAcidType && !suppressGapInfo) {
         const primaryLow = disorder.toLowerCase();
         const gapLow = metaAcidType.toLowerCase();
@@ -393,11 +407,6 @@ function generateReport(mode, inputs, commonData) {
 
     if (associated) {
         const isGenericMetAcidosis = (associated === "Associated Metabolic Acidosis");
-        
-        // If we suppressed gap info, we might still need to show generic "Associated" if it exists, 
-        // but the rule says "if there is no metabolic acidosis" we suppress.
-        // If associated IS "Associated Metabolic Acidosis", then suppressGapInfo would be false anyway.
-        
         if (!isGenericMetAcidosis || (!metaAcidType || suppressGapInfo)) {
              const currentString = finalDiagnosisParts.join(" ").toLowerCase();
              if (!currentString.includes(associated.toLowerCase())) {
