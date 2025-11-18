@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PPV & SPV ICU Calculator</title>
+<style>
+    body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; }
+    h1 { text-align: center; }
+    .calculator { background-color: #fff; padding: 20px; border-radius: 10px; max-width: 500px; margin: auto; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
+    input[type=number] { width: 95%; padding: 8px; margin: 5px 0 15px 0; border-radius: 5px; border: 1px solid #ccc; }
+    button { padding: 10px 15px; border: none; border-radius: 5px; background-color: #007bff; color: white; cursor: pointer; margin-bottom: 10px; }
+    button:hover { background-color: #0056b3; }
+    .result { margin-top: 10px; font-weight: bold; }
+    hr { margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<h1>PPV & SPV ICU Calculator</h1>
+
+<div class="calculator">
+    <h2>PPV Method 1 (4 inputs)</h2>
+    <label for="ppv_sbp_max">SBP Max (mmHg):</label>
+    <input type="number" id="ppv_sbp_max" placeholder="Systolic BP max">
+    <label for="ppv_dbp_max">DBP Max (mmHg):</label>
+    <input type="number" id="ppv_dbp_max" placeholder="Diastolic BP max">
+    <label for="ppv_sbp_min">SBP Min (mmHg):</label>
+    <input type="number" id="ppv_sbp_min" placeholder="Systolic BP min">
+    <label for="ppv_dbp_min">DBP Min (mmHg):</label>
+    <input type="number" id="ppv_dbp_min" placeholder="Diastolic BP min">
+    <button onclick="calculatePPV1()">Calculate PPV (4-input)</button>
+    <div class="result" id="ppv_result1"></div>
+
+    <hr>
+
+    <h2>PPV Method 2 (2 inputs)</h2>
+    <label for="ppv_pmax">PMax (mmHg):</label>
+    <input type="number" id="ppv_pmax" placeholder="Pulse pressure max">
+    <label for="ppv_pmin">PMin (mmHg):</label>
+    <input type="number" id="ppv_pmin" placeholder="Pulse pressure min">
+    <button onclick="calculatePPV2()">Calculate PPV (2-input)</button>
+    <div class="result" id="ppv_result2"></div>
+
+    <hr>
+
+    <h2>SPV Calculation</h2>
+    <label for="spv_sbp_max">SBP Max (mmHg):</label>
+    <input type="number" id="spv_sbp_max" placeholder="Systolic BP max">
+    <label for="spv_sbp_min">SBP Min (mmHg):</label>
+    <input type="number" id="spv_sbp_min" placeholder="Systolic BP min">
+    <button onclick="calculateSPV()">Calculate SPV</button>
+    <div class="result" id="spv_result"></div>
+</div>
+
+<script>
+function calculatePPV1() {
+    const sbpMax = parseFloat(document.getElementById("ppv_sbp_max").value);
+    const dbpMax = parseFloat(document.getElementById("ppv_dbp_max").value);
+    const sbpMin = parseFloat(document.getElementById("ppv_sbp_min").value);
+    const dbpMin = parseFloat(document.getElementById("ppv_dbp_min").value);
+
+    if(isNaN(sbpMax) || isNaN(dbpMax) || isNaN(sbpMin) || isNaN(dbpMin)) {
+        document.getElementById("ppv_result1").innerText = "Please enter valid values.";
+        return;
+    }
+
+    const PMax = sbpMax - dbpMax;
+    const PMin = sbpMin - dbpMin;
+
+    const ppv = ((PMax - PMin) / ((PMax + PMin)/2)) * 100;
+    document.getElementById("ppv_result1").innerText = "PPV: " + ppv.toFixed(2) + " %";
+}
+
+function calculatePPV2() {
+    const PMax = parseFloat(document.getElementById("ppv_pmax").value);
+    const PMin = parseFloat(document.getElementById("ppv_pmin").value);
+
+    if(isNaN(PMax) || isNaN(PMin)) {
+        document.getElementById("ppv_result2").innerText = "Please enter valid values.";
+        return;
+    }
+
+    const ppv = ((PMax - PMin) / ((PMax + PMin)/2)) * 100;
+    document.getElementById("ppv_result2").innerText = "PPV: " + ppv.toFixed(2) + " %";
+}
+
+function calculateSPV() {
+    const sbpMax = parseFloat(document.getElementById("spv_sbp_max").value);
+    const sbpMin = parseFloat(document.getElementById("spv_sbp_min").value);
+
+    if(isNaN(sbpMax) || isNaN(sbpMin)) {
+        document.getElementById("spv_result").innerText = "Please enter valid values.";
+        return;
+    }
+
+    const spv = sbpMax - sbpMin;
+    document.getElementById("spv_result").innerText = "SPV: " + spv.toFixed(2) + " mmHg";
+}
+</script>
+
+</body>
+</html>
