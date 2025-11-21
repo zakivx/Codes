@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IVC Index Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        h2 {
+            text-align: center;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .result {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h2>IVC Collapsibility & Distensibility Calculator</h2>
+
+    <label for="ivcMax">IVC Max (cm):</label>
+    <input type="number" id="ivcMax" placeholder="Enter IVC max diameter" step="0.01">
+
+    <label for="ivcMin">IVC Min (cm):</label>
+    <input type="number" id="ivcMin" placeholder="Enter IVC min diameter" step="0.01">
+
+    <label for="mode">Patient Type:</label>
+    <select id="mode">
+        <option value="spontaneous">Spontaneously Breathing (CI)</option>
+        <option value="ventilated">Mechanically Ventilated (DI)</option>
+    </select>
+
+    <button onclick="calculateIVC()">Calculate</button>
+
+    <div class="result" id="result"></div>
+
+    <script>
+        function calculateIVC() {
+            const ivcMax = parseFloat(document.getElementById("ivcMax").value);
+            const ivcMin = parseFloat(document.getElementById("ivcMin").value);
+            const mode = document.getElementById("mode").value;
+            const resultDiv = document.getElementById("result");
+
+            if (isNaN(ivcMax) || isNaN(ivcMin) || ivcMax <= 0 || ivcMin < 0) {
+                resultDiv.innerHTML = "<span style='color:red'>Please enter valid IVC diameters.</span>";
+                return;
+            }
+
+            let index = 0;
+            if (mode === "spontaneous") {
+                // Collapsibility Index
+                index = ((ivcMax - ivcMin) / ivcMax) * 100;
+                resultDiv.innerHTML = `Collapsibility Index (CI): <b>${index.toFixed(2)}%</b>`;
+            } else {
+                // Distensibility Index
+                index = ((ivcMax - ivcMin) / ivcMin) * 100;
+                resultDiv.innerHTML = `Distensibility Index (DI): <b>${index.toFixed(2)}%</b>`;
+            }
+        }
+    </script>
+</body>
+</html>
