@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Tools</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  #search {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+  }
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  li {
+    background: #fff;
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<h1>Medical Tools</h1>
+
+<input type="text" id="search" placeholder="Search tools...">
+
+<ul id="toolList">
+  <li><a href="https://zakivx.github.io/Codes/abgInterpretation.html" target="_blank">ABG Interpretation</a></li>
+  <li><a href="http://zakivx.github.io/Codes/ppvspvCalculator.html" target="_blank">PPV/SPV Calculator</a></li>
+  <li><a href="https://zakivx.github.io/Codes/cprSimulator.html" target="_blank">CPR Simulator</a></li>
+  <li><a href="https://zakivx.github.io/Codes/drugDilutionCalculator.html" target="_blank">Drug Dilution Calculator</a></li>
+  <li><a href="https://zakivx.github.io/Codes/drugDosageCalculator.html" target="_blank">Drug Dosage Calculator</a></li>
+  <li><a href="https://zakivx.github.io/Codes/ivcIndex.html" target="_blank">IVC Index Calculator</a></li>
+</ul>
+
+<script>
+const searchInput = document.getElementById('search');
+const toolList = document.getElementById('toolList');
+const items = toolList.getElementsByTagName('li');
+
+searchInput.addEventListener('input', function() {
+  const filter = this.value.toLowerCase();
+  for (let i = 0; i < items.length; i++) {
+    const text = items[i].innerText.toLowerCase();
+    items[i].style.display = text.includes(filter) ? '' : 'none';
+  }
+});
+</script>
+
+</body>
+</html>
