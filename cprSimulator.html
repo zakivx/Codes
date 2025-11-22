@@ -26,105 +26,85 @@ body { font-family: Arial, sans-serif; text-align: center; margin: 10px; padding
 .breath-on { background: #1e90ff; color: white; }
 .compress-on { background: #ff3333; color: white; }
 
-input { padding: 8px; font-size: 16px; width: 80px; margin: 5px; text-align: center; }
-button { font-size: 16px; padding: 8px 12px; margin: 5px; border-radius: 5px; }
+input { padding: 8px; font-size: 16px; width: 70px; margin: 3px; text-align: center; }
+button { font-size: 16px; padding: 8px 12px; margin: 3px; border-radius: 5px; }
 
-#timer { font-size: 22px; margin-top: 10px; font-weight: bold; }
+#timer, #rhythmTimer { font-size: 18px; font-weight: bold; margin: 3px; }
 
-.section {
-    margin-top: 15px; padding: 10px; border: 2px solid #ddd; border-radius: 10px;
-    width: 90%; max-width: 500px; margin-left: auto; margin-right: auto;
-}
+.section { margin-top: 15px; padding: 10px; border: 2px solid #ddd; border-radius: 10px; width: 95%; max-width: 600px; margin-left: auto; margin-right: auto; }
 
 .title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
-.timer, .count, .event-log { font-size: 16px; margin: 3px; text-align: left; word-wrap: break-word; }
+.event-log { max-height: 200px; overflow-y: auto; text-align: left; word-wrap: break-word; margin-top:10px; }
 
 /* Rhythm check button colors */
-#rhythmButton {
-    font-size: 16px;
-    padding: 8px 12px;
-    margin: 5px;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-}
+#rhythmButton { border: none; border-radius: 5px; color: white; cursor: pointer; }
 #rhythmButton.stopped { background-color: green; }
 #rhythmButton.running { background-color: red; }
 
-/* Responsive layout for inputs and buttons */
-.controls, .drug-buttons, .defib-controls {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-bottom: 10px;
-}
-.controls label, .controls input, .drug-buttons button, .defib-controls input, .defib-controls button {
-    margin: 5px;
-}
-.event-log {
-    max-height: 200px;
-    overflow-y: auto;
-}
+/* Flex rows */
+.row { display: flex; flex-wrap: wrap; justify-content: center; margin-bottom: 5px; }
+.row > * { margin: 3px; }
+
+/* Input column layout */
+.input-group { display: flex; flex-direction: column; align-items: center; margin: 3px; }
+.input-group label { font-size: 14px; margin-bottom: 2px; }
 </style>
 </head>
 <body>
 
 <h2>CPR Simulator</h2>
 
-<div class="controls">
-    <label>Breaths/min:</label><input id="breathRate" type="number" value="10">
-    <label>Compressions/min:</label><input id="compressRate" type="number" value="120">
+<!-- Inputs row -->
+<div class="row">
+    <div class="input-group"><label>Breaths/min</label><input id="breathRate" type="number" value="10"></div>
+    <div class="input-group"><label>Compressions/min</label><input id="compressRate" type="number" value="120"></div>
+    <div class="input-group"><label>Joules</label><input id="joulesInput" type="number" value="200"></div>
 </div>
 
-<div class="controls">
+<!-- CPR Controls -->
+<div class="row">
     <button onclick="startCPR()">Start CPR</button>
     <button onclick="stopCPR()">Stop CPR</button>
     <button onclick="resetAll()">Reset</button>
 </div>
 
-<div id="timer">Time: 00:00:00</div>
+<!-- Timers row -->
+<div class="row">
+    <div id="timer">CPR: 00:00</div>
+    <div id="rhythmTimer">Rhy: 00:00</div>
+    <div id="epiTimer">Epi: 00:00</div>
+    <div id="amioTimer">Amio: 00:00</div>
+    <div id="lidoTimer">Lido: 00:00</div>
+</div>
 
+<!-- Counts row -->
+<div class="row">
+    <div id="epiCount">Epi: 0</div>
+    <div id="amioCount">Amio: 0</div>
+    <div id="lidoCount">Lido: 0</div>
+</div>
+
+<!-- Flash boxes -->
 <div id="breathBox" class="box">BREATH</div>
 <div id="compressBox" class="box">COMPRESS</div>
 
-<hr>
+<!-- Action buttons row -->
+<div class="row">
+    <button onclick="adminDrug('epi')">Epi</button>
+    <button onclick="adminDrug('amio')">Amio</button>
+    <button onclick="adminDrug('lido')">Lido</button>
+    <button id="rhythmButton" onclick="toggleRhythmCheck()">Rhy</button>
+    <button onclick="defibrillate()">Def</button>
+</div>
 
+<!-- Event log -->
 <div class="section">
-<div class="title">Drugs</div>
-<div class="drug-buttons">
-    <button onclick="adminDrug('epi')">Give Epinephrine</button>
-    <button onclick="adminDrug('amio')">Give Amiodarone</button>
-    <button onclick="adminDrug('lido')">Give Lidocaine</button>
-</div>
-<div id="epiTimer" class="timer">Epi last dose: 00:00:00</div>
-<div id="epiCount" class="count">Total: 0</div>
-<div id="amioTimer" class="timer">Amio last dose: 00:00:00</div>
-<div id="amioCount" class="count">Total: 0</div>
-<div id="lidoTimer" class="timer">Lido last dose: 00:00:00</div>
-<div id="lidoCount" class="count">Total: 0</div>
-</div>
-
-<hr>
-
-<div class="section">
-<div class="title">Rhythm & Defibrillation</div>
-<div class="defib-controls">
-    <button id="rhythmButton" onclick="toggleRhythmCheck()">Start Rhythm Check</button>
-    <label>Joules:</label><input type="number" id="joulesInput" value="200" style="width:80px;">
-    <button onclick="defibrillate()">Defibrillate</button>
-</div>
-<div id="rhythmTimer" class="timer">Rhythm Check: 00:00:00</div>
-</div>
-
-<hr>
-
-<div class="section">
-<div class="title">Event History</div>
-<div id="eventLog" class="event-log"></div>
+    <div class="title">Event History</div>
+    <div id="eventLog" class="event-log"></div>
 </div>
 
 <script>
+// ====== JavaScript logic ======
 let breathInterval, compressInterval, cprTimerInterval;
 let cprRunning = false;
 let secondsPassed = 0;
@@ -146,7 +126,14 @@ function flashBox(box, className, duration){
     setTimeout(()=> box.classList.remove(className), duration);
 }
 
-// Format seconds to HH:MM:SS
+// Format seconds to MM:SS for drug and rhythm timers
+function formatMMSS(sec){
+    const m = String(Math.floor(sec/60)).padStart(2,"0");
+    const s = String(sec%60).padStart(2,"0");
+    return `${m}:${s}`;
+}
+
+// Format HH:MM for main CPR timer
 function formatTime(sec){
     const h = String(Math.floor(sec/3600)).padStart(2,"0");
     const m = String(Math.floor((sec%3600)/60)).padStart(2,"0");
@@ -154,16 +141,19 @@ function formatTime(sec){
     return `${h}:${m}:${s}`;
 }
 
-// Log event
+// Log event with current day time
 function logEvent(message){
     const log = document.getElementById("eventLog");
-    const time = formatTime(secondsPassed);
+
+    const now = new Date();
+    const time = now.toLocaleTimeString('en-US', { hour12: false });
+
     log.innerHTML += `[${time}] ${message}<br>`;
     log.scrollTop = log.scrollHeight;
-    saveState(); 
+    saveState();
 }
 
-// CPR Functions
+// CPR
 function startCPR(){
     if(cprRunning) stopCPR();
     cprRunning = true;
@@ -179,7 +169,7 @@ function startCPR(){
 
     cprTimerInterval = setInterval(()=>{
         secondsPassed++;
-        document.getElementById("timer").textContent = "Time: "+formatTime(secondsPassed);
+        document.getElementById("timer").textContent = "CPR: "+formatMMSS(secondsPassed);
         saveState();
     },1000);
 
@@ -201,24 +191,23 @@ function stopCPR(){
     logEvent("CPR Stopped");
 }
 
-// Drug Functions
+// Drugs
 function adminDrug(drug){
     const data = drugData[drug];
     data.count++;
     data.seconds=0;
-    document.getElementById(drug+"Count").textContent = "Total: "+data.count;
-    document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+" last dose: 00:00:00";
+    document.getElementById(drug+"Count").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": "+data.count;
+    document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": 00:00";
     clearInterval(data.timerId);
     data.timerId = setInterval(()=>{
         data.seconds++;
-        document.getElementById(drug+"Timer").textContent =
-            drug.charAt(0).toUpperCase()+drug.slice(1)+" last dose: "+formatTime(data.seconds);
+        document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": "+formatMMSS(data.seconds);
         saveState();
     },1000);
     logEvent(`Drug given: ${drug.toUpperCase()}`);
 }
 
-// Rhythm Check Toggle
+// Rhythm Check
 function toggleRhythmCheck() {
     const btn = document.getElementById("rhythmButton");
 
@@ -226,31 +215,29 @@ function toggleRhythmCheck() {
         rhythmRunning = true;
         rhythmSeconds = 0;
         rhythmStartTime = secondsPassed;
-        document.getElementById("rhythmTimer").textContent = "Rhythm Check: 00:00:00";
+        document.getElementById("rhythmTimer").textContent = "Rhy: 00:00";
 
         rhythmTimerInterval = setInterval(() => {
             rhythmSeconds++;
-            document.getElementById("rhythmTimer").textContent = "Rhythm Check: " + formatTime(rhythmSeconds);
+            document.getElementById("rhythmTimer").textContent = "Rhy: " + formatMMSS(rhythmSeconds);
             saveState();
         }, 1000);
 
-        btn.textContent = "Stop Rhythm Check";
         btn.classList.remove("stopped");
         btn.classList.add("running");
         logEvent("Rhythm Check Started");
     } else {
         clearInterval(rhythmTimerInterval);
         rhythmRunning = false;
-        btn.textContent = "Start Rhythm Check";
         btn.classList.remove("running");
         btn.classList.add("stopped");
 
-        const duration = secondsPassed - rhythmStartTime;
-        logEvent(`Rhythm Check Stopped (Duration: ${formatTime(duration)})`);
+        const duration = rhythmSeconds;
+        logEvent(`Rhythm Check Stopped (Duration: ${formatMMSS(duration)})`);
     }
 }
 
-// Defibrillation
+// Defibrillate
 function defibrillate(){
     let joulesField = document.getElementById("joulesInput");
     let joules = Number(joulesField.value);
@@ -261,7 +248,7 @@ function defibrillate(){
     }
 }
 
-// Reset everything
+// Reset
 function resetAll(){
     stopCPR();
 
@@ -270,31 +257,28 @@ function resetAll(){
         rhythmRunning = false;
     }
 
-    const btn = document.getElementById("rhythmButton");
-    btn.textContent = "Start Rhythm Check";
-    btn.classList.remove("running");
-    btn.classList.add("stopped");
     rhythmSeconds = 0;
     rhythmStartTime = 0;
-    document.getElementById("rhythmTimer").textContent = "Rhythm Check: 00:00:00";
+    document.getElementById("rhythmTimer").textContent = "Rhy: 00:00";
+    document.getElementById("rhythmButton").classList.remove("running");
+    document.getElementById("rhythmButton").classList.add("stopped");
 
     document.getElementById("eventLog").innerHTML = "";
-
     secondsPassed = 0;
-    document.getElementById("timer").textContent = "Time: 00:00:00";
+    document.getElementById("timer").textContent = "CPR: 00:00";
 
     for(let drug in drugData){
         clearInterval(drugData[drug].timerId);
         drugData[drug].count = 0;
         drugData[drug].seconds = 0;
-        document.getElementById(drug+"Count").textContent = "Total: 0";
-        document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+" last dose: 00:00:00";
+        document.getElementById(drug+"Count").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": 0";
+        document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": 00:00";
     }
 
     saveState();
 }
 
-// Save state
+// LocalStorage
 function saveState(){
     const state = {
         secondsPassed,
@@ -314,13 +298,12 @@ function saveState(){
     localStorage.setItem("cprState", JSON.stringify(state));
 }
 
-// Load state
 function loadState(){
     const saved = localStorage.getItem("cprState");
     if(!saved) return;
     const state = JSON.parse(saved);
     secondsPassed = state.secondsPassed || 0;
-    document.getElementById("timer").textContent = "Time: "+formatTime(secondsPassed);
+    document.getElementById("timer").textContent = "CPR: "+formatMMSS(secondsPassed);
     document.getElementById("eventLog").innerHTML = state.eventLog || "";
     document.getElementById("joulesInput").value = state.joules || 200;
     document.getElementById("breathRate").value = state.breathRate || 10;
@@ -329,15 +312,14 @@ function loadState(){
     for(let drug in state.drugData){
         drugData[drug].count = state.drugData[drug].count || 0;
         drugData[drug].seconds = state.drugData[drug].seconds || 0;
-        document.getElementById(drug+"Count").textContent = "Total: "+drugData[drug].count;
-        document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+" last dose: "+formatTime(drugData[drug].seconds);
+        document.getElementById(drug+"Count").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": "+drugData[drug].count;
+        document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": "+formatMMSS(drugData[drug].seconds);
 
         if(drugData[drug].seconds > 0){
             clearInterval(drugData[drug].timerId);
             drugData[drug].timerId = setInterval(()=>{
                 drugData[drug].seconds++;
-                document.getElementById(drug+"Timer").textContent =
-                    drug.charAt(0).toUpperCase()+drug.slice(1)+" last dose: "+formatTime(drugData[drug].seconds);
+                document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": "+formatMMSS(drugData[drug].seconds);
                 saveState();
             },1000);
         }
@@ -348,23 +330,19 @@ function loadState(){
     rhythmStartTime = state.rhythmStartTime || 0;
     const btn = document.getElementById("rhythmButton");
     if(rhythmRunning){
-        btn.textContent = "Stop Rhythm Check";
         btn.classList.add("running");
         rhythmTimerInterval = setInterval(()=>{
             rhythmSeconds++;
-            document.getElementById("rhythmTimer").textContent = "Rhythm Check: " + formatTime(rhythmSeconds);
+            document.getElementById("rhythmTimer").textContent = "Rhy: " + formatMMSS(rhythmSeconds);
             saveState();
         },1000);
     } else {
-        btn.textContent = "Start Rhythm Check";
         btn.classList.add("stopped");
-        document.getElementById("rhythmTimer").textContent = "Rhythm Check: "+formatTime(rhythmSeconds);
+        document.getElementById("rhythmTimer").textContent = "Rhy: "+formatMMSS(rhythmSeconds);
     }
 }
 
-window.onload = () => {
-    loadState();
-};
+window.onload = () => loadState();
 </script>
 
 </body>
