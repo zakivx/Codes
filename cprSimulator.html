@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>CPR Simulator</title>
+<title>CPR Simulator2</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body { font-family: Arial, sans-serif; text-align: center; margin: 10px; padding:0; }
@@ -57,11 +57,29 @@ button { font-size: 16px; padding: 8px 12px; margin: 3px; border-radius: 5px; }
 .shine {
     animation: shine 1s infinite;
 }
+
+/* Keep alive animation */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.5; }
+}
+#keepAlive {
+    width: 10px;
+    height: 10px;
+    background-color: green;
+    position: fixed;
+    bottom: 5px;
+    right: 5px;
+    animation: pulse 1s infinite;
+}
 </style>
 </head>
 <body>
 
 <h2>CPR Simulator</h2>
+
+<!-- Keep alive tiny animation -->
+<div id="keepAlive"></div>
 
 <!-- Inputs row -->
 <div class="row">
@@ -134,22 +152,6 @@ let drugData = {
 let lastEventStartTime = null;
 let lastEventInterval = null;
 
-// ----- Wake Lock -----
-let wakeLock = null;
-async function requestWakeLock(){
-    try{
-        if('wakeLock' in navigator){
-            wakeLock = await navigator.wakeLock.request('screen');
-            wakeLock.addEventListener('release', ()=> console.log('Wake Lock released'));
-        }
-    } catch(err){ console.log(err.name, err.message); }
-}
-document.addEventListener('visibilitychange', () => {
-    if(wakeLock !== null && document.visibilityState === 'visible'){
-        requestWakeLock();
-    }
-});
-
 // ----- Utils -----
 function formatMMSS(sec){
     const m = String(Math.floor(sec/60)).padStart(2,"0");
@@ -206,7 +208,6 @@ function startCPR(){
     if(cprRunning) stopCPR();
     cprRunning = true;
     cprStartTime = Date.now();
-    requestWakeLock();
 
     const breathBox = document.getElementById("breathBox");
     const compressBox = document.getElementById("compressBox");
