@@ -136,6 +136,25 @@ let drugData = {
 let lastEventSeconds = 0;
 let lastEventInterval = null;
 
+// Wake Lock
+let wakeLock = null;
+
+async function requestWakeLock(){
+    try{
+        if('wakeLock' in navigator){
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLock.addEventListener('release', ()=> console.log('Wake Lock released'));
+        }
+    } catch(err){ console.log(err.name, err.message); }
+}
+
+// Keep wake lock if page visibility changes
+document.addEventListener('visibilitychange', () => {
+    if(wakeLock !== null && document.visibilityState === 'visible'){
+        requestWakeLock();
+    }
+});
+
 function flashBox(box, className, duration){
     box.classList.add(className);
     setTimeout(()=> box.classList.remove(className), duration);
@@ -145,13 +164,6 @@ function formatMMSS(sec){
     const m = String(Math.floor(sec/60)).padStart(2,"0");
     const s = String(sec%60).padStart(2,"0");
     return `${m}:${s}`;
-}
-
-function formatTime(sec){
-    const h = String(Math.floor(sec/3600)).padStart(2,"0");
-    const m = String(Math.floor((sec%3600)/60)).padStart(2,"0");
-    const s = String(sec%60).padStart(2,"0");
-    return `${h}:${m}:${s}`;
 }
 
 // Event log
@@ -168,6 +180,8 @@ function logEvent(message){
 function startCPR(){
     if(cprRunning) stopCPR();
     cprRunning = true;
+
+    requestWakeLock();
 
     const breathBox = document.getElementById("breathBox");
     const compressBox = document.getElementById("compressBox");
@@ -408,4 +422,3 @@ window.onload = () => loadState();
 
 </body>
 </html>
- 
