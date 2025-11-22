@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CPR Simulator</title>
+<style>
+body { font-family: Arial, sans-serif; text-align: center; margin-top: 20px; }
+
+.box {
+    width: 200px; 
+    height: 40px;  
+    margin: 20px auto;
+    font-size: 16px;  
+    font-weight: bold; 
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    border-radius: 10px; 
+    border: 4px solid gray;
+    background: transparent; 
+    color: gray;
+    transition: background 0.1s ease, color 0.1s ease;
+}
+.breath-on { background: #1e90ff; color: white; }
+.compress-on { background: #ff3333; color: white; }
+
+input { padding: 5px; font-size: 18px; width: 120px; margin: 10px; text-align: center; }
+button { font-size: 16px; padding: 6px 12px; margin: 3px; }
+#timer { font-size: 24px; margin-top: 10px; font-weight: bold; }
+
+.section {
+    margin-top: 15px; padding: 10px; border: 2px solid #ddd; border-radius: 10px;
+    width: 440px; margin-left: auto; margin-right: auto;
+}
+
+.title { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+.timer, .count, .event-log { font-size: 16px; margin: 3px; text-align: left; }
+
+/* Rhythm check button colors */
+#rhythmButton {
+    padding: 6px 12px;
+    font-size: 16px;
+    margin: 3px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+}
+#rhythmButton.stopped { background-color: green; }
+#rhythmButton.running { background-color: red; }
+</style>
+</head>
+<body>
+
+<h2>CPR Simulator</h2>
+
+<label>Breaths/min: </label><input id="breathRate" type="number" value="10">
+<label>Compressions/min: </label><input id="compressRate" type="number" value="120">
+<br><br>
+<button onclick="startCPR()">Start CPR</button>
+<button onclick="stopCPR()">Stop CPR</button>
+<button onclick="resetAll()">Reset</button>
+<div id="timer">Time: 00:00:00</div>
+
+<div id="breathBox" class="box">BREATH</div>
+<div id="compressBox" class="box">COMPRESS</div>
+
+<hr>
+
+<!-- Drugs -->
+<div class="section">
+<div class="title">Drugs</div>
+<button onclick="adminDrug('epi')">Give Epinephrine</button>
+<button onclick="adminDrug('amio')">Give Amiodarone</button>
+<button onclick="adminDrug('lido')">Give Lidocaine</button>
+<div id="epiTimer" class="timer">Epi last dose: 00:00:00</div>
+<div id="epiCount" class="count">Total: 0</div>
+<div id="amioTimer" class="timer">Amio last dose: 00:00:00</div>
+<div id="amioCount" class="count">Total: 0</div>
+<div id="lidoTimer" class="timer">Lido last dose: 00:00:00</div>
+<div id="lidoCount" class="count">Total: 0</div>
+</div>
+
+<hr>
+
+<!-- Rhythm Check & Defibrillation -->
+<div class="section">
+<div class="title">Rhythm & Defibrillation</div>
+<button id="rhythmButton" onclick="toggleRhythmCheck()">Start Rhythm Check</button>
+
+<label>Joules:</label>
+<input type="number" id="joulesInput" value="200" style="width:80px;">
+<button onclick="defibrillate()">Defibrillate</button>
+
+<div id="rhythmTimer" class="timer">Rhythm Check: 00:00:00</div>
+</div>
+
+<hr>
+
+<!-- Event History -->
+<div class="section">
+<div class="title">Event History</div>
+<div id="eventLog" class="event-log"></div>
+</div>
+
+<script>
+let breathInterval, compressInterval, cprTimerInterval;
+let cprRunning = false;
+let secondsPassed = 0;
+
+let rhythmRunning = false;
+let rhythmTimerInterval;
+let rhythmSeconds = 0;
+let rhythmStartTime = 0;
+
+let drugData = {
+    epi: {seconds:0, count:0, timerId:null},
+    amio: {seconds:0, count:0, timerId:null},
+    lido: {seconds:0, count:0, timerId:null}
+};
+
+// Flash boxes
+function flashBox(box, className, duration){
+    box.classList.add(className);
+    setTimeout(()=> box.classList.remove(className), duration);
+}
+
+// Format seconds to HH:MM:SS
+function formatTime(sec){
+    const h = String(Math.floor(sec/3600)).padStart(2,"0");
+    const m = String(Math.floor((sec%3600)/60)).padStart(2,"0");
+    const s = String(sec%60).padStart(2,"0");
+    return `${h}:${m}:${s}`;
+}
+
+// Log event
+function logEvent(message){
+    const log = document.getElementById("eventLog");
+    const time = formatTime(secondsPassed);
+    log.innerHTML += `[${time}] ${message}<br>`;
+    log.scrollTop = log.scrollHeight;
+    saveState(); // save state to localStorage after each event
+}
+
+// CPR Functions
+function startCPR(){
+    if(cprRunning) stopCPR();
+    cprRunning = true;
+
+    const breathBox = document.getElementById("breathBox");
+    const compressBox = document.getElementById("compressBox");
+
+    const breathsPerMin = Number(document.getElementById("breathRate").value);
+    const compressPerMin = Number(document.getElementById("compressRate").value);
+
+    const breathIntervalMs = 60000/breathsPerMin;
+    const compressIntervalMs = 60000/compressPerMin;
+
+    cprTimerInterval = setInterval(()=>{
+        secondsPassed++;
+        document.getElementById("timer").textContent = "Time: "+formatTime(secondsPassed);
+        saveState();
+    },1000);
+
+    breathInterval = setInterval(()=> flashBox(breathBox,"breath-on",700), breathIntervalMs);
+    compressInterval = setInterval(()=> flashBox(compressBox,"compress-on",200), compressIntervalMs);
+
+    flashBox(breathBox,"breath-on",700);
+    flashBox(compressBox,"compress-on",200);
+
+    logEvent("CPR Started");
+}
+
+function stopCPR(){
+    if(!cprRunning) return;
+    clearInterval(breathInterval);
+    clearInterval(compressInterval);
+    clearInterval(cprTimerInterval);
+    cprRunning = false;
+    logEvent("CPR Stopped");
+}
+
+// Drug Functions
+function adminDrug(drug){
+    const data = drugData[drug];
+    data.count++;
+    data.seconds=0;
+    document.getElementById(drug+"Count").textContent = "Total: "+data.count;
+    document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+" last dose: 00:00:00";
+    clearInterval(data.timerId);
+    data.timerId = setInterval(()=>{
+        data.seconds++;
+        document.getElementById(drug+"Timer").textContent =
+            drug.charAt(0).toUpperCase()+drug.slice(1)+" last dose: "+formatTime(data.seconds);
+        saveState();
+    },1000);
+    logEvent(`Drug given: ${drug.toUpperCase()}`);
+}
+
+// Rhythm Check Toggle
+function toggleRhythmCheck() {
+    const btn = document.getElementById("rhythmButton");
+
+    if (!rhythmRunning) {
+        rhythmRunning = true;
+        rhythmSeconds = 0;
+        rhythmStartTime = secondsPassed;
+        document.getElementById("rhythmTimer").textContent = "Rhythm Check: 00:00:00";
+
+        rhythmTimerInterval = setInterval(() => {
+            rhythmSeconds++;
+            document.getElementById("rhythmTimer").textContent = "Rhythm Check: " + formatTime(rhythmSeconds);
+            saveState();
+        }, 1000);
+
+        btn.textContent = "Stop Rhythm Check";
+        btn.classList.remove("stopped");
+        btn.classList.add("running");
+        logEvent("Rhythm Check Started");
+    } else {
+        clearInterval(rhythmTimerInterval);
+        rhythmRunning = false;
+        btn.textContent = "Start Rhythm Check";
+        btn.classList.remove("running");
+        btn.classList.add("stopped");
+
+        const duration = secondsPassed - rhythmStartTime;
+        logEvent(`Rhythm Check Stopped (Duration: ${formatTime(duration)})`);
+    }
+}
+
+// Defibrillation
+function defibrillate(){
+    let joulesField = document.getElementById("joulesInput");
+    let joules = Number(joulesField.value);
+    if(joules && joules > 0){
+        logEvent(`Defibrillated: ${joules} J`);
+    } else {
+        alert("Please enter a valid number of joules.");
+    }
+}
+
+// Reset everything including rhythm check
+function resetAll(){
+    // Stop CPR
+    stopCPR();
+
+    // Stop rhythm check
+    if(rhythmRunning){
+        clearInterval(rhythmTimerInterval);
+        rhythmRunning = false;
+    }
+
+    // Reset rhythm check UI
+    const btn = document.getElementById("rhythmButton");
+    btn.textContent = "Start Rhythm Check";
+    btn.classList.remove("running");
+    btn.classList.add("stopped");
+    rhythmSeconds = 0;
+    rhythmStartTime = 0;
+    document.getElementById("rhythmTimer").textContent = "Rhythm Check: 00:00:00";
+
+    // Clear event log
+    document.getElementById("eventLog").innerHTML = "";
+
+    // Reset CPR timer
+    secondsPassed = 0;
+    document.getElementById("timer").textContent = "Time: 00:00:00";
+
+    // Reset drug data
+    for(let drug in drugData){
+        clearInterval(drugData[drug].timerId);
+        drugData[drug].count = 0;
+        drugData[drug].seconds = 0;
+        document.getElementById(drug+"Count").textContent = "Total: 0";
+        document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+" last dose: 00:00:00";
+    }
+
+    saveState();
+}
+
+// Save state to localStorage
+function saveState(){
+    const state = {
+        secondsPassed,
+        eventLog: document.getElementById("eventLog").innerHTML,
+        drugData: {
+            epi: {seconds: drugData.epi.seconds, count: drugData.epi.count},
+            amio: {seconds: drugData.amio.seconds, count: drugData.amio.count},
+            lido: {seconds: drugData.lido.seconds, count: drugData.lido.count}
+        },
+        rhythmRunning,
+        rhythmSeconds,
+        rhythmStartTime,
+        joules: document.getElementById("joulesInput").value,
+        breathRate: document.getElementById("breathRate").value,
+        compressRate: document.getElementById("compressRate").value
+    };
+    localStorage.setItem("cprState", JSON.stringify(state));
+}
+
+// Load state from localStorage
+function loadState(){
+    const saved = localStorage.getItem("cprState");
+    if(!saved) return;
+    const state = JSON.parse(saved);
+    secondsPassed = state.secondsPassed || 0;
+    document.getElementById("timer").textContent = "Time: "+formatTime(secondsPassed);
+    document.getElementById("eventLog").innerHTML = state.eventLog || "";
+    document.getElementById("joulesInput").value = state.joules || 200;
+    document.getElementById("breathRate").value = state.breathRate || 10;
+    document.getElementById("compressRate").value = state.compressRate || 120;
+
+    for(let drug in state.drugData){
+        drugData[drug].count = state.drugData[drug].count || 0;
+        drugData[drug].seconds = state.drugData[drug].seconds || 0;
+        document.getElementById(drug+"Count").textContent = "Total: "+drugData[drug].count;
+        document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+" last dose: "+formatTime(drugData[drug].seconds);
+
+        if(drugData[drug].seconds > 0){
+            clearInterval(drugData[drug].timerId);
+            drugData[drug].timerId = setInterval(()=>{
+                drugData[drug].seconds++;
+                document.getElementById(drug+"Timer").textContent =
+                    drug.charAt(0).toUpperCase()+drug.slice(1)+" last dose: "+formatTime(drugData[drug].seconds);
+                saveState();
+            },1000);
+        }
+    }
+
+    rhythmRunning = state.rhythmRunning || false;
+    rhythmSeconds = state.rhythmSeconds || 0;
+    rhythmStartTime = state.rhythmStartTime || 0;
+    const btn = document.getElementById("rhythmButton");
+    if(rhythmRunning){
+        btn.textContent = "Stop Rhythm Check";
+        btn.classList.add("running");
+        rhythmTimerInterval = setInterval(()=>{
+            rhythmSeconds++;
+            document.getElementById("rhythmTimer").textContent = "Rhythm Check: " + formatTime(rhythmSeconds);
+            saveState();
+        },1000);
+    } else {
+        btn.textContent = "Start Rhythm Check";
+        btn.classList.add("stopped");
+        document.getElementById("rhythmTimer").textContent = "Rhythm Check: "+formatTime(rhythmSeconds);
+    }
+}
+
+// Initialize
+window.onload = () => {
+    loadState();
+};
+</script>
+
+</body>
+</html>
