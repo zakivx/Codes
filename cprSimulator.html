@@ -115,30 +115,27 @@ button { font-size: 16px; padding: 8px 12px; margin: 3px; border-radius: 5px; }
 </div>
 
 <script>
+// ----- Core variables -----
 let breathInterval, compressInterval, cprTimerInterval;
 let cprRunning = false;
-let secondsPassed = 0;
+let cprStartTime = null;
 
 let rhythmRunning = false;
-let rhythmTimerInterval;
-let rhythmSeconds = 0;
-let rhythmStartTime = 0;
+let rhythmStartTime = null;
 
 let shockCount = 0;
 
 let drugData = {
-    epi: {seconds:0, count:0, timerId:null},
-    amio: {seconds:0, count:0, timerId:null},
-    lido: {seconds:0, count:0, timerId:null}
+    epi: {startTime:null, count:0, intervalId:null},
+    amio: {startTime:null, count:0, intervalId:null},
+    lido: {startTime:null, count:0, intervalId:null}
 };
 
-// Last event timer
-let lastEventSeconds = 0;
+let lastEventStartTime = null;
 let lastEventInterval = null;
 
-// Wake Lock
+// ----- Wake Lock -----
 let wakeLock = null;
-
 async function requestWakeLock(){
     try{
         if('wakeLock' in navigator){
@@ -147,26 +144,28 @@ async function requestWakeLock(){
         }
     } catch(err){ console.log(err.name, err.message); }
 }
-
-// Keep wake lock if page visibility changes
 document.addEventListener('visibilitychange', () => {
     if(wakeLock !== null && document.visibilityState === 'visible'){
         requestWakeLock();
     }
 });
 
-function flashBox(box, className, duration){
-    box.classList.add(className);
-    setTimeout(()=> box.classList.remove(className), duration);
-}
-
+// ----- Utils -----
 function formatMMSS(sec){
     const m = String(Math.floor(sec/60)).padStart(2,"0");
     const s = String(sec%60).padStart(2,"0");
     return `${m}:${s}`;
 }
-
-// Event log
+function formatTime(hSec){ 
+    const h = String(Math.floor(hSec/3600)).padStart(2,"0");
+    const m = String(Math.floor((hSec%3600)/60)).padStart(2,"0");
+    const s = String(hSec%60).padStart(2,"0");
+    return `${h}:${m}:${s}`;
+}
+function flashBox(box, className, duration){
+    box.classList.add(className);
+    setTimeout(()=> box.classList.remove(className), duration);
+}
 function logEvent(message){
     const log = document.getElementById("eventLog");
     const now = new Date();
@@ -176,11 +175,37 @@ function logEvent(message){
     saveState();
 }
 
-// CPR
+// ----- Timer Updaters -----
+function updateCPRTimer(){
+    if(!cprStartTime) return;
+    const elapsedSec = Math.floor((Date.now() - cprStartTime)/1000);
+    document.getElementById("timer").textContent = "CPR: "+formatMMSS(elapsedSec);
+}
+function updateRhythmTimer(){
+    if(!rhythmStartTime) return;
+    const elapsedSec = Math.floor((Date.now() - rhythmStartTime)/1000);
+    document.getElementById("rhythmTimer").textContent = "Rhy: "+formatMMSS(elapsedSec);
+}
+function updateDrugTimer(drug){
+    if(!drugData[drug].startTime) return;
+    const elapsedSec = Math.floor((Date.now() - drugData[drug].startTime)/1000);
+    document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": "+formatMMSS(elapsedSec);
+}
+function updateLastEventTimer(){
+    if(!lastEventStartTime) return;
+    const elapsedSec = Math.floor((Date.now() - lastEventStartTime)/1000);
+    const box = document.getElementById("lastEventTimer");
+    box.textContent = "Last Event: "+formatMMSS(elapsedSec);
+    if(elapsedSec >= 120){
+        box.classList.add("shine");
+    } else { box.classList.remove("shine"); }
+}
+
+// ----- CPR -----
 function startCPR(){
     if(cprRunning) stopCPR();
     cprRunning = true;
-
+    cprStartTime = Date.now();
     requestWakeLock();
 
     const breathBox = document.getElementById("breathBox");
@@ -188,236 +213,161 @@ function startCPR(){
 
     const breathsPerMin = Number(document.getElementById("breathRate").value);
     const compressPerMin = Number(document.getElementById("compressRate").value);
+    const breathMs = 60000/breathsPerMin;
+    const compressMs = 60000/compressPerMin;
 
-    const breathIntervalMs = 60000/breathsPerMin;
-    const compressIntervalMs = 60000/compressPerMin;
-
-    cprTimerInterval = setInterval(()=>{
-        secondsPassed++;
-        document.getElementById("timer").textContent = "CPR: "+formatMMSS(secondsPassed);
-        saveState();
-    },1000);
-
-    breathInterval = setInterval(()=> flashBox(breathBox,"breath-on",700), breathIntervalMs);
-    compressInterval = setInterval(()=> flashBox(compressBox,"compress-on",200), compressIntervalMs);
+    cprTimerInterval = setInterval(updateCPRTimer,1000);
+    breathInterval = setInterval(()=> flashBox(breathBox,"breath-on",700), breathMs);
+    compressInterval = setInterval(()=> flashBox(compressBox,"compress-on",200), compressMs);
 
     flashBox(breathBox,"breath-on",700);
     flashBox(compressBox,"compress-on",200);
-
     logEvent("CPR Started");
 }
-
 function stopCPR(){
     if(!cprRunning) return;
+    clearInterval(cprTimerInterval);
     clearInterval(breathInterval);
     clearInterval(compressInterval);
-    clearInterval(cprTimerInterval);
     cprRunning = false;
     logEvent("CPR Stopped");
 }
 
-// Drugs
+// ----- Drugs -----
 function adminDrug(drug){
-    const data = drugData[drug];
-    data.count++;
-    data.seconds=0;
-    document.getElementById(drug+"Count").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": "+data.count;
-    document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": 00:00";
-    clearInterval(data.timerId);
-    data.timerId = setInterval(()=>{
-        data.seconds++;
-        document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": "+formatMMSS(data.seconds);
-        saveState();
-    },1000);
+    drugData[drug].count++;
+    drugData[drug].startTime = Date.now();
+    clearInterval(drugData[drug].intervalId);
+    updateDrugTimer(drug);
+    drugData[drug].intervalId = setInterval(()=>updateDrugTimer(drug),1000);
+    document.getElementById(drug+"Count").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": "+drugData[drug].count;
     logEvent(`Drug given: ${drug.toUpperCase()}`);
     updateLastEvent();
 }
 
-// Rhythm Check
-function toggleRhythmCheck() {
+// ----- Rhythm -----
+function toggleRhythmCheck(){
     const btn = document.getElementById("rhythmButton");
-    if (!rhythmRunning) {
+    if(!rhythmRunning){
         rhythmRunning = true;
-        rhythmSeconds = 0;
-        rhythmStartTime = secondsPassed;
-        document.getElementById("rhythmTimer").textContent = "Rhy: 00:00";
-
-        rhythmTimerInterval = setInterval(() => {
-            rhythmSeconds++;
-            document.getElementById("rhythmTimer").textContent = "Rhy: " + formatMMSS(rhythmSeconds);
-            saveState();
-        }, 1000);
-
+        rhythmStartTime = Date.now();
         btn.classList.remove("stopped");
         btn.classList.add("running");
+        setInterval(updateRhythmTimer,1000);
         logEvent("Rhythm Check Started");
     } else {
-        clearInterval(rhythmTimerInterval);
         rhythmRunning = false;
         btn.classList.remove("running");
         btn.classList.add("stopped");
-
-        const duration = rhythmSeconds;
-        logEvent(`Rhythm Check Stopped (Duration: ${formatMMSS(duration)})`);
+        const elapsedSec = Math.floor((Date.now() - rhythmStartTime)/1000);
+        logEvent(`Rhythm Check Stopped (Duration: ${formatMMSS(elapsedSec)})`);
     }
 }
 
-// Defibrillate
+// ----- Defibrillation -----
 function defibrillate(){
-    let joulesField = document.getElementById("joulesInput");
-    let joules = Number(joulesField.value);
-    if(joules && joules > 0){
+    const joules = Number(document.getElementById("joulesInput").value);
+    if(joules>0){
         shockCount++;
         document.getElementById("shockCount").textContent = "Shock: "+shockCount;
         logEvent(`Defibrillated: ${joules} J (Shock #${shockCount})`);
         updateLastEvent();
-        saveState();
-    } else {
-        alert("Please enter a valid number of joules.");
     }
 }
 
-// Last event timer
-function resetLastEventTimer(){
-    lastEventSeconds = 0;
-    const box = document.getElementById("lastEventTimer");
-    box.textContent = "Last Event: 00:00";
-    box.classList.remove("shine");
-}
-
-function startLastEventTimer(){
-    if(lastEventInterval) return; // already running
-    lastEventInterval = setInterval(()=>{
-        lastEventSeconds++;
-        const box = document.getElementById("lastEventTimer");
-        box.textContent = "Last Event: "+formatMMSS(lastEventSeconds);
-
-        if(lastEventSeconds >= 120){
-            box.classList.add("shine");
-        } else {
-            box.classList.remove("shine");
-        }
-    },1000);
-}
-
+// ----- Last Event -----
 function updateLastEvent(){
-    resetLastEventTimer();
-    startLastEventTimer();
+    lastEventStartTime = Date.now();
+    if(!lastEventInterval) lastEventInterval = setInterval(updateLastEventTimer,1000);
 }
 
-// Reset
+// ----- Reset -----
 function resetAll(){
     stopCPR();
-
-    if(rhythmRunning){
-        clearInterval(rhythmTimerInterval);
-        rhythmRunning = false;
-    }
-
-    rhythmSeconds = 0;
-    rhythmStartTime = 0;
-    document.getElementById("rhythmTimer").textContent = "Rhy: 00:00";
+    rhythmRunning = false;
+    rhythmStartTime = null;
+    document.getElementById("rhythmTimer").textContent="Rhy: 00:00";
     document.getElementById("rhythmButton").classList.remove("running");
     document.getElementById("rhythmButton").classList.add("stopped");
+    
+    cprStartTime = null;
+    document.getElementById("timer").textContent="CPR: 00:00";
 
-    document.getElementById("eventLog").innerHTML = "";
-    secondsPassed = 0;
-    document.getElementById("timer").textContent = "CPR: 00:00";
+    shockCount=0;
+    document.getElementById("shockCount").textContent="Shock: 0";
 
-    shockCount = 0;
-    document.getElementById("shockCount").textContent = "Shock: 0";
-
-    if(lastEventInterval){
-        clearInterval(lastEventInterval);
-        lastEventInterval = null;
-    }
-    resetLastEventTimer();
+    lastEventStartTime=null;
+    const box=document.getElementById("lastEventTimer");
+    box.textContent="Last Event: 00:00";
+    box.classList.remove("shine");
 
     for(let drug in drugData){
-        clearInterval(drugData[drug].timerId);
-        drugData[drug].count = 0;
-        drugData[drug].seconds = 0;
-        document.getElementById(drug+"Count").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": 0";
-        document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": 00:00";
+        clearInterval(drugData[drug].intervalId);
+        drugData[drug].count=0;
+        drugData[drug].startTime=null;
+        document.getElementById(drug+"Count").textContent=drug.charAt(0).toUpperCase()+drug.slice(1)+": 0";
+        document.getElementById(drug+"Timer").textContent=drug.charAt(0).toUpperCase()+drug.slice(1)+": 00:00";
     }
-
+    document.getElementById("eventLog").innerHTML="";
     saveState();
 }
 
-// LocalStorage
+// ----- LocalStorage -----
 function saveState(){
     const state = {
-        secondsPassed,
-        eventLog: document.getElementById("eventLog").innerHTML,
+        cprStartTime, rhythmStartTime, shockCount, lastEventStartTime,
         drugData: {
-            epi: {seconds: drugData.epi.seconds, count: drugData.epi.count},
-            amio: {seconds: drugData.amio.seconds, count: drugData.amio.count},
-            lido: {seconds: drugData.lido.seconds, count: drugData.lido.count}
+            epi:{startTime: drugData.epi.startTime, count: drugData.epi.count},
+            amio:{startTime: drugData.amio.startTime, count: drugData.amio.count},
+            lido:{startTime: drugData.lido.startTime, count: drugData.lido.count}
         },
-        rhythmRunning,
-        rhythmSeconds,
-        rhythmStartTime,
-        shockCount,
-        lastEventSeconds,
         joules: document.getElementById("joulesInput").value,
         breathRate: document.getElementById("breathRate").value,
-        compressRate: document.getElementById("compressRate").value
+        compressRate: document.getElementById("compressRate").value,
+        eventLog: document.getElementById("eventLog").innerHTML
     };
     localStorage.setItem("cprState", JSON.stringify(state));
 }
 
 function loadState(){
-    const saved = localStorage.getItem("cprState");
+    const saved = JSON.parse(localStorage.getItem("cprState")||"{}");
     if(!saved) return;
-    const state = JSON.parse(saved);
-    secondsPassed = state.secondsPassed || 0;
-    document.getElementById("timer").textContent = "CPR: "+formatMMSS(secondsPassed);
-    document.getElementById("eventLog").innerHTML = state.eventLog || "";
-    document.getElementById("joulesInput").value = state.joules || 200;
-    document.getElementById("breathRate").value = state.breathRate || 10;
-    document.getElementById("compressRate").value = state.compressRate || 120;
+    cprStartTime = saved.cprStartTime;
+    if(cprStartTime) cprTimerInterval=setInterval(updateCPRTimer,1000);
+    document.getElementById("timer").textContent = cprStartTime ? "CPR: "+formatMMSS(Math.floor((Date.now()-cprStartTime)/1000)):"CPR: 00:00";
 
-    shockCount = state.shockCount || 0;
-    document.getElementById("shockCount").textContent = "Shock: "+shockCount;
-
-    lastEventSeconds = state.lastEventSeconds || 0;
-
-    for(let drug in state.drugData){
-        drugData[drug].count = state.drugData[drug].count || 0;
-        drugData[drug].seconds = state.drugData[drug].seconds || 0;
-        document.getElementById(drug+"Count").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": "+drugData[drug].count;
-        document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": "+formatMMSS(drugData[drug].seconds);
-
-        if(drugData[drug].seconds > 0){
-            clearInterval(drugData[drug].timerId);
-            drugData[drug].timerId = setInterval(()=>{
-                drugData[drug].seconds++;
-                document.getElementById(drug+"Timer").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": "+formatMMSS(drugData[drug].seconds);
-                saveState();
-            },1000);
-        }
-    }
-
-    rhythmRunning = state.rhythmRunning || false;
-    rhythmSeconds = state.rhythmSeconds || 0;
-    rhythmStartTime = state.rhythmStartTime || 0;
+    rhythmStartTime = saved.rhythmStartTime;
     const btn = document.getElementById("rhythmButton");
-    if(rhythmRunning){
+    if(rhythmStartTime){
+        rhythmRunning=true;
         btn.classList.add("running");
-        rhythmTimerInterval = setInterval(()=>{
-            rhythmSeconds++;
-            document.getElementById("rhythmTimer").textContent = "Rhy: " + formatMMSS(rhythmSeconds);
-            saveState();
-        },1000);
-    } else {
-        btn.classList.add("stopped");
-        document.getElementById("rhythmTimer").textContent = "Rhy: "+formatMMSS(rhythmSeconds);
+        setInterval(updateRhythmTimer,1000);
+    } else btn.classList.add("stopped");
+
+    shockCount=saved.shockCount||0;
+    document.getElementById("shockCount").textContent="Shock: "+shockCount;
+
+    lastEventStartTime=saved.lastEventStartTime;
+    if(lastEventStartTime) lastEventInterval=setInterval(updateLastEventTimer,1000);
+    document.getElementById("lastEventTimer").textContent = lastEventStartTime ? "Last Event: "+formatMMSS(Math.floor((Date.now()-lastEventStartTime)/1000)):"Last Event: 00:00";
+
+    for(let drug in saved.drugData||{}){
+        drugData[drug].count=saved.drugData[drug].count||0;
+        drugData[drug].startTime=saved.drugData[drug].startTime||null;
+        document.getElementById(drug+"Count").textContent = drug.charAt(0).toUpperCase()+drug.slice(1)+": "+drugData[drug].count;
+        if(drugData[drug].startTime){
+            updateDrugTimer(drug);
+            drugData[drug].intervalId=setInterval(()=>updateDrugTimer(drug),1000);
+        } else document.getElementById(drug+"Timer").textContent=drug.charAt(0).toUpperCase()+drug.slice(1)+": 00:00";
     }
 
-    document.getElementById("lastEventTimer").textContent = "Last Event: "+formatMMSS(lastEventSeconds);
+    document.getElementById("joulesInput").value = saved.joules||200;
+    document.getElementById("breathRate").value = saved.breathRate||10;
+    document.getElementById("compressRate").value = saved.compressRate||120;
+    document.getElementById("eventLog").innerHTML = saved.eventLog||"";
 }
 
-window.onload = () => loadState();
+window.onload = loadState;
 </script>
 
 </body>
