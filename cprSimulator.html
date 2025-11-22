@@ -3,13 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <title>CPR Simulator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body { font-family: Arial, sans-serif; text-align: center; margin-top: 20px; }
+body { font-family: Arial, sans-serif; text-align: center; margin: 10px; padding:0; }
 
 .box {
-    width: 200px; 
+    width: 80%; 
+    max-width: 300px;
     height: 40px;  
-    margin: 20px auto;
+    margin: 15px auto;
     font-size: 16px;  
     font-weight: bold; 
     display: flex;
@@ -24,23 +26,24 @@ body { font-family: Arial, sans-serif; text-align: center; margin-top: 20px; }
 .breath-on { background: #1e90ff; color: white; }
 .compress-on { background: #ff3333; color: white; }
 
-input { padding: 5px; font-size: 18px; width: 120px; margin: 10px; text-align: center; }
-button { font-size: 16px; padding: 6px 12px; margin: 3px; }
-#timer { font-size: 24px; margin-top: 10px; font-weight: bold; }
+input { padding: 8px; font-size: 16px; width: 80px; margin: 5px; text-align: center; }
+button { font-size: 16px; padding: 8px 12px; margin: 5px; border-radius: 5px; }
+
+#timer { font-size: 22px; margin-top: 10px; font-weight: bold; }
 
 .section {
     margin-top: 15px; padding: 10px; border: 2px solid #ddd; border-radius: 10px;
-    width: 440px; margin-left: auto; margin-right: auto;
+    width: 90%; max-width: 500px; margin-left: auto; margin-right: auto;
 }
 
-.title { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
-.timer, .count, .event-log { font-size: 16px; margin: 3px; text-align: left; }
+.title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+.timer, .count, .event-log { font-size: 16px; margin: 3px; text-align: left; word-wrap: break-word; }
 
 /* Rhythm check button colors */
 #rhythmButton {
-    padding: 6px 12px;
     font-size: 16px;
-    margin: 3px;
+    padding: 8px 12px;
+    margin: 5px;
     border: none;
     border-radius: 5px;
     color: white;
@@ -48,18 +51,38 @@ button { font-size: 16px; padding: 6px 12px; margin: 3px; }
 }
 #rhythmButton.stopped { background-color: green; }
 #rhythmButton.running { background-color: red; }
+
+/* Responsive layout for inputs and buttons */
+.controls, .drug-buttons, .defib-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+.controls label, .controls input, .drug-buttons button, .defib-controls input, .defib-controls button {
+    margin: 5px;
+}
+.event-log {
+    max-height: 200px;
+    overflow-y: auto;
+}
 </style>
 </head>
 <body>
 
 <h2>CPR Simulator</h2>
 
-<label>Breaths/min: </label><input id="breathRate" type="number" value="10">
-<label>Compressions/min: </label><input id="compressRate" type="number" value="120">
-<br><br>
-<button onclick="startCPR()">Start CPR</button>
-<button onclick="stopCPR()">Stop CPR</button>
-<button onclick="resetAll()">Reset</button>
+<div class="controls">
+    <label>Breaths/min:</label><input id="breathRate" type="number" value="10">
+    <label>Compressions/min:</label><input id="compressRate" type="number" value="120">
+</div>
+
+<div class="controls">
+    <button onclick="startCPR()">Start CPR</button>
+    <button onclick="stopCPR()">Stop CPR</button>
+    <button onclick="resetAll()">Reset</button>
+</div>
+
 <div id="timer">Time: 00:00:00</div>
 
 <div id="breathBox" class="box">BREATH</div>
@@ -67,12 +90,13 @@ button { font-size: 16px; padding: 6px 12px; margin: 3px; }
 
 <hr>
 
-<!-- Drugs -->
 <div class="section">
 <div class="title">Drugs</div>
-<button onclick="adminDrug('epi')">Give Epinephrine</button>
-<button onclick="adminDrug('amio')">Give Amiodarone</button>
-<button onclick="adminDrug('lido')">Give Lidocaine</button>
+<div class="drug-buttons">
+    <button onclick="adminDrug('epi')">Give Epinephrine</button>
+    <button onclick="adminDrug('amio')">Give Amiodarone</button>
+    <button onclick="adminDrug('lido')">Give Lidocaine</button>
+</div>
 <div id="epiTimer" class="timer">Epi last dose: 00:00:00</div>
 <div id="epiCount" class="count">Total: 0</div>
 <div id="amioTimer" class="timer">Amio last dose: 00:00:00</div>
@@ -83,21 +107,18 @@ button { font-size: 16px; padding: 6px 12px; margin: 3px; }
 
 <hr>
 
-<!-- Rhythm Check & Defibrillation -->
 <div class="section">
 <div class="title">Rhythm & Defibrillation</div>
-<button id="rhythmButton" onclick="toggleRhythmCheck()">Start Rhythm Check</button>
-
-<label>Joules:</label>
-<input type="number" id="joulesInput" value="200" style="width:80px;">
-<button onclick="defibrillate()">Defibrillate</button>
-
+<div class="defib-controls">
+    <button id="rhythmButton" onclick="toggleRhythmCheck()">Start Rhythm Check</button>
+    <label>Joules:</label><input type="number" id="joulesInput" value="200" style="width:80px;">
+    <button onclick="defibrillate()">Defibrillate</button>
+</div>
 <div id="rhythmTimer" class="timer">Rhythm Check: 00:00:00</div>
 </div>
 
 <hr>
 
-<!-- Event History -->
 <div class="section">
 <div class="title">Event History</div>
 <div id="eventLog" class="event-log"></div>
@@ -139,7 +160,7 @@ function logEvent(message){
     const time = formatTime(secondsPassed);
     log.innerHTML += `[${time}] ${message}<br>`;
     log.scrollTop = log.scrollHeight;
-    saveState(); // save state to localStorage after each event
+    saveState(); 
 }
 
 // CPR Functions
@@ -240,18 +261,15 @@ function defibrillate(){
     }
 }
 
-// Reset everything including rhythm check
+// Reset everything
 function resetAll(){
-    // Stop CPR
     stopCPR();
 
-    // Stop rhythm check
     if(rhythmRunning){
         clearInterval(rhythmTimerInterval);
         rhythmRunning = false;
     }
 
-    // Reset rhythm check UI
     const btn = document.getElementById("rhythmButton");
     btn.textContent = "Start Rhythm Check";
     btn.classList.remove("running");
@@ -260,14 +278,11 @@ function resetAll(){
     rhythmStartTime = 0;
     document.getElementById("rhythmTimer").textContent = "Rhythm Check: 00:00:00";
 
-    // Clear event log
     document.getElementById("eventLog").innerHTML = "";
 
-    // Reset CPR timer
     secondsPassed = 0;
     document.getElementById("timer").textContent = "Time: 00:00:00";
 
-    // Reset drug data
     for(let drug in drugData){
         clearInterval(drugData[drug].timerId);
         drugData[drug].count = 0;
@@ -279,7 +294,7 @@ function resetAll(){
     saveState();
 }
 
-// Save state to localStorage
+// Save state
 function saveState(){
     const state = {
         secondsPassed,
@@ -299,7 +314,7 @@ function saveState(){
     localStorage.setItem("cprState", JSON.stringify(state));
 }
 
-// Load state from localStorage
+// Load state
 function loadState(){
     const saved = localStorage.getItem("cprState");
     if(!saved) return;
@@ -347,7 +362,6 @@ function loadState(){
     }
 }
 
-// Initialize
 window.onload = () => {
     loadState();
 };
