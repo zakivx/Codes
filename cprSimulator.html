@@ -48,6 +48,15 @@ button { font-size: 16px; padding: 8px 12px; margin: 3px; border-radius: 5px; }
 /* Input column layout */
 .input-group { display: flex; flex-direction: column; align-items: center; margin: 3px; }
 .input-group label { font-size: 14px; margin-bottom: 2px; }
+
+/* Shine animation */
+@keyframes shine {
+    0%,100% { background-color: transparent; color: gray; }
+    50% { background-color: yellow; color: black; }
+}
+.shine {
+    animation: shine 1s infinite;
+}
 </style>
 </head>
 <body>
@@ -82,11 +91,13 @@ button { font-size: 16px; padding: 8px 12px; margin: 3px; border-radius: 5px; }
     <div id="epiCount">Epi: 0</div>
     <div id="amioCount">Amio: 0</div>
     <div id="lidoCount">Lido: 0</div>
+    <div id="shockCount">Shock: 0</div>
 </div>
 
 <!-- Flash boxes -->
 <div id="breathBox" class="box">BREATH</div>
 <div id="compressBox" class="box">COMPRESS</div>
+<div id="lastEventTimer" class="box">Last Event: 00:00</div>
 
 <!-- Action buttons row -->
 <div class="row">
@@ -104,7 +115,6 @@ button { font-size: 16px; padding: 8px 12px; margin: 3px; border-radius: 5px; }
 </div>
 
 <script>
-// ====== JavaScript logic ======
 let breathInterval, compressInterval, cprTimerInterval;
 let cprRunning = false;
 let secondsPassed = 0;
@@ -114,26 +124,29 @@ let rhythmTimerInterval;
 let rhythmSeconds = 0;
 let rhythmStartTime = 0;
 
+let shockCount = 0;
+
 let drugData = {
     epi: {seconds:0, count:0, timerId:null},
     amio: {seconds:0, count:0, timerId:null},
     lido: {seconds:0, count:0, timerId:null}
 };
 
-// Flash boxes
+// Last event timer
+let lastEventSeconds = 0;
+let lastEventInterval = null;
+
 function flashBox(box, className, duration){
     box.classList.add(className);
     setTimeout(()=> box.classList.remove(className), duration);
 }
 
-// Format seconds to MM:SS for drug and rhythm timers
 function formatMMSS(sec){
     const m = String(Math.floor(sec/60)).padStart(2,"0");
     const s = String(sec%60).padStart(2,"0");
     return `${m}:${s}`;
 }
 
-// Format HH:MM for main CPR timer
 function formatTime(sec){
     const h = String(Math.floor(sec/3600)).padStart(2,"0");
     const m = String(Math.floor((sec%3600)/60)).padStart(2,"0");
@@ -141,13 +154,11 @@ function formatTime(sec){
     return `${h}:${m}:${s}`;
 }
 
-// Log event with current day time
+// Event log
 function logEvent(message){
     const log = document.getElementById("eventLog");
-
     const now = new Date();
     const time = now.toLocaleTimeString('en-US', { hour12: false });
-
     log.innerHTML += `[${time}] ${message}<br>`;
     log.scrollTop = log.scrollHeight;
     saveState();
@@ -205,12 +216,12 @@ function adminDrug(drug){
         saveState();
     },1000);
     logEvent(`Drug given: ${drug.toUpperCase()}`);
+    updateLastEvent();
 }
 
 // Rhythm Check
 function toggleRhythmCheck() {
     const btn = document.getElementById("rhythmButton");
-
     if (!rhythmRunning) {
         rhythmRunning = true;
         rhythmSeconds = 0;
@@ -242,10 +253,42 @@ function defibrillate(){
     let joulesField = document.getElementById("joulesInput");
     let joules = Number(joulesField.value);
     if(joules && joules > 0){
-        logEvent(`Defibrillated: ${joules} J`);
+        shockCount++;
+        document.getElementById("shockCount").textContent = "Shock: "+shockCount;
+        logEvent(`Defibrillated: ${joules} J (Shock #${shockCount})`);
+        updateLastEvent();
+        saveState();
     } else {
         alert("Please enter a valid number of joules.");
     }
+}
+
+// Last event timer
+function resetLastEventTimer(){
+    lastEventSeconds = 0;
+    const box = document.getElementById("lastEventTimer");
+    box.textContent = "Last Event: 00:00";
+    box.classList.remove("shine");
+}
+
+function startLastEventTimer(){
+    if(lastEventInterval) return; // already running
+    lastEventInterval = setInterval(()=>{
+        lastEventSeconds++;
+        const box = document.getElementById("lastEventTimer");
+        box.textContent = "Last Event: "+formatMMSS(lastEventSeconds);
+
+        if(lastEventSeconds >= 120){
+            box.classList.add("shine");
+        } else {
+            box.classList.remove("shine");
+        }
+    },1000);
+}
+
+function updateLastEvent(){
+    resetLastEventTimer();
+    startLastEventTimer();
 }
 
 // Reset
@@ -266,6 +309,15 @@ function resetAll(){
     document.getElementById("eventLog").innerHTML = "";
     secondsPassed = 0;
     document.getElementById("timer").textContent = "CPR: 00:00";
+
+    shockCount = 0;
+    document.getElementById("shockCount").textContent = "Shock: 0";
+
+    if(lastEventInterval){
+        clearInterval(lastEventInterval);
+        lastEventInterval = null;
+    }
+    resetLastEventTimer();
 
     for(let drug in drugData){
         clearInterval(drugData[drug].timerId);
@@ -291,6 +343,8 @@ function saveState(){
         rhythmRunning,
         rhythmSeconds,
         rhythmStartTime,
+        shockCount,
+        lastEventSeconds,
         joules: document.getElementById("joulesInput").value,
         breathRate: document.getElementById("breathRate").value,
         compressRate: document.getElementById("compressRate").value
@@ -308,6 +362,11 @@ function loadState(){
     document.getElementById("joulesInput").value = state.joules || 200;
     document.getElementById("breathRate").value = state.breathRate || 10;
     document.getElementById("compressRate").value = state.compressRate || 120;
+
+    shockCount = state.shockCount || 0;
+    document.getElementById("shockCount").textContent = "Shock: "+shockCount;
+
+    lastEventSeconds = state.lastEventSeconds || 0;
 
     for(let drug in state.drugData){
         drugData[drug].count = state.drugData[drug].count || 0;
@@ -340,6 +399,8 @@ function loadState(){
         btn.classList.add("stopped");
         document.getElementById("rhythmTimer").textContent = "Rhy: "+formatMMSS(rhythmSeconds);
     }
+
+    document.getElementById("lastEventTimer").textContent = "Last Event: "+formatMMSS(lastEventSeconds);
 }
 
 window.onload = () => loadState();
@@ -347,3 +408,4 @@ window.onload = () => loadState();
 
 </body>
 </html>
+ 
