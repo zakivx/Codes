@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Click Tracker & Flow Calculator</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    max-width: 480px;
+    margin: auto;
+    background: #f8f9fa;
+  }
+
+  h2 {
+    text-align: center;
+  }
+
+  button {
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 10px;
+    background-color: #007bff;
+    color: white;
+    transition: background 0.2s;
+  }
+
+  button:active {
+    background-color: #0056b3;
+  }
+
+  .stats, .flow {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  .stats p, .flow p {
+    font-size: 18px;
+    margin: 8px 0;
+  }
+
+  .rhythm, .flow-rate {
+    margin-top: 10px;
+    line-height: 1.6;
+  }
+
+  .rhythm p, .flow-rate p {
+    margin: 4px 0;
+  }
+
+  .seconds { color: blue; }
+  .minutes { color: red; }
+  .hours { color: green; }
+
+  input {
+    width: -webkit-fill-available;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin: 8px 0;
+  }
+
+  @media (max-width: 400px) {
+    button {
+      font-size: 16px;
+      padding: 12px;
+    }
+
+    .stats p, .rhythm p, .flow p {
+      font-size: 16px;
+    }
+
+    input {
+      font-size: 14px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h2>Click Tracker & Flow Calculator</h2>
+
+<button id="clickBtn">Click me!</button>
+<button id="resetBtn">Reset</button>
+
+<div class="stats">
+  <p>Time since first click: <span id="time">00:00:00</span></p>
+  <p>Number of clicks: <span id="clicks">0</span></p>
+  <div class="rhythm">
+    <p>Click rhythm:</p>
+    <p>Clicks/s: <span id="rhythmSec" class="seconds">0.00</span></p>
+    <p>Clicks/min: <span id="rhythmMinute" class="minutes">0.00</span></p>
+    <p>Clicks/hour: <span id="rhythmHour" class="hours">0.00</span></p>
+  </div>
+</div>
+
+<div class="flow">
+  <p>Flow Calculator (Drops → mL)</p>
+  <label for="dropsPerMl">Enter number of drops per 1 mL:</label>
+  <input type="number" id="dropsPerMl" value="20" min="1">
+
+  <div class="flow-rate">
+    <p>Flow rate:</p>
+    <p>mL/s: <span id="flowSec" class="seconds">0.00</span></p>
+    <p>mL/min: <span id="flowMin" class="minutes">0.00</span></p>
+    <p>mL/hour: <span id="flowHour" class="hours">0.00</span></p>
+  </div>
+</div>
+
+<script>
+let firstClickTime = null;
+let clickCount = 0;
+
+const clickBtn = document.getElementById("clickBtn");
+const resetBtn = document.getElementById("resetBtn");
+const timeDisplay = document.getElementById("time");
+const clicksDisplay = document.getElementById("clicks");
+const rhythmSecDisplay = document.getElementById("rhythmSec");
+const rhythmMinuteDisplay = document.getElementById("rhythmMinute");
+const rhythmHourDisplay = document.getElementById("rhythmHour");
+
+const dropsPerMlInput = document.getElementById("dropsPerMl");
+const flowSecDisplay = document.getElementById("flowSec");
+const flowMinDisplay = document.getElementById("flowMin");
+const flowHourDisplay = document.getElementById("flowHour");
+
+clickBtn.addEventListener("click", () => {
+    const now = new Date().getTime();
+    if (!firstClickTime) firstClickTime = now;
+
+    clickCount++;
+    clicksDisplay.textContent = clickCount;
+
+    updateRhythm();
+    updateFlow();
+});
+
+resetBtn.addEventListener("click", () => {
+    firstClickTime = null;
+    clickCount = 0;
+    timeDisplay.textContent = "00:00:00";
+    clicksDisplay.textContent = "0";
+    rhythmSecDisplay.textContent = "0.00";
+    rhythmMinuteDisplay.textContent = "0.00";
+    rhythmHourDisplay.textContent = "0.00";
+    flowSecDisplay.textContent = "0.00";
+    flowMinDisplay.textContent = "0.00";
+    flowHourDisplay.textContent = "0.00";
+});
+
+// Update time continuously
+setInterval(() => {
+    if (firstClickTime) {
+        const now = new Date().getTime();
+        const elapsedTimeSec = Math.floor((now - firstClickTime) / 1000);
+        timeDisplay.textContent = formatTime(elapsedTimeSec);
+    }
+}, 1000);
+
+function updateRhythm() {
+    const now = new Date().getTime();
+    const elapsedTimeSec = (now - firstClickTime) / 1000;
+
+    const rhythmSec = elapsedTimeSec > 0 ? (clickCount / elapsedTimeSec) : 0;
+    const rhythmMin = rhythmSec * 60;
+    const rhythmHour = rhythmSec * 3600;
+
+    rhythmSecDisplay.textContent = rhythmSec.toFixed(2);
+    rhythmMinuteDisplay.textContent = rhythmMin.toFixed(2);
+    rhythmHourDisplay.textContent = rhythmHour.toFixed(2);
+}
+
+function updateFlow() {
+    const dropsPerMl = parseFloat(dropsPerMlInput.value) || 1;
+    const rhythmSec = parseFloat(rhythmSecDisplay.textContent) || 0;
+
+    const mlPerSec = rhythmSec / dropsPerMl;
+    const mlPerMin = mlPerSec * 60;
+    const mlPerHour = mlPerSec * 3600;
+
+    flowSecDisplay.textContent = mlPerSec.toFixed(2);
+    flowMinDisplay.textContent = mlPerMin.toFixed(2);
+    flowHourDisplay.textContent = mlPerHour.toFixed(2);
+}
+
+function formatTime(seconds) {
+    const hrs = Math.floor(seconds / 3600).toString().padStart(2,'0');
+    const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2,'0');
+    const secs = Math.floor(seconds % 60).toString().padStart(2,'0');
+    return `${hrs}:${mins}:${secs}`;
+}
+
+// Recalculate flow when drops per mL changes
+dropsPerMlInput.addEventListener("input", updateFlow);
+</script>
+
+</body>
+</html>
