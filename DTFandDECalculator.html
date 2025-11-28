@@ -110,7 +110,7 @@
     <label for="dtee">DTee (mm):</label>
     <input type="number" id="dtee" step="0.01" placeholder="End-expiratory thickness">
 
-    <button onclick="calculateDTF()">Calculate DTF</button>
+    <button onclick="calculateDTF()">Calculate Thickness and DTF</button>
     <div id="result"></div>
 
     <hr>
@@ -178,7 +178,10 @@ function calculateDTF() {
     }
 
     const dtf = ((dtpi - dtee) / dtee) * 100;
-    document.getElementById("result").innerText = `DTF = ${dtf.toFixed(2)} %`;
+    const thick = dtpi - dtee;
+    document.getElementById("result").innerText = 
+      `Thickness = ${thick} mm;
+      DTF = ${dtf.toFixed(2)} %`;
 }
 
 function calculateDE() {
