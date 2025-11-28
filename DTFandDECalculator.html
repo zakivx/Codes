@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DTF & DE Calculator</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    .container {
+        background: white;
+        padding: 20px;
+        width: 90%;
+        max-width: 420px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        margin: 20px 0;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 1.4rem;
+    }
+
+    label {
+        font-size: 1rem;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-sizing: border-box;
+    }
+
+    button {
+        width: 100%;
+        padding: 14px;
+        font-size: 1.1rem;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #0056b3;
+    }
+
+    #result, #resultDE {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+
+    /* Reference section */
+    details {
+        margin-top: 20px;
+        background: #fafafa;
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+    }
+
+    summary {
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .ref-block {
+        margin-top: 10px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .subtitle {
+        font-weight: bold;
+        margin-top: 10px;
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+    <h2>DTF & Diaphragm Excursion Calculator</h2>
+
+    <!-- DTF inputs -->
+    <label for="dtpi">DTpi (mm):</label>
+    <input type="number" id="dtpi" step="0.01" placeholder="Inspiratory thickness">
+
+    <label for="dtee">DTee (mm):</label>
+    <input type="number" id="dtee" step="0.01" placeholder="End-expiratory thickness">
+
+    <button onclick="calculateDTF()">Calculate DTF</button>
+    <div id="result"></div>
+
+    <hr>
+
+    <!-- NEW: Diaphragm Excursion Input -->
+    <label for="de">Diaphragm Excursion (cm):</label>
+    <input type="number" id="de" step="0.01" placeholder="Measured DE in cm">
+
+    <button onclick="calculateDE()">Interpret DE</button>
+    <div id="resultDE"></div>
+
+    <!-- Reference values -->
+    <details>
+        <summary>Reference Values & Interpretation</summary>
+        <div class="ref-block">
+
+            <!-- Normal thickness -->
+            <div class="subtitle">📘 Normal Diaphragm Thickness (tidal, seated)</div>
+            <ul>
+                <li><b>Right</b> – Male: 2.1 ± 0.4 mm; Female: 1.9 ± 0.4 mm</li>
+                <li><b>Left</b> – Male: 2.0 ± 0.4 mm; Female: 1.7 ± 0.3 mm</li>
+            </ul>
+
+            <!-- Normal DTF -->
+            <div class="subtitle">📘 Normal DTF (tidal breathing)</div>
+            <ul>
+                <li><b>Right</b> – Male: 32 ± 15%; Female: 35 ± 16%</li>
+                <li><b>Left</b> – Male: 30 ± 14%; Female: 33 ± 15%</li>
+            </ul>
+
+            <!-- DTF pathology -->
+            <div class="subtitle">📕 DTF Clinical Thresholds</div>
+            <ul>
+                <li>DTF<sub>max</sub> < <b>20%</b> → Diaphragm dysfunction</li>
+                <li>DTF < <b>25–33%</b> → Predicts weaning failure</li>
+                <li>DTF < <b>20%</b> → Predicts NIV failure</li>
+            </ul>
+
+            <!-- NEW: Normal DE -->
+            <div class="subtitle">📘 Normal Diaphragm Excursion (tidal breathing)</div>
+            <ul>
+                <li><b>Right</b> – Male: 2.0 ± 0.5 cm; Female: 1.9 ± 0.5 cm</li>
+                <li><b>Left</b> – Male: 2.2 ± 0.6 cm; Female: 1.9 ± 0.5 cm</li>
+            </ul>
+
+            <!-- NEW: DE pathology -->
+            <div class="subtitle">📕 DE Clinical Interpretation</div>
+            <ul>
+                <li>DE < <b>10–15 mm (1.0–1.5 cm)</b> → Diaphragm dysfunction</li>
+            </ul>
+
+        </div>
+    </details>
+
+</div>
+
+<script>
+function calculateDTF() {
+    const dtpi = parseFloat(document.getElementById("dtpi").value);
+    const dtee = parseFloat(document.getElementById("dtee").value);
+
+    if (isNaN(dtpi) || isNaN(dtee) || dtee <= 0) {
+        document.getElementById("result").innerText = "❗ Enter valid numbers (DTee > 0)";
+        return;
+    }
+
+    const dtf = ((dtpi - dtee) / dtee) * 100;
+    document.getElementById("result").innerText = `DTF = ${dtf.toFixed(2)} %`;
+}
+
+function calculateDE() {
+    const de = parseFloat(document.getElementById("de").value);
+
+    if (isNaN(de) || de < 0) {
+        document.getElementById("resultDE").innerText = "❗ Enter a valid DE value";
+        return;
+    }
+
+    let interpretation = "";
+
+    if (de < 1.0) {
+        interpretation = "❗ Severe diaphragm dysfunction";
+    } else if (de < 1.5) {
+        interpretation = "⚠ Likely diaphragm dysfunction";
+    } else {
+        interpretation = "✅ Normal diaphragm excursion";
+    }
+
+    document.getElementById("resultDE").innerText =
+        `DE = ${de.toFixed(2)} cm → ${interpretation}`;
+}
+</script>
+
+</body>
+</html>
