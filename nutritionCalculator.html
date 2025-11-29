@@ -10,13 +10,14 @@
   h2 { margin-top: 0; }
   input { padding: 8px; margin: 6px 0; width: 100%; box-sizing: border-box; }
   .result { background: #f7f7f7; padding: 10px; margin-top: 10px; border-radius: 6px; }
-  .item { margin-top: 8px; padding: 8px; background: #eef; border-radius: 6px; display:flex; gap:10px; align-items:center; }
-  .item div { flex:1 }
+  .item { margin-top: 8px; padding: 8px; background: #eef; border-radius: 6px; display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap; }
+  .item div { flex:1; min-width: 120px; }
   .suggestions { position: absolute; left: 14px; right: 14px; background: #fff; border: 1px solid #bbb; max-height: 160px; overflow:auto; z-index:50; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
   .suggestions div { padding: 8px; cursor: pointer; }
   .suggestions div:hover { background:#def; }
   label.small { font-size:12px; margin-top:6px; display:block; color:#333; }
-  button.small { padding:6px 10px; width:auto; }
+  button.small { padding:6px 10px; width:auto; margin-top:6px; }
+  .bottom-row { margin-top: 6px; font-weight: bold; background: #dde; padding: 6px; border-radius: 6px; width: 100%; }
 </style>
 </head>
 <body>
@@ -155,8 +156,11 @@ function addSelectedProduct(type, name, qtySaved=0, volSaved=0) {
   const id = safeId(type, name);
   if (document.getElementById(id)) return;
   const prod = products[type][name];
+
+  // MAIN ITEM ROW
   const row = document.createElement('div');
-  row.className = 'item'; row.id = id;
+  row.className = 'item'; 
+  row.id = id;
 
   const left = document.createElement('div');
   left.innerHTML = '<b>' + name + '</b><br><small>' + prod.kcal + ' kcal per ' + prod.base + (prod.liquid ? ' mL' : ' g') + '</small>';
@@ -170,7 +174,9 @@ function addSelectedProduct(type, name, qtySaved=0, volSaved=0) {
   mid.appendChild(qtyInput);
 
   if (!prod.liquid){
-    mid.appendChild(document.createElement('br')); mid.appendChild(document.createTextNode('Volume (mL):')); mid.appendChild(document.createElement('br'));
+    mid.appendChild(document.createElement('br')); 
+    mid.appendChild(document.createTextNode('Volume (mL):')); 
+    mid.appendChild(document.createElement('br'));
     const volInput = document.createElement('input');
     volInput.type='number'; volInput.min=0; volInput.value=volSaved; volInput.className='volume'; volInput.style.width='100%';
     volInput.addEventListener('input', () => { updateItem(type, name); saveProducts(); });
@@ -178,27 +184,40 @@ function addSelectedProduct(type, name, qtySaved=0, volSaved=0) {
   }
 
   const right = document.createElement('div');
-  right.innerHTML = "<div id='" + id + "_vals'>Kcal: 0 | Protein: 0 g | mL: 0 | Flow: 0 mL/h</div>";
   const removeBtn = document.createElement('button');
   removeBtn.className='small'; removeBtn.textContent='Remove';
   removeBtn.onclick = () => { row.remove(); saveProducts(); recalcTotals(); };
   right.appendChild(removeBtn);
 
-  row.appendChild(left); row.appendChild(mid); row.appendChild(right); container.appendChild(row);
-  updateItem(type, name); saveProducts();
+  row.appendChild(left); row.appendChild(mid); row.appendChild(right);
+
+  // SECOND ROW FOR CALCULATED VALUES
+  const bottomRow = document.createElement('div');
+  bottomRow.id = id + '_vals';
+  bottomRow.className = 'bottom-row';
+  row.appendChild(bottomRow);
+
+  container.appendChild(row);
+  updateItem(type, name); 
+  saveProducts();
 }
 
 function updateItem(type, name) {
-  const id = safeId(type, name); const el = document.getElementById(id);
-  if (!el) return; const prod = products[type][name];
+  const id = safeId(type, name); 
+  const el = document.getElementById(id);
+  if (!el) return; 
+  const prod = products[type][name];
   const qty = parseFloat(el.querySelector('input.quantity').value)||0;
   const factor = qty / prod.base;
-  const kcal = prod.kcal * factor; const protein = prod.protein * factor;
+  const kcal = prod.kcal * factor; 
+  const protein = prod.protein * factor;
   let vol = qty;
   if (!prod.liquid) { vol = parseFloat(el.querySelector('input.volume')?.value)||0; }
   const flowRate = vol/24;
+
   document.getElementById(id + '_vals').textContent =
     'Kcal: ' + kcal.toFixed(1) + ' | Protein: ' + protein.toFixed(1) + ' g | mL: ' + vol.toFixed(0) + ' | Flow: ' + flowRate.toFixed(1) + ' mL/h';
+
   recalcTotals();
 }
 
