@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Nutrition Calculator — Auto BMI & Auto Save</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 18px; max-width:900px; margin:auto; }
+  .section { border: 1px solid #ccc; padding: 14px; margin-top: 18px; border-radius: 8px; position: relative; }
+  h2 { margin-top: 0; }
+  input { padding: 8px; margin: 6px 0; width: 100%; box-sizing: border-box; }
+  .result { background: #f7f7f7; padding: 10px; margin-top: 10px; border-radius: 6px; }
+  .item { margin-top: 8px; padding: 8px; background: #eef; border-radius: 6px; display:flex; gap:10px; align-items:center; }
+  .item div { flex:1 }
+  .suggestions { position: absolute; left: 14px; right: 14px; background: #fff; border: 1px solid #bbb; max-height: 160px; overflow:auto; z-index:50; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
+  .suggestions div { padding: 8px; cursor: pointer; }
+  .suggestions div:hover { background:#def; }
+  label.small { font-size:12px; margin-top:6px; display:block; color:#333; }
+  button.small { padding:6px 10px; width:auto; }
+</style>
+</head>
+<body>
+
+<h1>Nutrition Calculator</h1>
+
+<label>Weight (kg)</label>
+<input type="number" id="weight" />
+
+<label>Tall (cm)</label>
+<input type="number" id="tall" />
+
+<label>Calorie Target (kcal)</label>
+<input type="number" id="calTarget" />
+
+<label>Protein Target (g)</label>
+<input type="number" id="protTarget" />
+
+<div class="result" id="results"></div>
+
+<div class="section" id="parenteralSection">
+  <h2>Parenteral Products</h2>
+  <input type="text" id="parenteralSearch" placeholder="Type product name (e.g. O)..." autocomplete="off" />
+  <div id="parenteralSuggestions" class="suggestions" style="display:none"></div>
+  <label class="small">Click a suggestion to add it to the selection (quantity will start at 0)</label>
+  <div id="parenteralList"></div>
+</div>
+
+<div class="section" id="enteralSection">
+  <h2>Enteral Products</h2>
+  <input type="text" id="enteralSearch" placeholder="Type product name (e.g. N)..." autocomplete="off" />
+  <div id="enteralSuggestions" class="suggestions" style="display:none"></div>
+  <label class="small">Click a suggestion to add it to the selection (quantity will start at 0)</label>
+  <div id="enteralList"></div>
+</div>
+
+<div class="section">
+  <h2>Totals</h2>
+  <div id="totals">Kcal: 0 | Protein: 0 g | mL: 0</div>
+</div>
+
+<script>
+const products = {
+  parenteral: {
+    "Oliclinomel N4-550": { kcal: 610, protein: 22, liquid: true, base: 1000 },
+    "Oliclinomel N4-550E": { kcal: 610, protein: 22, liquid: true, base: 1000 },
+    "Oliclinomel N7-1000": { kcal: 1200, protein: 40, liquid: true, base: 1000 },
+    "Oliclinomel N7-1000E": { kcal: 1200, protein: 40, liquid: true, base: 1000 },
+    "Glucose 5%": { kcal: 100, protein: 0, liquid: true, base: 500 },
+    "Glucose 10%": { kcal: 200, protein: 0, liquid: true, base: 500 }
+  },
+  enteral: {
+    "Nutrison Standard 1L": { kcal: 1000, protein: 40, liquid: true, base: 1000 },
+    "Fortimax En Poudre 200Ml": { kcal: 303, protein: 20, liquid: true, base: 200 },
+    "Fortimel 125Ml": { kcal: 306, protein: 18, liquid: true, base: 125 },
+    "Protifar": { kcal: 9.2, protein: 2.2, liquid: false, base: 2.5 }
+  }
+};
+
+// ----- AUTO-SAVE FUNCTIONS -----
+function saveInput(id, value) { localStorage.setItem(id, value); }
+function loadInput(id, defaultValue=''){ return localStorage.getItem(id) || defaultValue; }
+
+// ----- BMI / adjusted weight -----
+function calculate(){
+  const w = parseFloat(document.getElementById('weight').value);
+  const tcm = parseFloat(document.getElementById('tall').value);
+  if (!w || !tcm) { document.getElementById('results').innerHTML = ""; return; }
+  const t = tcm/100;
+  const bmi = w / (t*t);
+  const ideal = 25 * (t*t);
+  const adj = ideal + 0.25 * (w - ideal);
+  document.getElementById('results').innerHTML =
+    '<b>BMI:</b> ' + bmi.toFixed(2) +
+    '<br><b>Adjusted weight:</b> ' + adj.toFixed(2) + ' kg';
+  recalcTotals();
+}
+
+// Load saved values for BMI inputs
+['weight','tall','calTarget','protTarget'].forEach(id => {
+  const el = document.getElementById(id);
+  el.value = loadInput(id);
+  el.addEventListener('input', () => {
+    saveInput(id, el.value);
+    calculate();
+  });
+});
+
+// ----- search & suggestions -----
+function matchProducts(type, q) {
+  q = (q||'').toLowerCase();
+  return Object.keys(products[type]).filter(name => name.toLowerCase().includes(q));
+}
+function buildSuggestions(type) {
+  const searchEl = document.getElementById(type + 'Search');
+  const sugEl = document.getElementById(type + 'Suggestions');
+  const q = searchEl.value.trim();
+  const matches = matchProducts(type, q);
+  sugEl.innerHTML = '';
+  if (matches.length === 0) { sugEl.style.display = 'none'; return; }
+  for (const name of matches) {
+    const row = document.createElement('div');
+    row.textContent = name;
+    row.onclick = () => { addSelectedProduct(type, name); sugEl.style.display = 'none'; searchEl.value = ''; };
+    sugEl.appendChild(row);
+  }
+  sugEl.style.display = 'block';
+}
+['parenteral','enteral'].forEach(type => {
+  const searchEl = document.getElementById(type + 'Search');
+  searchEl.addEventListener('input', () => buildSuggestions(type));
+  searchEl.addEventListener('focus', () => buildSuggestions(type));
+  searchEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const list = matchProducts(type, e.target.value);
+      if (list[0]) addSelectedProduct(type, list[0]);
+      e.preventDefault();
+    }
+  });
+});
+document.addEventListener('click', (ev) => {
+  if (!document.getElementById('parenteralSection').contains(ev.target)) document.getElementById('parenteralSuggestions').style.display = 'none';
+  if (!document.getElementById('enteralSection').contains(ev.target)) document.getElementById('enteralSuggestions').style.display = 'none';
+});
+
+function safeId(type, name) { return (type + '_' + name).replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,''); }
+
+// ----- PRODUCTS SELECTION & AUTO-SAVE -----
+function addSelectedProduct(type, name, qtySaved=0, volSaved=0) {
+  const container = document.getElementById(type + 'List');
+  const id = safeId(type, name);
+  if (document.getElementById(id)) return;
+  const prod = products[type][name];
+  const row = document.createElement('div');
+  row.className = 'item'; row.id = id;
+
+  const left = document.createElement('div');
+  left.innerHTML = '<b>' + name + '</b><br><small>' + prod.kcal + ' kcal per ' + prod.base + (prod.liquid ? ' mL' : ' g') + '</small>';
+
+  const mid = document.createElement('div');
+  mid.innerHTML = 'Qty (<small>' + (prod.liquid ? 'mL/day' : 'g/day') + '</small>):<br>';
+  
+  const qtyInput = document.createElement('input');
+  qtyInput.type = 'number'; qtyInput.min = 0; qtyInput.value = qtySaved; qtyInput.className='quantity'; qtyInput.style.width='100%';
+  qtyInput.addEventListener('input', () => { updateItem(type, name); saveProducts(); });
+  mid.appendChild(qtyInput);
+
+  if (!prod.liquid){
+    mid.appendChild(document.createElement('br')); mid.appendChild(document.createTextNode('Volume (mL):')); mid.appendChild(document.createElement('br'));
+    const volInput = document.createElement('input');
+    volInput.type='number'; volInput.min=0; volInput.value=volSaved; volInput.className='volume'; volInput.style.width='100%';
+    volInput.addEventListener('input', () => { updateItem(type, name); saveProducts(); });
+    mid.appendChild(volInput);
+  }
+
+  const right = document.createElement('div');
+  right.innerHTML = "<div id='" + id + "_vals'>Kcal: 0 | Protein: 0 g | mL: 0 | Flow: 0 mL/h</div>";
+  const removeBtn = document.createElement('button');
+  removeBtn.className='small'; removeBtn.textContent='Remove';
+  removeBtn.onclick = () => { row.remove(); saveProducts(); recalcTotals(); };
+  right.appendChild(removeBtn);
+
+  row.appendChild(left); row.appendChild(mid); row.appendChild(right); container.appendChild(row);
+  updateItem(type, name); saveProducts();
+}
+
+function updateItem(type, name) {
+  const id = safeId(type, name); const el = document.getElementById(id);
+  if (!el) return; const prod = products[type][name];
+  const qty = parseFloat(el.querySelector('input.quantity').value)||0;
+  const factor = qty / prod.base;
+  const kcal = prod.kcal * factor; const protein = prod.protein * factor;
+  let vol = qty;
+  if (!prod.liquid) { vol = parseFloat(el.querySelector('input.volume')?.value)||0; }
+  const flowRate = vol/24;
+  document.getElementById(id + '_vals').textContent =
+    'Kcal: ' + kcal.toFixed(1) + ' | Protein: ' + protein.toFixed(1) + ' g | mL: ' + vol.toFixed(0) + ' | Flow: ' + flowRate.toFixed(1) + ' mL/h';
+  recalcTotals();
+}
+
+function recalcTotals() {
+  let totK=0, totP=0, totML=0;
+  ['parenteral','enteral'].forEach(type=>{
+    const list=document.getElementById(type+'List');
+    Array.from(list.querySelectorAll('.item')).forEach(it=>{
+      const name=it.querySelector('b').innerText;
+      const prod=products[type][name]; if(!prod) return;
+      const qty=parseFloat(it.querySelector('input.quantity').value)||0;
+      const f=qty/prod.base; totK+=prod.kcal*f; totP+=prod.protein*f;
+      if(prod.liquid) totML+=qty; else totML+=parseFloat(it.querySelector('input.volume')?.value)||0;
+    });
+  });
+  document.getElementById('totals').innerText='Kcal: '+totK.toFixed(1)+' kcal | Protein: '+totP.toFixed(1)+' g | mL: '+totML.toFixed(0);
+}
+
+// Save all selected products
+function saveProducts() {
+  ['parenteral','enteral'].forEach(type=>{
+    const list=document.getElementById(type+'List');
+    const items=Array.from(list.querySelectorAll('.item')).map(it=>{
+      const name=it.querySelector('b').innerText;
+      const qty=parseFloat(it.querySelector('input.quantity').value)||0;
+      const vol=parseFloat(it.querySelector('input.volume')?.value)||0;
+      return {name, qty, vol};
+    });
+    localStorage.setItem(type+'_products', JSON.stringify(items));
+  });
+}
+
+// Restore saved products
+function restoreProducts(type) {
+  const saved = JSON.parse(localStorage.getItem(type+'_products')||'[]');
+  saved.forEach(p => addSelectedProduct(type, p.name, p.qty, p.vol));
+}
+
+restoreProducts('parenteral'); restoreProducts('enteral');
+calculate();
+
+</script>
+</body>
+</html>
