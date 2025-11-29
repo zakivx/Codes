@@ -10,14 +10,16 @@
   h2 { margin-top: 0; }
   input { padding: 8px; margin: 6px 0; width: 100%; box-sizing: border-box; }
   .result { background: #f7f7f7; padding: 10px; margin-top: 10px; border-radius: 6px; }
-  .item { margin-top: 8px; padding: 8px; background: #eef; border-radius: 6px; display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap; }
-  .item div { flex:1; min-width: 120px; }
+  .item { margin-top: 8px; padding: 8px; background: #eef; border-radius: 6px; }
+  .item div { flex:1 ; height : -webkit-fill-available}
   .suggestions { position: absolute; left: 14px; right: 14px; background: #fff; border: 1px solid #bbb; max-height: 160px; overflow:auto; z-index:50; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
   .suggestions div { padding: 8px; cursor: pointer; }
   .suggestions div:hover { background:#def; }
   label.small { font-size:12px; margin-top:6px; display:block; color:#333; }
-  button.small { padding:6px 10px; width:auto; margin-top:6px; }
-  .bottom-row { margin-top: 6px; font-weight: bold; background: #dde; padding: 6px; border-radius: 6px; width: 100%; }
+  button.small {     padding: 6px 10px;
+    width: auto;
+    position: relative;
+    float: right; }
 </style>
 </head>
 <body>
@@ -154,20 +156,22 @@ function safeId(type, name) { return (type + '_' + name).replace(/\s+/g,'_').rep
 function addSelectedProduct(type, name, qtySaved=0, volSaved=0) {
   const container = document.getElementById(type + 'List');
   const id = safeId(type, name);
-  if (document.getElementById(id)) return;
+  if (document.getElementById(id+'_top')) return;
   const prod = products[type][name];
 
-  // MAIN ITEM ROW
-  const row = document.createElement('div');
-  row.className = 'item'; 
-  row.id = id;
+  // Top row
+  const topRow = document.createElement('div');
+  topRow.className = 'item'; 
+  topRow.id = id + '_top';
+  topRow.style.display = 'flex';
+  topRow.style.gap = '10px';
+  topRow.style.alignItems = 'center';
 
   const left = document.createElement('div');
   left.innerHTML = '<b>' + name + '</b><br><small>' + prod.kcal + ' kcal per ' + prod.base + (prod.liquid ? ' mL' : ' g') + '</small>';
 
   const mid = document.createElement('div');
   mid.innerHTML = 'Qty (<small>' + (prod.liquid ? 'mL/day' : 'g/day') + '</small>):<br>';
-  
   const qtyInput = document.createElement('input');
   qtyInput.type = 'number'; qtyInput.min = 0; qtyInput.value = qtySaved; qtyInput.className='quantity'; qtyInput.style.width='100%';
   qtyInput.addEventListener('input', () => { updateItem(type, name); saveProducts(); });
@@ -186,26 +190,35 @@ function addSelectedProduct(type, name, qtySaved=0, volSaved=0) {
   const right = document.createElement('div');
   const removeBtn = document.createElement('button');
   removeBtn.className='small'; removeBtn.textContent='Remove';
-  removeBtn.onclick = () => { row.remove(); saveProducts(); recalcTotals(); };
+  removeBtn.onclick = () => { topRow.remove(); bottomRow.remove(); saveProducts(); recalcTotals(); };
   right.appendChild(removeBtn);
 
-  row.appendChild(left); row.appendChild(mid); row.appendChild(right);
+  topRow.appendChild(left); topRow.appendChild(mid); topRow.appendChild(right);
 
-  // SECOND ROW FOR CALCULATED VALUES
-  const bottomRow = document.createElement('div');
-  bottomRow.id = id + '_vals';
-  bottomRow.className = 'bottom-row';
-  row.appendChild(bottomRow);
+// Bottom row for summary
+const bottomRow = document.createElement('div');
+bottomRow.id = id + '_vals';
+bottomRow.style.width = '-webkit-fill-available';
+bottomRow.style.background = 'rgb(213 213 223)';
+bottomRow.style.padding = '6px';
+bottomRow.style.marginTop = '4px';
+bottomRow.style.borderRadius = '6px';
+bottomRow.textContent = 'Kcal: 0 | Protein: 0 g | mL: 0 | Flow: 0 mL/h';
 
-  container.appendChild(row);
-  updateItem(type, name); 
+
+
+  container.appendChild(topRow);
+  container.appendChild(bottomRow);
+
+  updateItem(type, name);
   saveProducts();
 }
 
 function updateItem(type, name) {
-  const id = safeId(type, name); 
-  const el = document.getElementById(id);
-  if (!el) return; 
+  const idTop = safeId(type, name) + '_top';
+  const idVals = safeId(type, name) + '_vals';
+  const el = document.getElementById(idTop);
+  if (!el) return;
   const prod = products[type][name];
   const qty = parseFloat(el.querySelector('input.quantity').value)||0;
   const factor = qty / prod.base;
@@ -214,10 +227,8 @@ function updateItem(type, name) {
   let vol = qty;
   if (!prod.liquid) { vol = parseFloat(el.querySelector('input.volume')?.value)||0; }
   const flowRate = vol/24;
-
-  document.getElementById(id + '_vals').textContent =
+  document.getElementById(idVals).textContent =
     'Kcal: ' + kcal.toFixed(1) + ' | Protein: ' + protein.toFixed(1) + ' g | mL: ' + vol.toFixed(0) + ' | Flow: ' + flowRate.toFixed(1) + ' mL/h';
-
   recalcTotals();
 }
 
@@ -258,7 +269,6 @@ function restoreProducts(type) {
 
 restoreProducts('parenteral'); restoreProducts('enteral');
 calculate();
-
 </script>
 </body>
 </html>
