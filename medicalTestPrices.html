@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Test Prices - All Labs Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .lab-info-summary {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+        .lab-info-summary strong {
+            color: #007bff;
+        }
+        #searchBar {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #007bff;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .alpha-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+            padding: 10px 0;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+        .alpha-nav button {
+            background: none;
+            border: none;
+            padding: 5px 8px;
+            margin: 2px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #007bff;
+            transition: background-color 0.2s;
+        }
+        .alpha-nav button:hover:not(:disabled), .alpha-nav button.active {
+            background-color: #007bff;
+            color: white;
+            border-radius: 3px;
+        }
+        .alpha-nav button.all {
+            color: #28a745;
+        }
+        .alpha-nav button.all.active {
+            background-color: #28a745;
+            color: white;
+        }
+        .alpha-nav button:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+
+        .product-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 2px solid #333;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .product-header .test-col { flex: 2; }
+        .product-header .lab-col { flex: 1; text-align: left; }
+        .product-header .price-col { flex: 0.5; text-align: right; }
+
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+        .product-item:last-child {
+            border-bottom: none;
+        }
+        .product-name {
+            font-weight: bold;
+            color: #333;
+            flex: 2;
+            padding-right: 15px;
+        }
+        .product-lab {
+            font-size: 0.85em;
+            color: #6c757d;
+            flex: 1;
+        }
+        .product-price {
+            color: #dc3545;
+            font-weight: bold;
+            flex: 0.5;
+            text-align: right;
+            border-left: 2px solid #ddd;
+            padding-left: 10px;
+        }
+        .price-inquire {
+            color: #ffc107; /* Yellow for N/A or Inquire */
+        }
+        .no-results {
+            text-align: center;
+            color: #6c757d;
+            padding: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔬 Medical Test Price List (Combined)</h1>
+    
+    <div class="lab-info-summary">
+        Tests from <strong>D'analyses Médicales Sadaoui (CHLEF)</strong>, <strong>LABORATOIRE N. KORTEBY - ALLAL (ALGER)</strong>, and <strong>LABORATOIRE EL AMHAR (Rouiba, Alger)</strong>.
+    </div>
+
+    <div id="alphaNav" class="alpha-nav">
+        </div>
+
+    <input type="text" id="searchBar" onkeyup="filterProducts()" placeholder="🔍 Search for a test across all laboratories...">
+
+    <div class="product-header">
+        <span class="test-col">TEST NAME</span>
+        <span class="lab-col">LABORATORY</span>
+        <span class="price-col">PRICE</span>
+    </div>
+
+    <ul id="productList" class="product-list">
+        </ul>
+</div>
+
+<script>
+    // --- Data: Combined List of Tests and Prices from all labs ---
+    const allProductsRaw = {
+        Sadaoui: [
+            {"name": "Anti-ENDOMYSlUM IGG /IFI", "price": "1 700 DA"},
+            {"name": "Anti-ENDOMYSlUM IGA /IFI", "price": "1 700 DA"},
+            {"name": "Béta HCG", "price": "650 DA"},
+            {"name": "17-Alpha-Hydroxy progestérone", "price": "1 500 DA"},
+            {"name": "A2M Alpha2 macroglobuline", "price": "2 000 DA"},
+            {"name": "AC anti HIV Technique immunochromatographie", "price": "300 DA"},
+            {"name": "AC anti HCV Technique immunochromatographie", "price": "250 DA"},
+            {"name": "AC anti HBS Technique immunochromatographie", "price": "250 DA"},
+            {"name": "SEROLOGIE SYPHILIS Technique immunochromatographie", "price": "250 DA"},
+            {"name": "AC ANTI HIV 1+ HIV2 Technique ELISA", "price": "800 DA"},
+            {"name": "Ac HBS Technique ELISA", "price": "800 DA"},
+            {"name": "Ac HBC totaux IgG IgM Technique ELISA", "price": "800 DA"},
+            {"name": "ACIDE OXALIQUE dans le Sérum", "price": "9 000 DA"},
+            {"name": "ACIDE OXALIQUE dans les urines", "price": "3 000 DA"},
+            {"name": "ACE", "price": "800 DA"},
+            {"name": "Acide Urique", "price": "100 DA"},
+            {"name": "ACTH", "price": "1 300 DA"},
+            {"name": "Alpha FoetoProteine AFP", "price": "1 000 DA"},
+            {"name": "Ag HBe ELISA", "price": "1 000 DA"},
+            {"name": "Ag HBS ELISA", "price": "1 000 DA"},
+            {"name": "AGPCA/Anti-Cellule Gastrique Pariétale/IFI/Triple sub", "price": "3 000 DA"},
+            {"name": "ALA (Anti-Liver Ag): M2, LKM1, LC1, SLA/LP", "price": "3 500 DA"},
+            {"name": "Albumine", "price": "250 DA"},
+            {"name": "Albuminurie", "price": "300 DA"},
+            {"name": "Aldolase", "price": "1 600 DA"},
+            {"name": "AMA /Anti-Mitochondrie /IFI", "price": "3 500 DA"},
+            {"name": "Anti LKM1 anti LCA/IFI", "price": "3 500 DA"},
+            {"name": "ASMA/ anti muscle lisse /IFI", "price": "3 500 DA"},
+            {"name": "Anti mitochondrie M2/ELISA", "price": "3 500 DA"},
+            {"name": "AMH (Hormone Anti-Mullerienne)", "price": "4 000 DA"},
+            {"name": "Amylasemie", "price": "500 DA"},
+            {"name": "Amylasurie", "price": "500 DA"},
+            {"name": "ANA (FAN) IFI/Hep2", "price": "2 500 DA"},
+            {"name": "ANAsc (FAN) /ELISA", "price": "2 500 DA"},
+            {"name": "ANCAsc (Dépistage) /IFI", "price": "3 300 DA"},
+            {"name": "ANCAsc (Dépistage) /ELISA", "price": "4 000 DA"},
+            {"name": "+Anti protéase + anti MPO + anti MBG", "price": "7 000 DA"},
+            {"name": "Anti DNA natif/ELISA", "price": "3 000 DA"},
+            {"name": "Anti MOG", "price": "14 000 DA"},
+            {"name": "Anti NMO", "price": "14 000 DA"},
+            {"name": "Anti TG", "price": "950 DA"},
+            {"name": "Anti TPO", "price": "950 DA"},
+            {"name": "Anti-ENA (6Ag) /ELISA", "price": "3 300 DA"},
+            {"name": "Anti-Facteur intrinsèque", "price": "2 700 DA"},
+            {"name": "Anti-Gliadine IgA", "price": "2 500 DA"},
+            {"name": "Anti-Gliadine IgG", "price": "2 500 DA"},
+            {"name": "Anti-Transglutaminase IgA", "price": "2 500 DA"},
+            {"name": "Anti-transglutaminase IgG", "price": "2 500 DA"},
+            {"name": "Anticorps circulant type lupique", "price": "13 500 DA"},
+            {"name": "Anti prothrombine", "price": "15 000 DA"},
+            {"name": "AntithrombineIII", "price": "4 000 DA"},
+            {"name": "ASCA", "price": "3 300 DA"},
+            {"name": "ASLO technique agglutination", "price": "150 DA"},
+            {"name": "ASLO Dosage", "price": "300 DA"},
+            {"name": "B2-GIycoprotéine I / IgG (§2GP1", "price": "2 200 DA"},
+            {"name": "B2-GIycoprotéine I /IgM (§2GP1)", "price": "2 200 DA"},
+            {"name": "B2M Béta 2 Microglobuline", "price": "2 000 DA"},
+            {"name": "Bilirubine Direct", "price": "150 DA"},
+            {"name": "Bilirubine Totale", "price": "150 DA"},
+            {"name": "Brucellose TITRAGE WRIGHT", "price": "1 500 DA"},
+            {"name": "Brucellose TITRAGE ROSE BANGALE", "price": "1 200 DA"},
+            {"name": "Calpoprotectine fecale", "price": "6 000 DA"},
+            {"name": "C3", "price": "1 300 DA"},
+            {"name": "C4", "price": "1 500 DA"},
+            {"name": "CA 125", "price": "900 DA"},
+            {"name": "CA 15-3", "price": "900 DA"},
+            {"name": "CA 19-9", "price": "900 DA"},
+            {"name": "Cadiolipine IgG", "price": "2 200 DA"},
+            {"name": "Cadiolipine IgM", "price": "2 200 DA"},
+            {"name": "Calcium sanguine", "price": "200 DA"},
+            {"name": "Calcium urinaire", "price": "200 DA"},
+            {"name": "Calprotectine", "price": "6 000 DA"},
+            {"name": "CHARGE VIRALE CMV", "price": "9 000 DA"},
+            {"name": "Charge virale Hépatite B", "price": "8 000 DA"},
+            {"name": "Charge virale Hépatite C", "price": "8 000 DA"},
+            {"name": "Charge virale Hépatite HIV", "price": "8 000 DA"},
+            {"name": "Chimie des urines", "price": "100 DA"},
+            {"name": "Chlamydia trachomatis/lgG", "price": "1 200 DA"},
+            {"name": "Chlamydiatrachomatis/lgA", "price": "1 200 DA"},
+            {"name": "CH50", "price": "1 500 DA"},
+            {"name": "Cholestérol", "price": "100 DA"},
+            {"name": "CKMB", "price": "800 DA"},
+            {"name": "CMV IgG", "price": "1 200 DA"},
+            {"name": "CMV IgM", "price": "1 200 DA"},
+            {"name": "CONNECTIVITE (kit diagnostic)", "price": "1 200 DA"},
+            {"name": "Coproparasitologie des selles", "price": "500 DA"},
+            {"name": "Cortisol à 08h", "price": "800 DA"},
+            {"name": "Cortisol à 12h", "price": "800 DA"},
+            {"name": "Cortisol à 16h", "price": "800 DA"},
+            {"name": "Cortisol urinaire", "price": "800 DA"},
+            {"name": "CPK", "price": "500 DA"},
+            {"name": "Créatinine", "price": "100 DA"},
+            {"name": "CRP Dosage", "price": "500 DA"},
+            {"name": "CRP Technique d'agglutination", "price": "200 DA"},
+            {"name": "D4 Androstènedione", "price": "1 700 DA"},
+            {"name": "D-DIMERE", "price": "3 000 DA"},
+            {"name": "Dépakine", "price": "1 800 DA"},
+            {"name": "E2-EstradioI", "price": "700 DA"},
+            {"name": "EBV (Epstein Barr virus)NA/ IgG", "price": "2 000 DA"},
+            {"name": "EBV (Epstein Barr virusVCA/ IgM", "price": "2 000 DA"},
+            {"name": "EBV(Epstein.Barr.virusVCA/ IgM", "price": "2 000 DA"},
+            {"name": "ECB Crachat", "price": "1 000 DA"},
+            {"name": "ECB DE PERTE", "price": "600 DA"},
+            {"name": "ECB DE PUS", "price": "1 000 DA"},
+            {"name": "ECBU", "price": "400 DA"},
+            {"name": "ECB DE PRELEVEMENT DE GORGE", "price": "1 000 DA"},
+            {"name": "ECB liquide d’ascite", "price": "1 000 DA"},
+            {"name": "Electrophorèse des protéines sériques EPP", "price": "900 DA"},
+            {"name": "Enzyme de conversion de l'angiotensine", "price": "2 000 DA"},
+            {"name": "Electrophorèse de l’Hb EPHb", "price": "1 000 DA"},
+            {"name": "EPU Electrophorèse proteines urinaires", "price": "6 000 DA"},
+            {"name": "EX Mycologique + culture", "price": "1 000 DA"},
+            {"name": "Examen de goutte urétrale", "price": "600 DA"},
+            {"name": "Fer Serique", "price": "150 DA"},
+            {"name": "Ferritine", "price": "600 DA"},
+            {"name": "Fibrinogéne", "price": "250 DA"},
+            {"name": "Fibromax", "price": "16 000 DA"},
+            {"name": "Fibrotest", "price": "16 500 DA"},
+            {"name": "FNS complete", "price": "300 DA"},
+            {"name": "Free light chaines KAPPA", "price": "4 500 DA"},
+            {"name": "Free light chaines LAMBDA", "price": "4 500 DA"},
+            {"name": "Frottis sanguin", "price": "300 DA"},
+            {"name": "Fructosamines", "price": "1 000 DA"},
+            {"name": "FSH", "price": "600 DA"},
+            {"name": "FT3", "price": "600 DA"},
+            {"name": "FT4", "price": "600 DA"},
+            {"name": "Glucose-6-phosphate déshydrogénase G 6PD", "price": "1 700 DA"},
+            {"name": "GammaGT", "price": "300 DA"},
+            {"name": "Hormone de croissance GH", "price": "2 000 DA"},
+            {"name": "Glycémie", "price": "80 DA"},
+            {"name": "Glycemie post pondiale", "price": "100 DA"},
+            {"name": "Groupage sanguin", "price": "100 DA"},
+            {"name": "Haptoglobine", "price": "1 500 DA"},
+            {"name": "HAV IgM", "price": "1 200 DA"},
+            {"name": "HBA1C", "price": "700 DA"},
+            {"name": "HBS-Ag vidas", "price": "800 DA"},
+            {"name": "HDL cholesterol", "price": "150 DA"},
+            {"name": "Helicobacter pylori IgG", "price": "1 500 DA"},
+            {"name": "Helicobacter pylori IgM", "price": "1 500 DA"},
+            {"name": "Hémoculture", "price": "800 DA"},
+            {"name": "Herpes IgG", "price": "2 500 DA"},
+            {"name": "Herpes IgM", "price": "2 500 DA"},
+            {"name": "HGPO", "price": "600 DA"},
+            {"name": "HLA B 27", "price": "6  000 DA"},
+            {"name": "HLA B 51", "price": "9 000 DA"},
+            {"name": "Homocystine", "price": "3 000 DA"},
+            {"name": "IEP Immuno-Electrophorèse des Proteines", "price": "7 000 DA"},
+            {"name": "IgA Totale", "price": "1 500 DA"},
+            {"name": "-IgA Sérique", "price": "1 500 DA"},
+            {"name": "IgE pédiatrique mixte (Alimentaire+ Respiratoire)", "price": "4 500 DA"},
+            {"name": "IgE spécifiques alimentaire", "price": "4 500 DA"},
+            {"name": "IgE spécifiques respiratoire", "price": "4 500 DA"},
+            {"name": "IgE totales", "price": "900 DA"},
+            {"name": "IgG", "price": "1 300 DA"},
+            {"name": "IgM", "price": "1 300 DA"},
+            {"name": "Inhibine B", "price": "6 000 DA"},
+            {"name": "Insuline", "price": "2 000 DA"},
+            {"name": "Ionogramme plasmatique", "price": "300 DA"},
+            {"name": "Ionogramme urinaire", "price": "450 DA"},
+            {"name": "Latex", "price": "150 DA"},
+            {"name": "LCR", "price": "800 DA"},
+            {"name": "LDH", "price": "500 DA"},
+            {"name": "LH", "price": "600 DA"},
+            {"name": "Lipasémie", "price": "1 000 DA"},
+            {"name": "Magnésium sanguine", "price": "150 DA"},
+            {"name": "Magnésium urinaire 24h", "price": "150 DA"},
+            {"name": "Micro-albuminurie des 24h", "price": "600 DA"},
+            {"name": "Mononucléose infectieuse", "price": "800 DA"},
+            {"name": "Mycoplasme sérologie", "price": "2 000 DA"},
+            {"name": "Parathormone PTH", "price": "1 200 DA"},
+            {"name": "PBJ Protéinurie de BENCE-JONES", "price": "6  000 DA"},
+            {"name": "PCR RT COVID :", "price": "4 000 DA"},
+            {"name": "PCR BK", "price": "18 000 DA"},
+            {"name": "Peptide C", "price": "2 800 DA"},
+            {"name": "Phosphatase alcaline PAL", "price": "150 DA"},
+            {"name": "Phosphatases acides PAC", "price": "1 000 DA"},
+            {"name": "Phosphore sanguin", "price": "150 DA"},
+            {"name": "Phosphore urinaire", "price": "150 DA"},
+            {"name": "Pro BNP", "price": "5 500 DA"},
+            {"name": "Procalcitonine", "price": "5 000 DA"},
+            {"name": "Progestérone PRG", "price": "700 DA"},
+            {"name": "Prolactine PRL", "price": "600 DA"},
+            {"name": "Protéinurie des 24h", "price": "400 DA"},
+            {"name": "Protéine C dosage antigenique", "price": "4 000 DA"},
+            {"name": "Proteine C activité", "price": "4 000 DA"},
+            {"name": "Protéine S dosage antigenique", "price": "4 000 DA"},
+            {"name": "Protéine S activité", "price": "4 000 DA"},
+            {"name": "PSA LIBRE", "price": "600 DA"},
+            {"name": "PSA TOTAL", "price": "600 DA"},
+            {"name": "PTH", "price": "1 200 DA"},
+            {"name": "Quantiferon", "price": "11 000 DA"},
+            {"name": "Recherche Chlamydia", "price": "2 400 DA"},
+            {"name": "Recherche des mycoplasmes : MH/UU", "price": "2 400 DA"},
+            {"name": "Recherche de sang dans les selles HEMOLEX", "price": "800 DA"},
+            {"name": "Taux de réticulocytes + FNS", "price": "600 DA"},
+            {"name": "RUBEOLE d’AVIDITE", "price": "3 200 DA"},
+            {"name": "RUBEOLE IgG", "price": "600 DA"},
+            {"name": "RUBEOLE IgM", "price": "600 DA"},
+            {"name": "Déhydroépiandrostérone DHEA", "price": "1 500 DA"},
+            {"name": "SCOTCH Test", "price": "200 DA"},
+            {"name": "Sérologie COVID 19", "price": "1 000 DA"},
+            {"name": "Sérologie hydatique IgG", "price": "2 000 DA"},
+            {"name": "Sérologie Widal et Félix", "price": "1 000 DA"},
+            {"name": "SPERMOGRAMME", "price": "1 800 DA"},
+            {"name": "SPRMOCULTURE", "price": "300 DA"},
+            {"name": "TPHA TITRAGE", "price": "1 500 DA"},
+            {"name": "TCK", "price": "150 DA"},
+            {"name": "Tegretol", "price": "6 000 DA"},
+            {"name": "Test antigénique COVID 19", "price": "1 000 DA"},
+            {"name": "Test de coombs", "price": "500 DA"},
+            {"name": "Testostérone", "price": "700 DA"},
+            {"name": "Thyrocalcitonine (TCT)", "price": "2 000 DA"},
+            {"name": "Thyroglobuline", "price": "1 300 DA"},
+            {"name": "TEST d’AVIDITE TOXOPLASMOSE", "price": "3 500 DA"},
+            {"name": "TOXO IgG", "price": "700 DA"},
+            {"name": "TOXO IgM", "price": "700 DA"},
+            {"name": "TP/ INR", "price": "100 DA"},
+            {"name": "Transaminases sériques", "price": "300 DA"},
+            {"name": "Transferrine", "price": "2 000 DA"},
+            {"name": "Triglycéride", "price": "150 DA"},
+            {"name": "Troponine / HIGH SENSITIVE TROPONINE Ic (TNHS)", "price": "1 300 DA"},
+            {"name": "TSH/ TSH ultrasensible", "price": "600 DA"},
+            {"name": "TSI / Anti-Récepteur TSH", "price": "4 000 DA"},
+            {"name": "Urée", "price": "100 DA"},
+            {"name": "Vitamine B 12", "price": "1 600 DA"},
+            {"name": "Vitamine B9 (Folates sériques)", "price": "1 600 DA"},
+            {"name": "Vitamine D(25 Hydroxy)DII DIII", "price": "2 000 DA"},
+            {"name": "VS", "price": "80 DA"},
+            {"name": "Waaler rose WR", "price": "200 DA"},
+            {"name": "Aldostérone", "price": "4 000 DA"},
+            {"name": "ACR", "price": "700 DA"},
+            {"name": "CCP Anticorps anti CCP3 IgG", "price": "3 500 DA"},
+            {"name": "ECB Liquide d’épanchement", "price": "800 DA"},
+            {"name": "Anti GAD", "price": "5 000 DA"},
+            {"name": "Anti IA2", "price": "5 000 DA"},
+            {"name": "Anti Interleukine", "price": "2 800 DA"},
+            {"name": "Anti corps anti recepteurs TSH", "price": "4 000 DA"},
+            {"name": "Ag COVID 19", "price": "1 000 DA"},
+            {"name": "LDL", "price": "100 DA"},
+            {"name": "Céruloplasmine", "price": "3 000 DA"},
+            {"name": "IGF1", "price": "3 000 DA"},
+            {"name": "IGF2", "price": "14 000 DA"},
+            {"name": "RAI Recherche d'agglutinines irrégulières", "price": "3 900 DA"},
+            {"name": "RECHERCHE HP dans les selles", "price": "1 200 DA"},
+            {"name": "Renine", "price": "5 000 DA"},
+            {"name": "SAPL antiphospholipides", "price": "6 500 DA"},
+            {"name": "CYFRA 21-1 Ag", "price": "6 500 DA"},
+            {"name": "Cryoglobulinémie", "price": "2 000 DA"},
+            {"name": "Anticorps anti-membrane basale glomérulaire (GBM)", "price": "3 000 DA"},
+            {"name": "Groupage sanguin phénotypé", "price": "2 000 DA"},
+            {"name": "Test de coombs idirect", "price": "700 DA"},
+            {"name": "Compte d'Addis", "price": "400 DA"},
+            {"name": "ECB de liquide de ponction", "price": "800 DA"},
+            {"name": "PDP prélèvement distal protégé", "price": "800 DA"},
+            {"name": "Prélèvement PUS d’oreille", "price": "800 DA"},
+            {"name": "Prélèvement conjonctival", "price": "400 DA"},
+            {"name": "SEDIMENT URINAIRE", "price": "400 DA"},
+            {"name": "LEISH : Rechercher de corps de Leishmanies", "price": "600 DA"},
+            {"name": "GOUTTE EPAISSE(PALUDISME)", "price": "200 DA"},
+            {"name": "Papillomavirus HPV déctection et typage des 19 HPV à haut risque et 18 HPV à faible risque PCR", "price": "12 000 DA"},
+            {"name": "Complexe tuberculosis EXAMEN DIRECT", "price": "3 000 DA"},
+            {"name": "Complexe tuberculosis Culture", "price": "6 000 DA"},
+            {"name": "Détection de Chlamydia par biologie moléculaire", "price": "6 000 DA"},
+            {"name": "DECTECTION NEISSERIA GONORRHEE par biologie moléculaire", "price": "6  000 DA"},
+            {"name": "Etude biochimique du liquide d ascite", "price": "1 350 DA"},
+            {"name": "Etude biochimique du liquide pleural", "price": "1 350 DA"},
+            {"name": "Etude biochimique du liquide d’épanchement", "price": "13 500 DA"},
+            {"name": "Clairance de la créatinine", "price": "50 DA"},
+            {"name": "Cuivre sérique", "price": "2 800 DA"},
+            {"name": "Cuivre urinaire", "price": "2 800 DA"},
+            {"name": "Glucorachie", "price": "100 DA"},
+            {"name": "Glucosurie", "price": "100 DA"},
+            {"name": "ADH : Hormone antidiurétique (A.D.H)", "price": "8 000 DA"},
+            {"name": "Cyclosporine", "price": "7 000 DA"},
+            {"name": "Anticorps Anti-ilot de Langerhans", "price": "3 000 DA"},
+            {"name": "Acide citrique", "price": "2 700 DA"},
+            {"name": "Test des drogues", "price": "7 000 DA"},
+            {"name": "Sérologie de leishmaniose IgG IgM", "price": "5 000 DA"},
+            {"name": "Recherche de Gene BCR ABL par PCR multiplex", "price": "54 000 DA"}
+        ],
+        Korteby: [
+            {"name": "17 Cetosteroides urinaire", "price": "N/A"},
+            {"name": "17 Hydroxycorticosteroides", "price": "N/A"},
+            {"name": "T3 Reverse", "price": "N/A"},
+            {"name": "5 Nucleotidase", "price": "N/A"},
+            {"name": "5 HIA CLHP", "price": "N/A"},
+            {"name": "6TGN et 6MMP", "price": "N/A"},
+            {"name": "Ac anti MAG IgM", "price": "N/A"},
+            {"name": "Ac anti muscle strie IFI", "price": "N/A"},
+            {"name": "Ac anti 21 hydroxylase", "price": "N/A"},
+            {"name": "Ac anti Ag cytoplasmique", "price": "N/A"},
+            {"name": "Ac anti annexine V EIA IgG", "price": "N/A"},
+            {"name": "Ac anti ARN Polymerase III", "price": "N/A"},
+            {"name": "Ac anti bêta2 GP1 IgG IgM", "price": "N/A"},
+            {"name": "Ac anti C1q", "price": "N/A"},
+            {"name": "Ac anti canaux calciques", "price": "N/A"},
+            {"name": "Ac anti canaux potassiques", "price": "N/A"},
+            {"name": "Ac Anti canaux salivaires", "price": "N/A"},
+            {"name": "Ac anti cardiolipine IgG IgM", "price": "N/A"},
+            {"name": "Ac anti CCP (IgG)", "price": "N/A"},
+            {"name": "Ac Anti cellules pariétales", "price": "N/A"},
+            {"name": "Ac anti corticosurrenales", "price": "N/A"},
+            {"name": "Ac anti DNA natif (ds DNA)", "price": "N/A"},
+            {"name": "Ac anti endomysium IgA IgG", "price": "N/A"},
+            {"name": "AC anti facteur intrinseque", "price": "N/A"},
+            {"name": "Ac anti filaggrine ifi", "price": "N/A"},
+            {"name": "Ac anti GABA r", "price": "N/A"},
+            {"name": "Ac anti GAD", "price": "N/A"},
+            {"name": "Ac anti Gangliosides", "price": "N/A"},
+            {"name": "Ac anti gliadine IgA IgG", "price": "N/A"},
+            {"name": "Ac anti Heparine FP4", "price": "N/A"},
+            {"name": "Ac anti IA2", "price": "N/A"},
+            {"name": "Ac anti IgA", "price": "N/A"},
+            {"name": "Ac anti Ilots de Langerhans", "price": "N/A"},
+            {"name": "ac anti insuline =IAA", "price": "N/A"},
+            {"name": "Ac anti MBG", "price": "N/A"},
+            {"name": "Ac anti MOG", "price": "N/A"},
+            {"name": "Ac anti muscle lisse", "price": "N/A"},
+            {"name": "Ac anti MUSK", "price": "N/A"},
+            {"name": "Ac Anti myeline", "price": "N/A"},
+            {"name": "Ac anti neuropile LCR", "price": "N/A"},
+            {"name": "Ac anti NMO aquaporine 4", "price": "N/A"},
+            {"name": "Ac anti nucléaire", "price": "N/A"},
+            {"name": "Ac anti onconeuronaux", "price": "N/A"},
+            {"name": "Ac anti ovaire", "price": "N/A"},
+            {"name": "Ac anti parathyroide", "price": "N/A"},
+            {"name": "Ac anti peau", "price": "N/A"},
+            {"name": "Ac Anti PLA2R", "price": "N/A"},
+            {"name": "Ac anti plaquettes", "price": "N/A"},
+            {"name": "Ac anti prothrombine IgG", "price": "N/A"},
+            {"name": "Ac anti récepteurs Acetylcholine", "price": "N/A"},
+            {"name": "Ac anti récepteurs NMDA", "price": "N/A"},
+            {"name": "Ac Anti récepteurs de la TSH", "price": "N/A"},
+            {"name": "Ac anti reticuculine (IgA)", "price": "N/A"},
+            {"name": "Ac anti spermatozoides", "price": "N/A"},
+            {"name": "Ac anti synthétases", "price": "N/A"},
+            {"name": "Ac anti T4 thyroxine", "price": "N/A"},
+            {"name": "Ac anti TG", "price": "N/A"},
+            {"name": "Ac anti Titine", "price": "N/A"},
+            {"name": "Ac anti TPO", "price": "N/A"},
+            {"name": "Ac anti transglutaminase IgG IgA", "price": "N/A"},
+            {"name": "Ac anti ZnT8", "price": "N/A"},
+            {"name": "ACE Ag carcino-embryonaire", "price": "N/A"},
+            {"name": "Acetone", "price": "N/A"},
+            {"name": "Acide Delta Amino Levulinique", "price": "N/A"},
+            {"name": "Acide homogentisiques urines", "price": "N/A"},
+            {"name": "Acide lactique", "price": "N/A"},
+            {"name": "Acide Methyl Malonique", "price": "N/A"},
+            {"name": "Acide Mevalonique", "price": "N/A"},
+            {"name": "Acide orotique urinaire", "price": "N/A"},
+            {"name": "Acide oxalique", "price": "N/A"},
+            {"name": "Acide phytanique", "price": "N/A"},
+            {"name": "Acide pipécolique", "price": "N/A"},
+            {"name": "Acide pristanique", "price": "N/A"},
+            {"name": "Acide S-phenylmercapturique", "price": "N/A"},
+            {"name": "Acide urique sanguin", "price": "N/A"},
+            {"name": "Acides Amines", "price": "N/A"},
+            {"name": "Acides biliaires", "price": "N/A"},
+            {"name": "Acides gras LC", "price": "N/A"},
+            {"name": "Acides gras libres", "price": "N/A"},
+            {"name": "Acides gras TLC", "price": "N/A"},
+            {"name": "Acides organiques", "price": "N/A"},
+            {"name": "ACTH", "price": "N/A"},
+            {"name": "Activité ANTI-Xa", "price": "N/A"},
+            {"name": "Acyl carnitine", "price": "N/A"},
+            {"name": "ADAM TS13", "price": "N/A"},
+            {"name": "Adenosine", "price": "N/A"},
+            {"name": "ADH", "price": "N/A"},
+            {"name": "AFP", "price": "N/A"},
+            {"name": "Agglutinines froides", "price": "N/A"},
+            {"name": "Alanine", "price": "N/A"},
+            {"name": "Albumine", "price": "N/A"},
+            {"name": "Aldolase", "price": "N/A"},
+            {"name": "Aldosterone", "price": "N/A"},
+            {"name": "Alpha Glucosidase", "price": "N/A"},
+            {"name": "Alpha-1 Antitrypsine", "price": "N/A"},
+            {"name": "Aluminium", "price": "N/A"},
+            {"name": "AMH", "price": "N/A"},
+            {"name": "Amibiase sérologie", "price": "N/A"},
+            {"name": "Amiotrophie Spinale", "price": "N/A"},
+            {"name": "Amitriptyline", "price": "N/A"},
+            {"name": "Ammoniemie", "price": "N/A"},
+            {"name": "AMP cyclique", "price": "N/A"},
+            {"name": "Amylase", "price": "N/A"},
+            {"name": "ANCA", "price": "N/A"},
+            {"name": "Angelman", "price": "N/A"},
+            {"name": "Angiotensine II", "price": "N/A"},
+            {"name": "Anguillulose", "price": "N/A"},
+            {"name": "Antigene tissulaire polypeptidique", "price": "N/A"},
+            {"name": "Anti streptodornase B", "price": "N/A"},
+            {"name": "Antithrombine III", "price": "N/A"},
+            {"name": "Antitypsine alpha-1", "price": "N/A"},
+            {"name": "Apolipoproteine A1 B", "price": "N/A"},
+            {"name": "Arginine", "price": "N/A"},
+            {"name": "Aripiprazole", "price": "N/A"},
+            {"name": "Arsenic", "price": "N/A"},
+            {"name": "Arylsulfatase A B", "price": "N/A"},
+            {"name": "ASCA", "price": "N/A"},
+            {"name": "Ascaridiose", "price": "N/A"},
+            {"name": "ASLO", "price": "N/A"},
+            {"name": "Aspergillose", "price": "N/A"},
+            {"name": "Anticoagulant circulant", "price": "N/A"},
+            {"name": "ATP7B maladie de Wilson", "price": "N/A"},
+            {"name": "Babesiose sérologie", "price": "N/A"},
+            {"name": "Bartonellose IgG, PCR", "price": "N/A"},
+            {"name": "BCR-ABL", "price": "N/A"},
+            {"name": "BENCE-JONES", "price": "N/A"},
+            {"name": "Beta 2-microglobuline", "price": "N/A"},
+            {"name": "Beta carotene", "price": "N/A"},
+            {"name": "Beta galactocidase", "price": "N/A"},
+            {"name": "Beta glucocidase", "price": "N/A"},
+            {"name": "Beta HCG totale", "price": "N/A"},
+            {"name": "Beta hexosaminidase A", "price": "N/A"},
+            {"name": "BIG BIG prolactine", "price": "N/A"},
+            {"name": "Bilharziose", "price": "N/A"},
+            {"name": "Bilirubine", "price": "N/A"},
+            {"name": "Biochimie du sperme", "price": "N/A"},
+            {"name": "Biotinidase", "price": "N/A"},
+            {"name": "BK Virus", "price": "N/A"},
+            {"name": "BNP", "price": "N/A"},
+            {"name": "Bromazepam", "price": "N/A"},
+            {"name": "Brucellose", "price": "N/A"},
+            {"name": "C peptide", "price": "N/A"},
+            {"name": "C3 néphritique", "price": "N/A"},
+            {"name": "C2-C3-C4-C5-CH50-C1q-C1 INH", "price": "N/A"},
+            {"name": "CA 125, 15.3, 19.9, 50, 72.4", "price": "N/A"},
+            {"name": "Calcitonine (Thyrocalcitonine)", "price": "N/A"},
+            {"name": "Calcium", "price": "N/A"},
+            {"name": "Calculs urinaires", "price": "N/A"},
+            {"name": "Calprotectine fécale", "price": "N/A"},
+            {"name": "Campylobacter", "price": "N/A"},
+            {"name": "Candidose", "price": "N/A"},
+            {"name": "Carnitine", "price": "N/A"},
+            {"name": "Caryotype", "price": "N/A"},
+            {"name": "Catecholamines", "price": "N/A"},
+            {"name": "CD4 CD8 CD3", "price": "N/A"},
+            {"name": "CDT TRANSFERINE", "price": "N/A"},
+            {"name": "Cellcept", "price": "N/A"},
+            {"name": "Ceruleoplasmine", "price": "N/A"},
+            {"name": "Chaines légères libres", "price": "N/A"},
+            {"name": "Chimie des urines", "price": "N/A"},
+            {"name": "Chimie/ liquide de ponction", "price": "N/A"},
+            {"name": "Chitotriosidase activité", "price": "N/A"},
+            {"name": "Chlamidia pneumoniae IgA IgG+IgM", "price": "N/A"},
+            {"name": "Chlamidia psittaci IgG+IgM", "price": "N/A"},
+            {"name": "Chlamidia pneumoniaeIgA IgM IgG", "price": "N/A"},
+            {"name": "Chlamydia trachomatis serologie", "price": "N/A"},
+            {"name": "Chlorures", "price": "N/A"},
+            {"name": "CHOLESTANOL", "price": "N/A"},
+            {"name": "Cholestérol total HDL LDL", "price": "N/A"},
+            {"name": "Cholinesterase", "price": "N/A"},
+            {"name": "Chromogranine A", "price": "N/A"},
+            {"name": "Chromosome Y micro-délétions", "price": "N/A"},
+            {"name": "Chymotrypsine fecale", "price": "N/A"},
+            {"name": "Ciclosporine", "price": "N/A"},
+            {"name": "Citrate Urinaire", "price": "N/A"},
+            {"name": "Citruline Urinaire", "price": "N/A"},
+            {"name": "CK mb", "price": "N/A"},
+            {"name": "Clairance de la créatinine (DFG)", "price": "N/A"},
+            {"name": "Clairance de l’urée", "price": "N/A"},
+            {"name": "Clonalite B T PCR", "price": "N/A"},
+            {"name": "Clonazapam", "price": "N/A"},
+            {"name": "Clostridium", "price": "N/A"},
+            {"name": "Clozapine", "price": "N/A"},
+            {"name": "CMV IgG IgM avidité PCR", "price": "N/A"},
+            {"name": "Cobalt", "price": "N/A"},
+            {"name": "Coefficient de saturation", "price": "N/A"},
+            {"name": "Coenzyme Q10", "price": "N/A"},
+            {"name": "Complexe immun circulant", "price": "N/A"},
+            {"name": "Compte d’addis", "price": "N/A"},
+            {"name": "Coproculture", "price": "N/A"},
+            {"name": "Coproparasitologie", "price": "N/A"},
+            {"name": "Coqueluche", "price": "N/A"},
+            {"name": "Corticosterone", "price": "N/A"},
+            {"name": "Cortisol", "price": "N/A"},
+            {"name": "Cortisol 11 désoxy(CS)", "price": "N/A"},
+            {"name": "Cortisol 21 desoxy", "price": "N/A"},
+            {"name": "Cortisol libre urinaire", "price": "N/A"},
+            {"name": "Cortisol Salivaire", "price": "N/A"},
+            {"name": "Coxiella brunetti-Fièvre Q", "price": "N/A"},
+            {"name": "Coxsachies", "price": "N/A"},
+            {"name": "CPK (Créatine PhosphoKinase)", "price": "N/A"},
+            {"name": "Creatine", "price": "N/A"},
+            {"name": "Creatine kinase", "price": "N/A"},
+            {"name": "Créatinine", "price": "N/A"},
+            {"name": "Creattorrhee fecale", "price": "N/A"},
+            {"name": "CRP : protéine C réactive", "price": "N/A"},
+            {"name": "Cryofibrinogene", "price": "N/A"},
+            {"name": "Cryoglobuline", "price": "N/A"},
+            {"name": "Cryptococcus", "price": "N/A"},
+            {"name": "CTX", "price": "N/A"},
+            {"name": "Cuivre", "price": "N/A"},
+            {"name": "Cyfra 21.1", "price": "N/A"},
+            {"name": "Cystatine C", "price": "N/A"},
+            {"name": "Cysticercose", "price": "N/A"},
+            {"name": "Cystine", "price": "N/A"},
+            {"name": "D.Dimères", "price": "N/A"},
+            {"name": "Delta 4 androstenedione", "price": "N/A"},
+            {"name": "Dengue Serologie IgG+IgM", "price": "N/A"},
+            {"name": "Depakinemie (acide valproique)", "price": "N/A"},
+            {"name": "DHEAs", "price": "N/A"},
+            {"name": "DHT par RIA", "price": "N/A"},
+            {"name": "Digeorge", "price": "N/A"},
+            {"name": "Digoxine", "price": "N/A"},
+            {"name": "Diphterie", "price": "N/A"},
+            {"name": "Disjonction chromosomique", "price": "N/A"},
+            {"name": "Distomatose", "price": "N/A"},
+            {"name": "EBV IgG+IgM IgA PCR", "price": "N/A"},
+            {"name": "ECB des Urines", "price": "N/A"},
+            {"name": "ECB divers", "price": "N/A"},
+            {"name": "Echovirus", "price": "N/A"},
+            {"name": "Elastase fécale", "price": "N/A"},
+            {"name": "Electrophorèse lipoproteines", "price": "N/A"},
+            {"name": "Electrophorèse de l’hémoglobine", "price": "N/A"},
+            {"name": "Electrophorèse des protéines", "price": "N/A"},
+            {"name": "Entérovirus PCR", "price": "N/A"},
+            {"name": "Enzyme de conversion", "price": "N/A"},
+            {"name": "Eosinophiles nasales", "price": "N/A"},
+            {"name": "Erythropoietine", "price": "N/A"},
+            {"name": "Escitalopram", "price": "N/A"},
+            {"name": "Estriol", "price": "N/A"},
+            {"name": "Estrone", "price": "N/A"},
+            {"name": "Everolimus = certican", "price": "N/A"},
+            {"name": "Facteur coagulation", "price": "N/A"},
+            {"name": "Fecalogramme", "price": "N/A"},
+            {"name": "Fer sérique", "price": "N/A"},
+            {"name": "Ferritine", "price": "N/A"},
+            {"name": "Ferritine glycosylee", "price": "N/A"},
+            {"name": "FGF23", "price": "N/A"},
+            {"name": "Fibrinogène", "price": "N/A"},
+            {"name": "Fibrometre S FIBS2", "price": "N/A"},
+            {"name": "Fibronectine", "price": "N/A"},
+            {"name": "Fibrotest ® -Actitest®", "price": "N/A"},
+            {"name": "Fievre mediterraneene", "price": "N/A"},
+            {"name": "Filariose", "price": "N/A"},
+            {"name": "Fluoropyrimidines", "price": "N/A"},
+            {"name": "Fluorure", "price": "N/A"},
+            {"name": "FNS formule numération sanguine", "price": "N/A"},
+            {"name": "Folates erythrocytaires", "price": "N/A"},
+            {"name": "Fragilité chromosomique", "price": "N/A"},
+            {"name": "Fragmentation ADN spermatique", "price": "N/A"},
+            {"name": "Frottis sanguin", "price": "N/A"},
+            {"name": "Fructosamine", "price": "N/A"},
+            {"name": "Fructose", "price": "N/A"},
+            {"name": "FSH", "price": "N/A"},
+            {"name": "FT3", "price": "N/A"},
+            {"name": "FT4", "price": "N/A"},
+            {"name": "G1PUT Galactose 1phosphate", "price": "N/A"},
+            {"name": "G6PD", "price": "N/A"},
+            {"name": "Galactocerebrosidase", "price": "N/A"},
+            {"name": "Gamma GT", "price": "N/A"},
+            {"name": "Gastrine", "price": "N/A"},
+            {"name": "Ghreline acylée et non acylée", "price": "N/A"},
+            {"name": "GH-STH Hormone de croissance", "price": "N/A"},
+            {"name": "Glucagon", "price": "N/A"},
+            {"name": "Glycémie", "price": "N/A"},
+            {"name": "Glycine", "price": "N/A"},
+            {"name": "Glycosylation de la transferrine", "price": "N/A"},
+            {"name": "Groupage sanguin", "price": "N/A"},
+            {"name": "Guanidoacetate et Creatine", "price": "N/A"},
+            {"name": "H.G.P.O 75g Glucose", "price": "N/A"},
+            {"name": "Hantavirus sérologie IgG IgM", "price": "N/A"},
+            {"name": "Haptoglobine", "price": "N/A"},
+            {"name": "HbA1c", "price": "N/A"},
+            {"name": "hCG marqueur tumoral", "price": "N/A"},
+            {"name": "HE4 +ca125 +calcul score ROMA", "price": "N/A"},
+            {"name": "Helicobacter pylori", "price": "N/A"},
+            {"name": "Helikit (test respiratoire à l’urée)", "price": "N/A"},
+            {"name": "Hemochromatose", "price": "N/A"},
+            {"name": "Hemoglobines identif molec", "price": "N/A"},
+            {"name": "Hemophilie A mutation ponctuelle", "price": "N/A"},
+            {"name": "Hépatite A:IgM IgG IG Totaux", "price": "N/A"},
+            {"name": "Hépatite B:Ac HBc HBe HBs HBc-tot", "price": "N/A"},
+            {"name": "Hépatite B:Ag HBs HBe HBs quant", "price": "N/A"},
+            {"name": "Hépatite B : Charge virale", "price": "N/A"},
+            {"name": "Hépatite B geno de résistance", "price": "N/A"},
+            {"name": "Hépatite C: Ac HCV", "price": "N/A"},
+            {"name": "Hepatite C Génotypage", "price": "N/A"},
+            {"name": "Hépatite C: charge virale", "price": "N/A"},
+            {"name": "Hépatite D (DELTA) Ac totaux", "price": "N/A"},
+            {"name": "Hépatite E IgG IgM", "price": "N/A"},
+            {"name": "Herpes sérologie PCR", "price": "N/A"},
+            {"name": "Hexosaminidase A (béta)", "price": "N/A"},
+            {"name": "Histidine sanguine", "price": "N/A"},
+            {"name": "HIV serologie Ag-p24 PCR", "price": "N/A"},
+            {"name": "HLA", "price": "N/A"},
+            {"name": "Homocysteine", "price": "N/A"},
+            {"name": "HPN", "price": "N/A"},
+            {"name": "HTLV I+II", "price": "N/A"},
+            {"name": "HVA acide homovanylique", "price": "N/A"},
+            {"name": "Hydatidose : sérologie", "price": "N/A"},
+            {"name": "Hydroxyproline", "price": "N/A"},
+            {"name": "Hypoxanthine Urines", "price": "N/A"},
+            {"name": "IgA IgD IgE IgG IgM", "price": "N/A"},
+            {"name": "IgE anti venin abeille apis melifera", "price": "N/A"},
+            {"name": "IgE spécifiques medicaments", "price": "N/A"},
+            {"name": "IgE spécifiques amoxicilline", "price": "N/A"},
+            {"name": "IgE spécifiques ampicilline", "price": "N/A"},
+            {"name": "IgE spécifiques alimentaires", "price": "N/A"},
+            {"name": "IgE spécifiques anti lait de vache", "price": "N/A"},
+            {"name": "IgE spécifiques ISAC IMMUNOCAP", "price": "N/A"},
+            {"name": "IgE spécifiques pénicilline G V", "price": "N/A"},
+            {"name": "IgE spécifiques respiratoires", "price": "N/A"},
+            {"name": "IgE totales dans les Larmes", "price": "N/A"},
+            {"name": "IGF 2", "price": "N/A"},
+            {"name": "IGF BP3", "price": "N/A"},
+            {"name": "IGF1 Somatomédine C", "price": "N/A"},
+            {"name": "IGG1 IGG2 IGG3 IGG4", "price": "N/A"},
+            {"name": "IgG4 spécifiques anti ANISAKIS", "price": "N/A"},
+            {"name": "IL28B génotypage", "price": "N/A"},
+            {"name": "Immunofixation", "price": "N/A"},
+            {"name": "immunophénotypage", "price": "N/A"},
+            {"name": "Infliximab et Ac ANTI Infliximab", "price": "N/A"},
+            {"name": "Inhibine B", "price": "N/A"},
+            {"name": "Inhibiteur activ plasminogene", "price": "N/A"},
+            {"name": "Insuline", "price": "N/A"},
+            {"name": "Interferon gamma", "price": "N/A"},
+            {"name": "Interleukines 6 :IL6", "price": "N/A"},
+            {"name": "Intolérance alimentaire", "price": "N/A"},
+            {"name": "Intolérance lactose", "price": "N/A"},
+            {"name": "Iode", "price": "N/A"},
+            {"name": "Ionogramme", "price": "N/A"},
+            {"name": "Isoelectrofocalisation", "price": "N/A"},
+            {"name": "Jak 2", "price": "N/A"},
+            {"name": "Lamotrigine", "price": "N/A"},
+            {"name": "LDH", "price": "N/A"},
+            {"name": "Legionellose", "price": "N/A"},
+            {"name": "Leishmaniose", "price": "N/A"},
+            {"name": "Leptine", "price": "N/A"},
+            {"name": "Leptospirose", "price": "N/A"},
+            {"name": "Levetiracetam", "price": "N/A"},
+            {"name": "Levomépromazine", "price": "N/A"},
+            {"name": "LH", "price": "N/A"},
+            {"name": "Lipasémie", "price": "N/A"},
+            {"name": "Lipides totaux", "price": "N/A"},
+            {"name": "Lipoprotéine a", "price": "N/A"},
+            {"name": "Listeriose", "price": "N/A"},
+            {"name": "Lithium", "price": "N/A"},
+            {"name": "Lyme", "price": "N/A"},
+            {"name": "Lymphocytes B CD19/CD20", "price": "N/A"},
+            {"name": "Lymphocytes NK CD16 CD56", "price": "N/A"},
+            {"name": "Lysozyme", "price": "N/A"},
+            {"name": "Macroglobuline ALHA2", "price": "N/A"},
+            {"name": "Magnésium", "price": "N/A"},
+            {"name": "Magnésium erythrocytaire", "price": "N/A"},
+            {"name": "Manganese", "price": "N/A"},
+            {"name": "Melatonine", "price": "N/A"},
+            {"name": "Mercure", "price": "N/A"},
+            {"name": "Metanephrines", "price": "N/A"},
+            {"name": "Methionine sanguine", "price": "N/A"},
+            {"name": "Mitotane", "price": "N/A"},
+            {"name": "MTHFR mutation C677T", "price": "N/A"},
+            {"name": "Mucopolysaccharides urinaires", "price": "N/A"},
+            {"name": "Mucoviscidose rech. 51 mutations", "price": "N/A"},
+            {"name": "Mycobactéries (BK)/PCR", "price": "N/A"},
+            {"name": "Mycologie", "price": "N/A"},
+            {"name": "Mycoplasme urogénitaux PCR", "price": "N/A"},
+            {"name": "Mycoplasme pneuoniae IgG+IgM", "price": "N/A"},
+            {"name": "Mycoplasme sérologie IgA", "price": "N/A"},
+            {"name": "Myoglobine", "price": "N/A"},
+            {"name": "Nashtest", "price": "N/A"},
+            {"name": "Neisseria gonorrhoeae sérologie etPCR", "price": "N/A"},
+            {"name": "Nickel sanguin", "price": "N/A"},
+            {"name": "NOONAN syndrome", "price": "N/A"},
+            {"name": "NSE", "price": "N/A"},
+            {"name": "Oestradiol", "price": "N/A"},
+            {"name": "Olanzapine", "price": "N/A"},
+            {"name": "Oreillons Sérologie, IgG + IgM", "price": "N/A"},
+            {"name": "Orosomucoide", "price": "N/A"},
+            {"name": "ortho 3 methyldopamine", "price": "N/A"},
+            {"name": "Osmolalite", "price": "N/A"},
+            {"name": "Osteocalcine", "price": "N/A"},
+            {"name": "Paludisme sérologie", "price": "N/A"},
+            {"name": "Papillomavirus rech.HPV par PCR", "price": "N/A"},
+            {"name": "Parasitologie des selles", "price": "N/A"},
+            {"name": "Parvovirus B19 IgG IgM PCR", "price": "N/A"},
+            {"name": "PCA3", "price": "N/A"},
+            {"name": "PH des selles", "price": "N/A"},
+            {"name": "Phenobarbital", "price": "N/A"},
+            {"name": "Phénotype RH kell", "price": "N/A"},
+            {"name": "Phenylalanine", "price": "N/A"},
+            {"name": "Phenytoine", "price": "N/A"},
+            {"name": "PHI prostatic health index", "price": "N/A"},
+            {"name": "Phosphatase acide prostatique", "price": "N/A"},
+            {"name": "Phosphatase Alcaline", "price": "N/A"},
+            {"name": "Phosphore", "price": "N/A"},
+            {"name": "Pityriasis versicolor", "price": "N/A"},
+            {"name": "Plaquenil (hydroxychloroquine)", "price": "N/A"},
+            {"name": "Plasminogène", "price": "N/A"},
+            {"name": "Plomb", "price": "N/A"},
+            {"name": "Polymavirus JC par PCR", "price": "N/A"},
+            {"name": "Porphobilinogène", "price": "N/A"},
+            {"name": "Porphyrines", "price": "N/A"},
+            {"name": "Poumon de fermier", "price": "N/A"},
+            {"name": "Prader willi méthylation SNRPN", "price": "N/A"},
+            {"name": "Pré albumine", "price": "N/A"},
+            {"name": "Precipitine", "price": "N/A"},
+            {"name": "Pregnenolone", "price": "N/A"},
+            {"name": "Procalcitonine", "price": "N/A"},
+            {"name": "Profil proteique inflammatoire", "price": "N/A"},
+            {"name": "Progestérone 17 OH 21 OH", "price": "N/A"},
+            {"name": "Prolactine", "price": "N/A"},
+            {"name": "Proline", "price": "N/A"},
+            {"name": "Proteine 14.3.3 LCR", "price": "N/A"},
+            {"name": "Proteine C Activité Ag", "price": "N/A"},
+            {"name": "Proteine S Activité Ag libre", "price": "N/A"},
+            {"name": "Protides", "price": "N/A"},
+            {"name": "Protoporphirine-zinc PPZ", "price": "N/A"},
+            {"name": "PSA", "price": "N/A"},
+            {"name": "PTH RP related peptid =LIKE", "price": "N/A"},
+            {"name": "PTHi Parathormone", "price": "N/A"},
+            {"name": "Quantiferon", "price": "N/A"},
+            {"name": "Rage contrôle d immunité", "price": "N/A"},
+            {"name": "RAI Rech Agglutinine Irrégulière", "price": "N/A"},
+            {"name": "Recepteur soluble Transferrine", "price": "N/A"},
+            {"name": "Recherche candida albicans", "price": "N/A"},
+            {"name": "Recherche de Demodex", "price": "N/A"},
+            {"name": "Recherche de parasites", "price": "N/A"},
+            {"name": "Recherche de Sarcoptes scabiei", "price": "N/A"},
+            {"name": "Recherche d’hématozoaires", "price": "N/A"},
+            {"name": "Renine", "price": "N/A"},
+            {"name": "Resistance à la proteine C activée", "price": "N/A"},
+            {"name": "Retinol binding protein", "price": "N/A"},
+            {"name": "RETT etude complete", "price": "N/A"},
+            {"name": "Rhesus fœtal sur sang maternel", "price": "N/A"},
+            {"name": "Rickttsioses IgG +IgM", "price": "N/A"},
+            {"name": "Rougeole", "price": "N/A"},
+            {"name": "Rubéole IgG IgM Avidité PCR", "price": "N/A"},
+            {"name": "Salmonellose vidal et felix", "price": "N/A"},
+            {"name": "Sang dans les selles", "price": "N/A"},
+            {"name": "SCC", "price": "N/A"},
+            {"name": "Scotch test (recherche d’oxyures)", "price": "N/A"},
+            {"name": "Sediment urinaire", "price": "N/A"},
+            {"name": "Selenium", "price": "N/A"},
+            {"name": "Serotonine sanguin par CLHP", "price": "N/A"},
+            {"name": "Serum Amyloide A", "price": "N/A"},
+            {"name": "Sex bending protein SHBG=TEBG", "price": "N/A"},
+            {"name": "Sexe foetal sur sang maternel", "price": "N/A"},
+            {"name": "Sirolimus", "price": "N/A"},
+            {"name": "Somatostatine", "price": "N/A"},
+            {"name": "Sous unité alpha FSH,hCG,LH,TSH", "price": "N/A"},
+            {"name": "Spermoculture", "price": "N/A"},
+            {"name": "Spermogramme", "price": "N/A"},
+            {"name": "Spherocytose heriditaire", "price": "N/A"},
+            {"name": "Steatorrhee", "price": "N/A"},
+            {"name": "Steinert", "price": "N/A"},
+            {"name": "Strep pneumoniae Ag soluble", "price": "N/A"},
+            {"name": "Streptococcus A dans la gorge", "price": "N/A"},
+            {"name": "Syphilis", "price": "N/A"},
+            {"name": "T3 T4", "price": "N/A"},
+            {"name": "Tacrolimus = prograf MEIA", "price": "N/A"},
+            {"name": "Taux de réticulocytes", "price": "N/A"},
+            {"name": "TBG Thyroxine Binding globuline", "price": "N/A"},
+            {"name": "TCK : temps de céphaline activée", "price": "N/A"},
+            {"name": "Tegretolemie (Carbamazépine)", "price": "N/A"},
+            {"name": "Temps de saignement", "price": "N/A"},
+            {"name": "Test de Coombs direct", "price": "N/A"},
+            {"name": "Test de grossesse", "price": "N/A"},
+            {"name": "Test de O’Sullivan", "price": "N/A"},
+            {"name": "Testostérone", "price": "N/A"},
+            {"name": "Tetanos IgG control vaccination", "price": "N/A"},
+            {"name": "Thyroglobuline", "price": "N/A"},
+            {"name": "TIBC", "price": "N/A"},
+            {"name": "TNF", "price": "N/A"},
+            {"name": "Toxocarose serologie", "price": "N/A"},
+            {"name": "Toxo: IgG IgM IgA Avidité PCR", "price": "N/A"},
+            {"name": "TP : taux de prothrombine", "price": "N/A"},
+            {"name": "TPA Tissue Polypeptide Antigen", "price": "N/A"},
+            {"name": "Tramadol", "price": "N/A"},
+            {"name": "Transaminases", "price": "N/A"},
+            {"name": "Transcobalamines", "price": "N/A"},
+            {"name": "Transferrine", "price": "N/A"},
+            {"name": "Trichinose", "price": "N/A"},
+            {"name": "Trisomie depistage/sang maternel", "price": "N/A"},
+            {"name": "Troponine", "price": "N/A"},
+            {"name": "Trypsine", "price": "N/A"},
+            {"name": "Tryptase", "price": "N/A"},
+            {"name": "Tryptophane", "price": "N/A"},
+            {"name": "TSHus", "price": "N/A"},
+            {"name": "Tularemie", "price": "N/A"},
+            {"name": "Typage Ac anti membrane basale", "price": "N/A"},
+            {"name": "Tyrosine", "price": "N/A"},
+            {"name": "UGTA1 Genotypage", "price": "N/A"},
+            {"name": "Urée", "price": "N/A"},
+            {"name": "Varicelle zona IgG+IgM PCR", "price": "N/A"},
+            {"name": "VDRL", "price": "N/A"},
+            {"name": "VIP", "price": "N/A"},
+            {"name": "Virus dans les selles", "price": "N/A"},
+            {"name": "Vitamine A1", "price": "N/A"},
+            {"name": "Vitamine B1 B2 B6 B8 B9 B12", "price": "N/A"},
+            {"name": "Vitamine C", "price": "N/A"},
+            {"name": "Vitamine D 25 OH 1,25", "price": "N/A"},
+            {"name": "Vitamine E", "price": "N/A"},
+            {"name": "Vitamine K1", "price": "N/A"},
+            {"name": "Vitamine PP", "price": "N/A"},
+            {"name": "VMA", "price": "N/A"},
+            {"name": "VS : vitesse de sédimentation", "price": "N/A"},
+            {"name": "Whipple", "price": "N/A"},
+            {"name": "X fragile", "price": "N/A"},
+            {"name": "Yersinia serologie", "price": "N/A"},
+            {"name": "Zika", "price": "N/A"},
+            {"name": "Zinc", "price": "N/A"}
+        ],
+        ElAmhar: [
+            {"name": "11 DESOXYCORTISOL"},
+            {"name": "17 CÉTOSTÉROIDES"},
+            {"name": "17 HYDROXY-PREGNENOLONE(LCMSMS)"},
+            {"name": "17- Hydroxyprogestérone ( 17-OHP)"},
+            {"name": "5 Hydrixy Indol Acitique"},
+            {"name": "Ac amines urinaires"},
+            {"name": "AC Anti Endomysium IgA"},
+            {"name": "Ac anti GP210"},
+            {"name": "Ac anti Ilots de langerhans"},
+            {"name": "AC ANTI -MITOCHONDRIES TYPAGE ANTI M2"},
+            {"name": "AC ANTI MO (ANTI MA2)"},
+            {"name": "AC ANTI MUSK"},
+            {"name": "Ac anti nucleaires=ANA"},
+            {"name": "Ac anti nucleaires=ANA(Dépistage)"},
+            {"name": "AC anti recepteurs de l’acetyl choline"},
+            {"name": "Ac anti ribosomes"},
+            {"name": "AC ANTI-BETA-2 GLY 1 IGG"},
+            {"name": "AC ANTI-BETA-2 GLY 1 IGM"},
+            {"name": "AC ANTI-CARDIOLIPINE IGG"},
+            {"name": "AC ANTI-CARDIOLIPINE IGM"},
+            {"name": "AC ANTI-CCP2"},
+            {"name": "AC ANTI-CENTROMERES"},
+            {"name": "AC antigéne nucleaires solubles dosage"},
+            {"name": "AC ANTI-HCV"},
+            {"name": "AC ANTI-HCV IgG"},
+            {"name": "AC ANTI-OVAIRES"},
+            {"name": "AC ANTI-PHOSPHOLIPIDES:"},
+            {"name": "Ac anti-reticuline"},
+            {"name": "AC ANTI-THYROGLOBULINE"},
+            {"name": "AC ANTI-TPO"},
+            {"name": "AC foliques erythrocytaire VIT B9"},
+            {"name": "ACE"},
+            {"name": "ACETONE"},
+            {"name": "ACETONE URINAIRE"},
+            {"name": "ACETYLCHOLINESTERASE(ISO-ENZYMES)"},
+            {"name": "ACETYLDIGITOXINE"},
+            {"name": "ACHONDROPLASIE(MUTATION G1138A-G1138C)"},
+            {"name": "Acide Citrique"},
+            {"name": "Acide Oxalique"},
+            {"name": "ACIDE URIQUE SANGUIN"},
+            {"name": "ACIDE URIQUE URINAIRE"},
+            {"name": "Acides gras à Tres longues chaines"},
+            {"name": "Acides gras à trés longues chaines"},
+            {"name": "ACTH"},
+            {"name": "Adrenaline"},
+            {"name": "AFP (alpha-foetoprotéine)"},
+            {"name": "AG HBS"},
+            {"name": "ALBUMINE"},
+            {"name": "ALDOLASE"},
+            {"name": "ALDOSTERONE"},
+            {"name": "ALPHA1 ANTITRYPSINE DOSAGE"},
+            {"name": "AMIBIASE"},
+            {"name": "AMMONIEMIE"},
+            {"name": "AMYLASE URINAIRE"},
+            {"name": "AMYLASEMIE"},
+            {"name": "ANCA"},
+            {"name": "Anti arachide : F13"},
+            {"name": "Anti blanc d’oeuf"},
+            {"name": "Anti coprs anti IA2"},
+            {"name": "ANTI CORPS ANTI-NMO(anti-aquaporine-4)"},
+            {"name": "Anti Saccharo myces Cervical IgG+IgA"},
+            {"name": "Anti(SSA-SSB-Sm-RNP-Scl70)"},
+            {"name": "ANTIBIOGRAMME"},
+            {"name": "ANTIBIOGRAMME."},
+            {"name": "ANTI-CCP(anti peptides citrulinés cyclisés)"},
+            {"name": "ANTICORP ANTI HBC IGM"},
+            {"name": "ANTICORP ANTI HBE"},
+            {"name": "ANTICORP ANTI HBS"},
+            {"name": "Anti-corps anti cylosol LC1"},
+            {"name": "ANTICORPS ANTI FACTEUR INTRINSEQUE (Chimiluminescence)"},
+            {"name": "Anticorps anti Gliadines IgA"},
+            {"name": "Anticorps anti gliadines IgG"},
+            {"name": "ANTICORPS ANTI HBC IGG"},
+            {"name": "Anticorps Anti Insuline"},
+            {"name": "Anti-corps anti-cytosol"},
+            {"name": "ANTICORPS ANTI-RECEPTEUR LA THYRESTIMULINE"},
+            {"name": "Anti-corps anti-SLA"},
+            {"name": "Anticorps anti-transglutaminase IgG"},
+            {"name": "Anticorps anti-transglutaminases IgA"},
+            {"name": "ANTIGENE HBE"},
+            {"name": "Antigène HBS (Hépatite B)"},
+            {"name": "APO A1"},
+            {"name": "APO B"},
+            {"name": "ASLO"},
+            {"name": "ASPECT DU SERUM"},
+            {"name": "AUTO-AC ANTI -MITOCHONDRIES"},
+            {"name": "AUTO-AC ANTI-MUSCLE LISSE (I.F.I)"},
+            {"name": "AUTO-AC IgA ANTI-RETICULINE(IFI)"},
+            {"name": "AUTO-ANTICORPS ANTI -ADN NATIF de type IgG : CELIA"},
+            {"name": "AUTO-ANTICORPS ANTI- CELLULES PARIETALES DE L’ESTOMAC"},
+            {"name": "AUTO-ANTICORPS ANTI-ACIDE GLUTAMIQUE DECARBOXYLASE"},
+            {"name": "AUTO-ANTICORPS ANTI-ANTIGENES NUCLEAIRES SOLUBLES (Dépistage) (FEIA)"},
+            {"name": "AUTO-ANTICORPS ANTI-CYTOPLASME DES POLYNUCLEAIRES NEUTROPHILES (ANCA) : IFI"},
+            {"name": "AUTO-ANTICORPS ANTI-CYTOPLASME DES POLYNUCLEAIRES NEUTROPHILES ANCA"},
+            {"name": "AUTO-ANTICORPS ANTI-LKM (RETICULUM ENDOPLASMIQUE, MICROSOMES FOIE – REIN) (IFI)"},
+            {"name": "AUTO-ANTICORPS ANTI-NUCLEAIRES : I.F.I."},
+            {"name": "AUTO-ANTICORPS ANTI-SCL 70"},
+            {"name": "AUTO-ANTICORPS ANTI-SSA (FEIA)"},
+            {"name": "B2 Microglobuline(Turbidimétrie)"},
+            {"name": "BETA HCG"},
+            {"name": "BILIRUBINE DIRECTE"},
+            {"name": "BILIRUBINE INDIRECTE"},
+            {"name": "BILIRUBINE TOTALE"},
+            {"name": "Biochimie du Sperme"},
+            {"name": "BIOTINIDASE"},
+            {"name": "BLASTES"},
+            {"name": "BNP(Brain Natriuretic Peptide)"},
+            {"name": "BRUCELLOSE"},
+            {"name": "C3"},
+            {"name": "C4"},
+            {"name": "CA 125"},
+            {"name": "CA 15- 3"},
+            {"name": "CA 19-9"},
+            {"name": "Ca++ ionisée"},
+            {"name": "CALCITONINE (ELISA)"},
+            {"name": "CALCIUM SANGUIN"},
+            {"name": "CALCIUM URINAIRE"},
+            {"name": "CALPROTECTINE(Immunoenzymologie)"},
+            {"name": "CARYOTYPE CONSTITUTIONNEL OU POST NATAL (Cytogénétique conventionnelle)"},
+            {"name": "Caryotype post natal ADN"},
+            {"name": "CELLULES IMMATURES"},
+            {"name": "Ceruleoplasmine"},
+            {"name": "Chaines légères lambda"},
+            {"name": "Chaines légères libres"},
+            {"name": "Chaines légères libres kappa"},
+            {"name": "CHIMIE URINAIRE COMPLÉTE"},
+            {"name": "Chlamydia Trachomatis IgM"},
+            {"name": "Chlamydiae Trachomatis IgA"},
+            {"name": "CHOLESTEROL HDL"},
+            {"name": "CHOLESTEROL LDL"},
+            {"name": "Cholesterol LDL"},
+            {"name": "CHOLESTEROL TOTAL"},
+            {"name": "Chromogranine A"},
+            {"name": "Chromosome(micro deletion du chromosome Y)"},
+            {"name": "CLAIRANCE À LA CRÉATININE"},
+            {"name": "Classe I Locus B (HLAB27+HLAB52)"},
+            {"name": "Clostridium Difficile"},
+            {"name": "COEFFICIENT DE SATURATION"},
+            {"name": "Complement C1q"},
+            {"name": "Complement C3 (Turbidimétrie)"},
+            {"name": "Complement C4 (Turbidimétrie)"},
+            {"name": "Complement Hemolytique Total CH50"},
+            {"name": "COMPTE ADDIS-HAMBURGER"},
+            {"name": "COPROCULTURE"},
+            {"name": "CORTISOL à 16h"},
+            {"name": "CORTISOLÉMIE à 8h00"},
+            {"name": "CORTISOLÉMIE à 8h00 (après freinage)"},
+            {"name": "COTISOL URINAIRE"},
+            {"name": "CPK"},
+            {"name": "CPK- MB"},
+            {"name": "CREATININE SANGUINE"},
+            {"name": "CREATININE URINAIRE"},
+            {"name": "CRP"},
+            {"name": "Cryoglobulines Recherche"},
+            {"name": "Cupremie"},
+            {"name": "Cuprurie"},
+            {"name": "CYTOMEGALOVIRUS IGG"},
+            {"name": "CYTOMEGALOVIRUS IGM"},
+            {"name": "D.Dimére(DD2)"},
+            {"name": "Dehydroepiandrosterone (D.H.E.A)"},
+            {"name": "DELTA 4 ANDROSTENDIONE"},
+            {"name": "DEPAKINEMIE (acide valproique)"},
+            {"name": "Dépistage séquentiel intégré au 2nd trimestre"},
+            {"name": "DESOXYCORTICOSTERONE"},
+            {"name": "DHEA.s (sulfate de déhydroépiandrostérone)"},
+            {"name": "DIGOXINE"},
+            {"name": "Dihydroxy Testostérone"},
+            {"name": "DIURESE"},
+            {"name": "DOSAGE DE L’IFN gamma POUR LE DIAGNOSTIC DES INFECTIONS TUBERCULEUSES"},
+            {"name": "DOSAGE DE L’IFN gamme POUR LE DIAGNOSTIC DES INFECTIONS TUBERCULEUSES"},
+            {"name": "DOSAGE DES AUTO-ANTICORPS IgM et IgG ANTI-GANGLIOSIDES"},
+            {"name": "DOSAGE DES IgE SPECIFIQUES ( Immuno CAP PHADIA)"},
+            {"name": "Dosage fonctionnel de l’antithrobine"},
+            {"name": "Dosage Fonctionnel Du Facteur Willebrand (Agrégométrie)"},
+            {"name": "Dosage Phenylalaline"},
+            {"name": "DOSAGE PONDERAL DU C1-INHIBITEUR"},
+            {"name": "Dosage Pondérale"},
+            {"name": "EBV (Epstein Barr Virus)"},
+            {"name": "ELASTASE FECALE(selle)"},
+            {"name": "ELECTROPHORESE DE L’HEMOGLOBINE"},
+            {"name": "ELECTROPHORESE DE L’HEMOGLOBINE:"},
+            {"name": "ELECTROPHORÉSE DES LIPIDES"},
+            {"name": "ELECTROPHORESE DES LIPOPROTEINES"},
+            {"name": "ELECTROPHORESE DES PROTEINES :"},
+            {"name": "Electrophorèse des protèines sériques:"},
+            {"name": "ENZYME DE CONVERSION DE L’ANGIOTENSINE (Cinétique enzymatique)"},
+            {"name": "EQUILIBRE LEUCOCYTAIRE"},
+            {"name": "EQUILIBRE LEUCOCYTAIRE 6/7A – 15A"},
+            {"name": "EQUILIBRE LEUCOCYTAIRE E(1J – 1S)"},
+            {"name": "EQUILIBRE LEUCOCYTAIRE E(2S – 3M)"},
+            {"name": "EQUILIBRE LEUCOCYTAIRE E(3/4A – 6A)"},
+            {"name": "EQUILIBRE LEUCOCYTAIRE E(4M – 3A)"},
+            {"name": "EQUILIBRE LEUCOCYTAIRE:"},
+            {"name": "ERYTHROBLASTES"},
+            {"name": "Etude compléte du géne M E F V"},
+            {"name": "Etude d’un liquide d’ascite"},
+            {"name": "Etude du Liquide Pleural"},
+            {"name": "EXAMAIN CYTOBACTERIOLOGIQUE DES SECRETIONS GENITALES"},
+            {"name": "EXAMEN BACTERIOLOGIQUE DU SPERME"},
+            {"name": "EXAMEN CYTOBACTERIOLOGIGE DES SECRETIONS GENITALES"},
+            {"name": "EXAMEN CYTOBACTÉRIOLOGIQUE DES LIQUIDES"},
+            {"name": "EXAMEN CYTOBACTERIOLOGIQUE DES SECRETIONS GENITALES"},
+            {"name": "EXAMEN CYTOBACTERIOLOGIQUE DES SECRETIONS GENITALES."},
+            {"name": "EXAMEN CYTO-BACTERIOLOGIQUE DES URINES (ECBU)"},
+            {"name": "EXAMEN CYTOBACTÉRIOLOGIQUE DU LIQUIDE CÉPHALO-RACHIDIEN"},
+            {"name": "EXAMEN CYTO-BACTERIOLOGIQUE PRELEVEMENT DE GORGE"},
+            {"name": "EXAMEN CYTO-BACTERIOLOGIQUE URETRAL"},
+            {"name": "EXAMEN MYCOLOGIQUE"},
+            {"name": "F2 lait de vache"},
+            {"name": "F78 Caséine"},
+            {"name": "FACTEUR II"},
+            {"name": "FACTEUR IX"},
+            {"name": "FACTEUR RHUMATOIDE IGM"},
+            {"name": "FACTEUR RHUMATOIDE WR"},
+            {"name": "FACTEUR V (Chronométrie)"},
+            {"name": "Facteur V leiden"},
+            {"name": "FACTEUR VII (chronométrie)"},
+            {"name": "FACTEUR VIII (VIII;C) (chronométrie)"},
+            {"name": "FACTEUR WILLEBRAND ( VWF ;Ag)"},
+            {"name": "FACTEUR WILLEBRAND (VWF ;RCo)"},
+            {"name": "FACTEUR X"},
+            {"name": "FACTEUR XIII"},
+            {"name": "FAN TITRAGE"},
+            {"name": "FER SÉRIQUE"},
+            {"name": "FERRITINE"},
+            {"name": "Ferritinemie Glycosylée"},
+            {"name": "FIBRINOGÉNE"},
+            {"name": "fievre reccurente hereditaire"},
+            {"name": "FLUORURE"},
+            {"name": "FORMULE DE NUMERATION SANGUINE"},
+            {"name": "Fragmentation de l’ADN Spermatique"},
+            {"name": "FROTTIS SANGUIN"},
+            {"name": "FRUCTOSAMINE"},
+            {"name": "FSH"},
+            {"name": "FT3"},
+            {"name": "FT4"},
+            {"name": "G6PD"},
+            {"name": "G6PD Erythociytaire"},
+            {"name": "GAMMA GT"},
+            {"name": "GASTRINE (Chimiluminescence)"},
+            {"name": "GENOTYPAGE HLA-B*27 (PCR en temps reel)"},
+            {"name": "Genotypage VHC"},
+            {"name": "GH: Hormone de croissance"},
+            {"name": "Glucagon"},
+            {"name": "GLYCÉMIE À JEUN"},
+            {"name": "GLYCÉMIE POST PRANDIALE"},
+            {"name": "GLYCINE"},
+            {"name": "GOUTTES EPAISSE"},
+            {"name": "Granulocytes immatures"},
+            {"name": "GROUPAGE SANGUIN"},
+            {"name": "GROUPAGE SANGUIN :"},
+            {"name": "HAPTOGLOBINE"},
+            {"name": "HAV IgM (Hépatite A)"},
+            {"name": "Hélicobacter Piloy"},
+            {"name": "HÉLICOBACTER PYLORI IGG"},
+            {"name": "HÉLICOBACTER PYLORI IGM"},
+            {"name": "Hemochromatose HFE"},
+            {"name": "HÉMOGLOBINE GLYQUÉE"},
+            {"name": "Hépatite C Dépistage"},
+            {"name": "Herpes Simplex Virus 1 et 2"},
+            {"name": "Herpes Virus 8 Serologie IgG"},
+            {"name": "Herpes virus HSV 1+2 IgG"},
+            {"name": "Herpes virus HSV 1+2 IgM"},
+            {"name": "HGPO"},
+            {"name": "HGPO (100gr de glucose)"},
+            {"name": "HGPO (75g de glucose)"},
+            {"name": "HIV"},
+            {"name": "HLA B5 Classe 1 Locub B"},
+            {"name": "HLA B51"},
+            {"name": "HLA classe I LocuB (B27 B51)"},
+            {"name": "HOMOCYSTEINE"},
+            {"name": "Hormone antidiuretique(A.D.H)"},
+            {"name": "HORMONE ANTI-MULLERIENNE"},
+            {"name": "HPV (GENOTYPAGE)"},
+            {"name": "HPV Papillomavirus Typage"},
+            {"name": "IgA ( Néphélémétrie)"},
+            {"name": "IGE ALIMENTAIRE"},
+            {"name": "IGE PEDIATRIQUE"},
+            {"name": "IGE PNEUMOALLERGIQUE"},
+            {"name": "IGE SÉRIQUES TOTALES"},
+            {"name": "IgE SPECIFIQUES ANTI LAIT DE VACHE"},
+            {"name": "IgG"},
+            {"name": "IgG ( Néphélémétrie )"},
+            {"name": "IgM ( Néphélémétrie )"},
+            {"name": "Immuno globulines"},
+            {"name": "IMMUNO-ELECTROPHORESE"},
+            {"name": "IMMUNO-ELECTROPHORESE URINAIRE"},
+            {"name": "Immunoglobuline A sérique"},
+            {"name": "Immunoglobuline M sérique"},
+            {"name": "Immunophénotypage Lymphocytaire"},
+            {"name": "Index de fragmentation de L’ADN"},
+            {"name": "INHIBINE B"},
+            {"name": "INSULINE"},
+            {"name": "insuline 30 min aprés repas"},
+            {"name": "IODE SERIQUE TOTAL (ICP/MS)"},
+            {"name": "IONOGRAMME SANGUIN"},
+            {"name": "IONOGRAMME URINAIRE"},
+            {"name": "KALIURIE"},
+            {"name": "l’Hormone Anti Mullérienne (AMH)"},
+            {"name": "LACTATEMIEC( ACIDE LACTIQUE)"},
+            {"name": "LAIT DE VACHE"},
+            {"name": "LATEX"},
+            {"name": "LDH"},
+            {"name": "Leischmaniose cutanée:"},
+            {"name": "LH"},
+            {"name": "LIPASEMIE"},
+            {"name": "LIPIDES TOTAUX"},
+            {"name": "LIQUIDE SYNO VIAL"},
+            {"name": "Locus A"},
+            {"name": "Locus B"},
+            {"name": "LYMPHOCYTES CD3, CD4, CD8 (Cytométrie en flux)"},
+            {"name": "Lymphocytes CD4-CD3-CD8"},
+            {"name": "MAGNÉSIUM SANGUIN"},
+            {"name": "MAGNÉSIUM URINAIRE"},
+            {"name": "Maladie coeliaque"},
+            {"name": "Maladie de Gilbert"},
+            {"name": "Maladies de Lyme IgM"},
+            {"name": "Maladies des Griffes du Chat IgM"},
+            {"name": "Marqueurs sériques maternels au 2nd trimestre"},
+            {"name": "Metanephrines"},
+            {"name": "MICRO-ALBUMINURIE"},
+            {"name": "MICROALBUMINURIE DES 24 H"},
+            {"name": "Micro-délétions du Chromosome Y"},
+            {"name": "MNI TEST"},
+            {"name": "MYELEMIE"},
+            {"name": "NATRIURIE"},
+            {"name": "NB:"},
+            {"name": "N-t Pro BNP"},
+            {"name": "NUMÉRATION DES RÉTICULOCYTES"},
+            {"name": "OESTRADIOL"},
+            {"name": "Oestriol E3"},
+            {"name": "Oeuf entier"},
+            {"name": "OROSOMUCOIDE"},
+            {"name": "Ouef entier"},
+            {"name": "Ovomucoide : F 254"},
+            {"name": "PARASITOLOGIE DES SELLES"},
+            {"name": "PARASITOLOGIE DES SELLES: (03)"},
+            {"name": "PARASITOLOGIE DES SELLES:(02)"},
+            {"name": "PARVOVIRUS IgG+IgM"},
+            {"name": "PEPTIDE C (Chimiluminescence)"},
+            {"name": "PEPTIDE NATRIURETIQUE DE TYPE B"},
+            {"name": "PHENOARBITAL"},
+            {"name": "Phenobarbital"},
+            {"name": "phénotypé"},
+            {"name": "PHENYLALANINE (Chromathographie liquide échangeuse d’ions)"},
+            {"name": "PHENYLALANINE (Chromatographie liquide échangeuse d’ions)"},
+            {"name": "PHOSPHATASE ALCALINE"},
+            {"name": "Phosphatases acides"},
+            {"name": "PHOSPHORE SANGUIN"},
+            {"name": "PHOSPHORE URINAIRE"},
+            {"name": "POIDS"},
+            {"name": "PRELEVEMENT DE PUS"},
+            {"name": "PRELEVEMENT DE PUS:"},
+            {"name": "PROCALCITONINE (Emission amplifiée de cryptates)"},
+            {"name": "PROGESTERONE"},
+            {"name": "PROLACTINE"},
+            {"name": "PROLACTINE 15′"},
+            {"name": "PROTEINE C (activité) (Colorimétrie)"},
+            {"name": "PROTEINE DE BENCE-JONES"},
+            {"name": "PROTEINE S (Antigène libre)"},
+            {"name": "PROTÉINES URINAIRES DES 24 H"},
+            {"name": "PROTIENES TOTALES"},
+            {"name": "PSA LIBRE"},
+            {"name": "PSA TOTALE"},
+            {"name": "PTH intacte (hormone parathyroidienne)"},
+            {"name": "PYRUVATE KINAS ERYTHROCYTAIRE (Cinétique enzymatique à 37°C)"},
+            {"name": "Quantification de l’arn du VHC circulant"},
+            {"name": "QUANTIFICATION DE L’ARN DU VHC CIRCULANT(RT-PCR temps réel taqman roche)"},
+            {"name": "R. D’AGGLUTININE IRREGULIERE"},
+            {"name": "R. et quantification de L’ADN du VHB"},
+            {"name": "Rapport microalbuminurie/creatinurie"},
+            {"name": "RATIO PSA"},
+            {"name": "Recherche Ag hélicobacter pylori dans les selles à+4°C"},
+            {"name": "RECHERCHE D’ADN DE CHLAMYDIA TRACHOMATIS par PCR entemps réel (URINE)"},
+            {"name": "Recherche d’adn de neisseria gonorrhoeae"},
+            {"name": "RECHERCHE D’ADN DE NEISSERIA GONORRHOEAE par PCR en temps réel"},
+            {"name": "RECHERCHE D’ADN DE PAPILLOMAVIRUS HUMAINS GENITAUX POTENTIELLEMENT ONCOGENES"},
+            {"name": "RECHERCHE D’UNE ANTICOAGULANT DE TYPE LUPIQUE"},
+            {"name": "RECHERCHE DE CANDIDA"},
+            {"name": "RECHERCHE DE CANDIDA:"},
+            {"name": "RECHERCHE DE CHLAMYDIA TRACHOMATIS PAR PCR"},
+            {"name": "RECHERCHE DE MYCOPLASMES UROGENITAUX"},
+            {"name": "RECHERCHE DE MYCOPLASMES UROGENITAUX (culture) (URINE)"},
+            {"name": "Recherche de sang dans les selles"},
+            {"name": "Recherche de sang dans les selles"},
+            {"name": "Recherche de sang dans les selles"},
+            {"name": "RECHERCHE DE SANG DANS LES URINES"},
+            {"name": "RECHERCHE DE SPERMATOZOIDES DANS LES URINES"},
+            {"name": "RECHERCHE DES POLYNUCLÉAIRES EOSIPHILES DANS LES SÉCRÉTIONS NASALES"},
+            {"name": "Recherche directe de rotavirus"},
+            {"name": "RECHERCHE ET QUANTIFICATION D’ADN DE L’HHV8"},
+            {"name": "RECHERCHE ET QUANTIFICATION DE L’ADN DU CYTOMEGALOVIRUS(PCR Temps réel ROCHE)"},
+            {"name": "RECHERCHE ET QUANTIFICATION DE LA MUTATION V617F JAK2"},
+            {"name": "RENINE"},
+            {"name": "Résistance à la proteine C reactive"},
+            {"name": "Rougeole (IgG+IgM)"},
+            {"name": "RUBÉOLE IGG"},
+            {"name": "RUBÉOLE IGM"},
+            {"name": "SCOTCH TEST"},
+            {"name": "SCOTCH TEST : (03)"},
+            {"name": "SCOTCH TEST: (02)"},
+            {"name": "SECRETION SALIVAIRE"},
+            {"name": "SERODIAGNOSTIQUE DE WIDAL"},
+            {"name": "Serologie anti VCA IgG IgM anti EBNA IgG"},
+            {"name": "SEROLOGIE CHLAMYDIA IgA"},
+            {"name": "SEROLOGIE CHLAMYDIA IgM"},
+            {"name": "Serologie Coqueluche"},
+            {"name": "SEROLOGIE DE CHLAMYDIA IgG"},
+            {"name": "SEROLOGIE DE LA BORRELIOSE DE LYME"},
+            {"name": "SEROLOGIE DE LA BORRELIOSE DE LYME"},
+            {"name": "SEROLOGIE DE LA BORRELIOSE DE LYME"},
+            {"name": "Serologie de la Leishmaniose"},
+            {"name": "SEROLOGIE DES INFECTION A ASPERGILLUS(dépistage)"},
+            {"name": "SEROLOGIE DES INFECTIONS A ASPERGILLUS(dépistage)"},
+            {"name": "SEROLOGIE DES INFECTIONS A ASPERGILLUS(Immuno-électrophorèse)(confirmation)"},
+            {"name": "Serologie Des Infections a Chlamydia IgA"},
+            {"name": "SEROLOGIE DES INFECTIONS A HERPES SIMPLEX VIRUS 1 ET 2 (HSV 1-2)"},
+            {"name": "Serologie des infections a mycoplasmes urogenitaux"},
+            {"name": "SEROLOGIE DES INFECTIONS A PARVOVIRUS B19"},
+            {"name": "SEROLOGIE DES INFECTIONS A VIRUS HERPES HUMAIN DE TYPE 8 (HHV8)"},
+            {"name": "SEROLOGIE DES INFECTIONS A VIRUS VARICELLE-ZONA (VZV)"},
+            {"name": "SEROLOGIE DES OREILLONS IgM+IgG"},
+            {"name": "Serologie Hépatite C"},
+            {"name": "SEROLOGIE HYDATIQUE"},
+            {"name": "SEROLOGIE IgG+IgM Specifiques"},
+            {"name": "SEROLOGIE MYCOPLASME"},
+            {"name": "SEROLOGIE RICKTTIOSE"},
+            {"name": "SEROLOGIE VIRALE DIVERS (RFC VIRION)"},
+            {"name": "SEROTONINE"},
+            {"name": "SOMATOMEDINE C (IGF1)"},
+            {"name": "SPECIFITE DES ANCA"},
+            {"name": "SPERMOGRAMME"},
+            {"name": "Syndrome des Anti Phospholipides IgG"},
+            {"name": "Syndrome des Anti Phospholipides IgM"},
+            {"name": "TAUX DE PLAQUETTE (SUR TUBE CITRATE)"},
+            {"name": "TAUX DE PROTHROMBINE"},
+            {"name": "Tégretol ( Carbamazépine)"},
+            {"name": "TEMPS DE CÉPHALINE KAOLIN"},
+            {"name": "TEMPS DE QUICK"},
+            {"name": "TEMPS DE SAIGNEMENT"},
+            {"name": "TEST AU SYNACTHENE IMMEDIAT"},
+            {"name": "Test d’avidité des IgG Rubéole"},
+            {"name": "TEST DE COOMBS DIRECT"},
+            {"name": "TEST DE GROSSESSE"},
+            {"name": "Test de l’OMS (HGPO selon OMS : 75gr)"},
+            {"name": "TEST DE MIGRATION ET DE SURVIE (TMS)"},
+            {"name": "TEST LH RH (FSH)"},
+            {"name": "TEST LH RH (LH)"},
+            {"name": "TEST O’SULIVAN"},
+            {"name": "TEST RESPIRATOIRE A L’UREE MARQUEE AU 13C (Spectrométrie de masse isotopique)"},
+            {"name": "TESTOSTERONE"},
+            {"name": "Testosterone libre"},
+            {"name": "TGO"},
+            {"name": "TGP"},
+            {"name": "THYROGLOBULINE"},
+            {"name": "TIBC"},
+            {"name": "Toxocara-canis"},
+            {"name": "TOXOPLASMOSE IGG"},
+            {"name": "Toxoplasmose IgG AVIDITE"},
+            {"name": "TOXOPLASMOSE IGM"},
+            {"name": "TPHA"},
+            {"name": "TP-INR"},
+            {"name": "TRANSFERRINE"},
+            {"name": "TRIGLYCÉRIDES"},
+            {"name": "Trisomie 21 foetale ( marquers sériques maternels 1er trimrstre)"},
+            {"name": "TROPONINE I"},
+            {"name": "TRYPSINE"},
+            {"name": "TSHUS"},
+            {"name": "TYPAGE HLA CLASSE I (PCR + Reverse Dot-Blot)"},
+            {"name": "TYPAGE HLA classe II ( PCR + Reverse Dot-Blot)"},
+            {"name": "Tyrosine plasma"},
+            {"name": "Tyrosine urine"},
+            {"name": "URÉE SANGUINE"},
+            {"name": "URÉE URINAIRE"},
+            {"name": "V.P.M"},
+            {"name": "Viande de poulet F83"},
+            {"name": "VIT D250"},
+            {"name": "VITAMINE A1"},
+            {"name": "VITAMINE B 1"},
+            {"name": "VITAMINE B 12 (cobalamine)"},
+            {"name": "VITAMINE B6"},
+            {"name": "Vitamine B9 (Folates)"},
+            {"name": "VITAMINE C"},
+            {"name": "VITAMINE D2/D3 (25 Hydroxy-vit D)"},
+            {"name": "VITAMINE D2/D3 (vitamine D)"},
+            {"name": "VITAMINE E"},
+            {"name": "VITAMINE K"},
+            {"name": "VITESSE DE SÉDIMENTATION"},
+            {"name": "ZINC"}
+        ]
+    };
+
+    const productList = document.getElementById('productList');
+    const searchBar = document.getElementById('searchBar');
+    let activeLetter = 'All';
+
+    // Global Combined and Sorted List
+    let combinedProducts = [];
+
+    /**
+     * Initializes the combined product list, adding the laboratory source to each item.
+     */
+    function initializeCombinedProducts() {
+        const sadaoui = allProductsRaw.Sadaoui.map(p => ({
+            name: p.name,
+            price: p.price,
+            lab: "Sadaoui (CHLEF)"
+        }));
+        
+        const korteby = allProductsRaw.Korteby.map(p => ({
+            name: p.name,
+            // Standardizing N/A prices to the new label for clarity
+            price: "Inquire at KORTEBY",
+            lab: "Korteby (ALGER)"
+        }));
+
+        const elamhar = allProductsRaw.ElAmhar.map(p => ({
+            name: p.name,
+            price: "Inquire at EL AMHAR", // Default price for new lab
+            lab: "El Amhar (ROUIBA)"
+        }));
+
+        // Merge and sort all products alphabetically
+        combinedProducts = [...sadaoui, ...korteby, ...elamhar].sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    /**
+     * Renders the product list to the HTML page.
+     * @param {Array} list - The array of products to display.
+     */
+    function renderProducts(list) {
+        productList.innerHTML = ''; // Clear previous results
+
+        if (list.length === 0) {
+            productList.innerHTML = '<li class="no-results">No tests found matching your criteria.</li>';
+            return;
+        }
+
+        list.forEach(product => {
+            const listItem = document.createElement('li');
+            listItem.className = 'product-item';
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'product-name';
+            nameSpan.textContent = product.name;
+
+            const labSpan = document.createElement('span');
+            labSpan.className = 'product-lab';
+            labSpan.textContent = product.lab;
+
+            const priceSpan = document.createElement('span');
+            priceSpan.className = 'product-price';
+            
+            // Check if price is an inquiry status to apply different styling
+            if (product.price.includes("Inquire") || product.price === "N/A") {
+                 priceSpan.classList.add('price-inquire');
+                 priceSpan.textContent = product.price.replace("N/A", "Inquire");
+            } else {
+                priceSpan.textContent = product.price;
+            }
+
+
+            listItem.appendChild(nameSpan);
+            listItem.appendChild(labSpan);
+            listItem.appendChild(priceSpan);
+            productList.appendChild(listItem);
+        });
+    }
+
+    /**
+     * Filters the combined product list based on the search bar input and the active letter filter.
+     * @param {string} [letterFilter] - An optional letter to filter by.
+     */
+    function filterProducts(letterFilter) {
+        const searchInput = searchBar.value.toLowerCase();
+        
+        if (letterFilter !== undefined) {
+            activeLetter = letterFilter;
+            searchBar.value = '';
+        } else if (searchInput) {
+            activeLetter = null; // Deactivate letter filter if searching by text
+        } else {
+            activeLetter = 'All'; // Default back to 'All' if search is cleared
+        }
+
+        // Highlight the active button
+        document.querySelectorAll('.alpha-nav button').forEach(button => {
+            button.classList.remove('active');
+        });
+        if (activeLetter) {
+            const activeBtn = document.getElementById('btn-' + activeLetter);
+            if (activeBtn) activeBtn.classList.add('active');
+        } else if (!searchInput) {
+            const allBtn = document.getElementById('btn-All');
+            if (allBtn) allBtn.classList.add('active');
+        }
+
+        // Apply filtering logic
+        const filteredList = combinedProducts.filter(product => {
+            const productName = product.name.toLowerCase();
+            const labName = product.lab.toLowerCase(); // Include lab name in search
+
+            // 1. Filter by text input (takes precedence)
+            if (searchInput) {
+                return productName.includes(searchInput) || labName.includes(searchInput);
+            }
+            
+            // 2. Filter by selected letter (only if text input is empty)
+            if (activeLetter && activeLetter !== 'All') {
+                // Handle accented characters for filtering (e.g., É, É)
+                const firstLetter = productName.charAt(0).toUpperCase();
+                return firstLetter === activeLetter || firstLetter.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().startsWith(activeLetter);
+            }
+
+            return true;
+        });
+
+        renderProducts(filteredList);
+    }
+    
+    /**
+     * Creates and adds the alphabetical navigation buttons based on the combined data.
+     */
+    function createAlphaNav() {
+        const alphaNav = document.getElementById('alphaNav');
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+        // 'All' button
+        const allBtn = document.createElement('button');
+        allBtn.textContent = 'All';
+        allBtn.id = 'btn-All';
+        allBtn.className = 'all active';
+        allBtn.onclick = () => filterProducts('All');
+        alphaNav.appendChild(allBtn);
+
+        // Letter buttons
+        alphabet.forEach(letter => {
+            // Check if any product in the combined list starts with this letter (handling accents)
+            const hasProduct = combinedProducts.some(product => {
+                const normalizedName = product.name.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                return normalizedName.startsWith(letter);
+            });
+            
+            const btn = document.createElement('button');
+            btn.textContent = letter;
+            btn.id = 'btn-' + letter;
+            
+            if (hasProduct) {
+                btn.onclick = () => filterProducts(letter);
+            } else {
+                btn.disabled = true;
+            }
+            alphaNav.appendChild(btn);
+        });
+    }
+
+    // Initial setup when the page loads
+    window.onload = function() {
+        initializeCombinedProducts();
+        createAlphaNav();
+        filterProducts('All'); // Display the full list initially
+    };
+</script>
+
+</body>
+</html>
