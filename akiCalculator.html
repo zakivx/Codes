@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AKI Calculator with Unit Selection</title>
+<style>
+body { 
+    font-family: Arial, sans-serif; 
+    margin: 0; 
+    padding: 15px; 
+    background-color: #f9f9f9;
+}
+h2, h3 {
+    color: #333;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 5px;
+    margin-top: 15px;
+}
+.input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+}
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 5px;
+}
+input, select { 
+    padding: 8px; 
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    flex-grow: 1;
+    width: auto;
+}
+select {
+    flex-grow: 0;
+    width: 80px;
+}
+.result { 
+    margin-top: 20px; 
+    padding: 15px; 
+    background: #e9ecef;
+    border-radius: 6px; 
+    border-left: 5px solid #007bff;
+    line-height: 1.6;
+}
+.result b { display: inline-block; min-width: 120px; }
+.pre { color: green; font-weight: bold; }
+.int { color: red; font-weight: bold; }
+.post { color: darkorange; font-weight: bold; }
+.note { font-size: 0.9em; color: #555; margin-top: 10px; }
+@media (min-width: 600px) {
+    body { max-width: 600px; margin: 20px auto; }
+    .input-row input { width: 180px; }
+    .input-group { flex-direction: row; justify-content: space-between; align-items: center; }
+    .input-group > span { width: 40%; font-weight: bold; }
+    .input-row { width: 60%; margin-top: 0; }
+}
+</style>
+</head>
+  <header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
+  <a href="https://zakivx.github.io/Codes/medicalTools.html" 
+     style="color:#fff; text-decoration:none; font-weight:bold;">
+    ← Back to Medical Tools
+  </a>
+</header>
+<body>
+
+<h2>AKI Differentiation Calculator</h2>
+
+<h3>Inputs</h3>
+
+  <div class="input-group">
+    <span>Serum Sodium (SNa, mEq/L):</span>
+    <div class="input-row">
+        <input id="pna" value="0">
+    </div>
+</div>
+  
+ <div class="input-group">
+    <span>Urine Sodium (UNa, mEq/L):</span>
+    <div class="input-row">
+        <input id="una" value="0">
+    </div>
+</div>
+
+  <div class="input-group">
+    <span>Urine Potassium (mEq/L):</span>
+    <div class="input-row">
+        <input id="uk" value="0">
+    </div>
+</div>
+
+  
+<div class="input-group">
+    <span>BUN(urea in the blood):</span>
+    <div class="input-row">
+        <input id="bun" value="0">
+        <select id="bunUnit">
+            <option value="g/L" selected>g/L</option>
+            <option value="mg/dL">mg/dL</option>
+        </select>
+    </div>
+</div>
+  
+  <div class="input-group">
+    <span>Urine Urea:</span>
+    <div class="input-row">
+        <input id="uurea" value="0">
+        <select id="uureaUnit">
+            <option value="g/L" selected>g/L</option>
+            <option value="mg/dL">mg/dL</option>
+        </select>
+    </div>
+</div>
+
+<div class="input-group">
+    <span>Serum Creatinine:</span>
+    <div class="input-row">
+        <input id="pcr" value="0">
+        <select id="pcrUnit">
+            <option value="mg/L" selected>mg/L</option>
+            <option value="mg/dL">mg/dL</option>
+        </select>
+    </div>
+</div>
+
+
+
+<div class="input-group">
+    <span>Urine Creatinine:</span>
+    <div class="input-row">
+        <input id="ucr" value="0">
+        <select id="ucrUnit">
+            <option value="mg/L" selected>mg/L</option>
+            <option value="mg/dL">mg/dL</option>
+        </select>
+    </div>
+</div>
+
+
+
+
+
+<div id="out"></div>
+
+<script>
+function calc() {
+  let bun = parseFloat(document.getElementById("bun").value);
+  let bunUnit = document.getElementById("bunUnit").value;
+  let pcr = parseFloat(document.getElementById("pcr").value);
+  let pcrUnit = document.getElementById("pcrUnit").value;
+  let una = parseFloat(document.getElementById("una").value);
+  let pna = parseFloat(document.getElementById("pna").value);
+  let ucr = parseFloat(document.getElementById("ucr").value);
+  let ucrUnit = document.getElementById("ucrUnit").value;
+  let uk = parseFloat(document.getElementById("uk").value);
+  let uurea = parseFloat(document.getElementById("uurea").value);
+  let uureaUnit = document.getElementById("uureaUnit").value;
+
+  if(pna === 0 || isNaN(pna)) pna = 135;
+
+  function safeCalc(val) { return (val === 0 || isNaN(val)) ? null : val; }
+
+  // Convert units
+  if(bunUnit === "g/L") bun = bun * 100; 
+  if(pcrUnit === "mg/L") pcr = pcr / 10;
+  if(ucrUnit === "mg/L") ucr = ucr / 10;
+  if(uureaUnit === "g/L") uurea = uurea * 100;
+
+  let purea = bun * 2.14;
+
+  function calcVal(val, formula) {
+    return val.every(v => v !== null) ? formula() : "could not be calculated";
+  }
+
+  // Calculations
+  let FENa = calcVal([pcr, una, pna, ucr], () => 100*(pcr*una)/(pna*ucr));
+  let buncr = calcVal([bun, pcr], () => bun/pcr);
+  let uOsm = calcVal([una, uk, uurea], () => 2*(una+uk) + (uurea/2.8));
+  let upUrea = calcVal([uurea, purea], () => uurea/purea);
+  let upCr = calcVal([ucr, pcr], () => ucr/pcr);
+  let upOsm = calcVal([uOsm], () => uOsm/285);
+  let RFI = calcVal([una, pcr, ucr], () => (una*pcr)/ucr);
+
+  function interpret(val, type) {
+    if(val === "could not be calculated") return val;
+    switch(type){
+      case "FENa": return val <1 ? "<span class='pre'>Prerenal / Early Postrenal</span>" : val>2 ? "<span class='int'>Intrinsic (ATN) / Late Postrenal</span>" : "Indeterminate (1-2%)";
+      case "BUNCr": return val >20 ? "<span class='pre'>Prerenal</span>" : val<15 ? "<span class='int'>Intrinsic</span>" : "Indeterminate (15-20)";
+      case "UrNa": return val<20 ? "<span class='pre'>Prerenal / Early Postrenal</span>" : val>40 ? "<span class='int'>Intrinsic (ATN) / Late Postrenal</span>" : "Indeterminate (20-40)";
+      case "UOsm": return val>500 ? "<span class='pre'>Prerenal / Early Postrenal</span>" : val<350 ? "<span class='int'>Intrinsic (ATN) / Late Postrenal</span>" : "Indeterminate (350-500 mOsm/kg)";
+      case "UPCr": return val>=40 ? "<span class='pre'>Prerenal / Early Postrenal</span>" : val<=20 ? "<span class='int'>Intrinsic (ATN) / Late Postrenal</span>" : "Indeterminate (20-40)";
+      case "UPOsm": return val>1.3 ? "<span class='pre'>Prerenal</span>" : "<span class='int'>Intrinsic (ATN)</span>";
+      case "UPUrea": return val>8 ? "<span class='pre'>Prerenal</span>" : val<3 ? "<span class='int'>Intrinsic (ATN)</span>" : "Indeterminate (3-8)";
+      case "RFI": return val<1 ? "<span class='pre'>Prerenal</span>" : val>1 ? "<span class='int'>Intrinsic (ATN)</span>" : "Indeterminate (RFI ~ 1)";
+    }
+  }
+
+  document.getElementById("out").innerHTML = `
+  <div class="result">
+    <b>FENa:</b> ${FENa !== "could not be calculated" ? FENa.toFixed(2)+" %" : FENa} → ${interpret(FENa,"FENa")}<br>
+    <b>BUN / Creatinine:</b> ${buncr !== "could not be calculated" ? buncr.toFixed(1) : buncr} → ${interpret(buncr,"BUNCr")}<br>
+    <b>Urine Sodium:</b> ${una ? una.toFixed(1) : "could not be calculated"} mEq/L → ${interpret(una,"UrNa")}<br>
+    <b>Urine Osmolality (est):</b> ${uOsm !== "could not be calculated" ? uOsm.toFixed(0) : uOsm} mOsm/kg → ${interpret(uOsm,"UOsm")}<br>
+    <hr>
+    <b>Urine / Plasma Creatinine:</b> ${upCr !== "could not be calculated" ? upCr.toFixed(1) : upCr} → ${interpret(upCr,"UPCr")}<br>
+    <b>Urine / Plasma Osmolality:</b> ${upOsm !== "could not be calculated" ? upOsm.toFixed(2) : upOsm} → ${interpret(upOsm,"UPOsm")}<br>
+    <b>Urine / Plasma Urea:</b> ${upUrea !== "could not be calculated" ? upUrea.toFixed(2) : upUrea} → ${interpret(upUrea,"UPUrea")}<br>
+    <b>Renal Failure Index (RFI):</b> ${RFI !== "could not be calculated" ? RFI.toFixed(2) : RFI} → ${interpret(RFI,"RFI")}<br>
+    <hr>
+    <b>Urine Microscopy (Interpretive Reminder):</b>
+    <div class="note">
+      • <span class='pre'>Prerenal</span>: Normal sediment, hyaline casts<br>
+      • <span class='int'>ATN</span>: **Muddy brown granular casts**, tubular epithelial cells<br>
+      • GN: RBCs, dysmorphic RBCs, RBC casts, proteinuria<br>
+      • AIN: WBCs, eosinophils, WBC casts<br>
+      • <span class='post'>Postrenal</span>: Variable, non-specific
+    </div>
+  </div>`;
+}
+
+// Attach input events
+document.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calc));
+calc(); // Initial calculation
+</script>
+
+</body>
+</html>
