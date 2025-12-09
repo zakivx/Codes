@@ -66,11 +66,11 @@ select {
 }
 </style>
 </head>
-  <header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
-  <a href="https://zakivx.github.io/Codes/medicalTools.html" 
-     style="color:#fff; text-decoration:none; font-weight:bold;">
-    ← Back to Medical Tools
-  </a>
+<header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
+<a href="https://zakivx.github.io/Codes/medicalTools.html" 
+   style="color:#fff; text-decoration:none; font-weight:bold;">
+  ← Back to Medical Tools
+</a>
 </header>
 <body>
 
@@ -78,28 +78,21 @@ select {
 
 <h3>Inputs</h3>
 
-  <div class="input-group">
+<div class="input-group">
     <span>Serum Sodium (SNa, mEq/L):</span>
-    <div class="input-row">
-        <input id="pna" value="0">
-    </div>
+    <div class="input-row"><input id="pna" value="0"></div>
 </div>
   
- <div class="input-group">
+<div class="input-group">
     <span>Urine Sodium (UNa, mEq/L):</span>
-    <div class="input-row">
-        <input id="una" value="0">
-    </div>
+    <div class="input-row"><input id="una" value="0"></div>
 </div>
 
-  <div class="input-group">
+<div class="input-group">
     <span>Urine Potassium (mEq/L):</span>
-    <div class="input-row">
-        <input id="uk" value="0">
-    </div>
+    <div class="input-row"><input id="uk" value="0"></div>
 </div>
 
-  
 <div class="input-group">
     <span>BUN(urea in the blood):</span>
     <div class="input-row">
@@ -111,7 +104,7 @@ select {
     </div>
 </div>
   
-  <div class="input-group">
+<div class="input-group">
     <span>Urine Urea:</span>
     <div class="input-row">
         <input id="uurea" value="0">
@@ -133,8 +126,6 @@ select {
     </div>
 </div>
 
-
-
 <div class="input-group">
     <span>Urine Creatinine:</span>
     <div class="input-row">
@@ -145,10 +136,6 @@ select {
         </select>
     </div>
 </div>
-
-
-
-
 
 <div id="out"></div>
 
@@ -167,8 +154,6 @@ function calc() {
   let uureaUnit = document.getElementById("uureaUnit").value;
 
   if(pna === 0 || isNaN(pna)) pna = 135;
-
-  function safeCalc(val) { return (val === 0 || isNaN(val)) ? null : val; }
 
   // Convert units
   if(bunUnit === "g/L") bun = bun * 100; 
@@ -191,6 +176,9 @@ function calc() {
   let upOsm = calcVal([uOsm], () => uOsm/285);
   let RFI = calcVal([una, pcr, ucr], () => (una*pcr)/ucr);
 
+  // New FEUrea
+  let FEUrea = calcVal([pcr, uurea, bun, ucr], () => 100 * (pcr*uurea) / (bun*ucr));
+
   function interpret(val, type) {
     if(val === "could not be calculated") return val;
     switch(type){
@@ -202,6 +190,7 @@ function calc() {
       case "UPOsm": return val>1.3 ? "<span class='pre'>Prerenal</span>" : "<span class='int'>Intrinsic (ATN)</span>";
       case "UPUrea": return val>8 ? "<span class='pre'>Prerenal</span>" : val<3 ? "<span class='int'>Intrinsic (ATN)</span>" : "Indeterminate (3-8)";
       case "RFI": return val<1 ? "<span class='pre'>Prerenal</span>" : val>1 ? "<span class='int'>Intrinsic (ATN)</span>" : "Indeterminate (RFI ~ 1)";
+      case "FEUrea": return val<=35 ? "<span class='pre'>Prerenal</span>" : val>50 ? "<span class='int'>Intrinsic Renal</span>" : "Indeterminate (35-50%)";
     }
   }
 
@@ -211,6 +200,7 @@ function calc() {
     <b>BUN / Creatinine:</b> ${buncr !== "could not be calculated" ? buncr.toFixed(1) : buncr} → ${interpret(buncr,"BUNCr")}<br>
     <b>Urine Sodium:</b> ${una ? una.toFixed(1) : "could not be calculated"} mEq/L → ${interpret(una,"UrNa")}<br>
     <b>Urine Osmolality (est):</b> ${uOsm !== "could not be calculated" ? uOsm.toFixed(0) : uOsm} mOsm/kg → ${interpret(uOsm,"UOsm")}<br>
+    <b>Fractional Excretion of Urea (FEUrea):</b> ${FEUrea !== "could not be calculated" ? FEUrea.toFixed(1)+" %" : FEUrea} → ${interpret(FEUrea,"FEUrea")}<br>
     <hr>
     <b>Urine / Plasma Creatinine:</b> ${upCr !== "could not be calculated" ? upCr.toFixed(1) : upCr} → ${interpret(upCr,"UPCr")}<br>
     <b>Urine / Plasma Osmolality:</b> ${upOsm !== "could not be calculated" ? upOsm.toFixed(2) : upOsm} → ${interpret(upOsm,"UPOsm")}<br>
