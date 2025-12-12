@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Norepinephrine Infusion Calculator</title>
+<style>
+    /* Global Styles */
+    :root {
+        --primary-color: #007bff;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --light-bg: #f8f9fa;
+        --dark-bg: #ffffff;
+        --border-color: #ced4da;
+        --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        font-family: var(--font-family);
+        margin: 0;
+        padding: 0;
+        background-color: var(--light-bg);
+        color: #343a40;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: var(--dark-bg);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        color: var(--primary-color);
+        text-align: center;
+        margin-bottom: 25px;
+        font-weight: 600;
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 10px;
+    }
+
+    /* Form and Input Styles */
+    .input-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    input[type="number"], select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        box-sizing: border-box;
+        font-size: 16px;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    input[type="number"]:focus, select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        outline: none;
+    }
+
+    .custom-inputs {
+        display: none;
+        padding: 15px;
+        background-color: #e9ecef;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+
+    /* Results Styles */
+    .results {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px dashed var(--border-color);
+    }
+
+    .indication {
+        margin-bottom: 25px;
+        padding: 15px;
+        border: 1px solid var(--secondary-color);
+        border-radius: 10px;
+        background-color: #ffffff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .indication-title {
+        color: var(--primary-color);
+        font-size: 1.25em;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .phase {
+        margin-left: 0;
+        padding: 10px;
+        border-left: 4px solid var(--success-color);
+        background-color: var(--light-bg);
+        border-radius: 6px;
+        margin-top: 10px;
+    }
+
+    .phase-title {
+        font-weight: 700;
+        color: var(--success-color);
+        margin-bottom: 5px;
+        display: inline-block;
+        padding-bottom: 2px;
+        border-bottom: 1px dashed var(--success-color);
+    }
+
+    .rate-value {
+        font-weight: 600;
+        color: var(--danger-color);
+    }
+
+    .unit-label {
+        font-style: italic;
+        color: #495057;
+    }
+    
+    /* Responsive design for smaller screens */
+    @media (max-width: 600px) {
+        .container {
+            margin: 10px;
+            padding: 15px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
+  <a href="https://zakivx.github.io/Codes/medicalTools.html" 
+     style="color:#fff; text-decoration:none; font-weight:bold;">
+    ← Back to Medical Tools
+  </a>
+</header>
+    <h2>Norepinephrine Infusion Calculator</h2>
+
+    <div class="input-group">
+        <label for="weight">Weight (kg):</label>
+        <input type="number" id="weight" placeholder="Enter patient weight" min="1">
+    </div>
+
+    <div class="input-group">
+        <label for="dilution">Dilution:</label>
+        <select id="dilution">
+            <option value="160">8mg/50mL (160 μg/mL)</option>
+            <option value="80">4mg/50mL (80 μg/mL)</option>
+            <option value="320">16mg/50mL (320 μg/mL) - High</option>
+            <option value="custom">Custom Dilution</option>
+        </select>
+    </div>
+
+    <div class="custom-inputs" id="customInputs">
+        <div class="input-group">
+            <label for="customMg">Amount (mg):</label>
+            <input type="number" id="customMg" placeholder="Enter total mg" min="0.1">
+        </div>
+        <div class="input-group">
+            <label for="customMl">Volume (mL):</label>
+            <input type="number" id="customMl" placeholder="Enter total volume in mL" min="1">
+        </div>
+    </div>
+
+    <div class="results" id="results">
+        <p style="text-align: center; color: var(--secondary-color);">Enter **Weight** and select **Dilution** to see calculated infusion rates.</p>
+    </div>
+</div>
+
+<script>
+const weightInput = document.getElementById('weight');
+const dilutionSelect = document.getElementById('dilution');
+const customMgInput = document.getElementById('customMg');
+const customMlInput = document.getElementById('customMl');
+const customInputs = document.getElementById('customInputs');
+const resultsDiv = document.getElementById('results');
+
+function calculateInfusionRate(rate_ug_min, concentration) {
+    // rate_ug_min is in μg/min
+    // concentration is in μg/mL
+    
+    const ml_min = rate_ug_min / concentration;
+    const ml_h = ml_min * 60;
+    const ug_h = rate_ug_min * 60;
+
+    return {
+        ug_min: rate_ug_min,
+        ug_h: ug_h,
+        ml_min: ml_min,
+        ml_h: ml_h
+    };
+}
+
+function updateResults() {
+    const weight = parseFloat(weightInput.value);
+    
+    // Clear results if weight is missing
+    if (!weight || weight <= 0) {
+        resultsDiv.innerHTML = '<p style="text-align: center; color: var(--secondary-color);">Enter **Weight** and select **Dilution** to see calculated infusion rates.</p>';
+        return;
+    }
+
+    let concentration; // in μg/mL
+    if (dilutionSelect.value === 'custom') {
+        const mg = parseFloat(customMgInput.value);
+        const ml = parseFloat(customMlInput.value);
+        
+        // Clear results if custom inputs are incomplete
+        if (!mg || !ml || ml <= 0) {
+            resultsDiv.innerHTML = '<p style="text-align: center; color: var(--secondary-color);">Enter **Weight** and **Custom Dilution** details.</p>';
+            return;
+        }
+        concentration = (mg * 1000) / ml; // Convert mg to μg
+    } else {
+        concentration = parseFloat(dilutionSelect.value);
+    }
+    
+    // Check for valid concentration
+    if (!concentration || concentration <= 0) {
+        resultsDiv.innerHTML = '<p style="text-align: center; color: var(--danger-color); font-weight: bold;">Invalid Concentration Value.</p>';
+        return;
+    }
+
+    // Indications and Dosing (in μg/min or μg/kg/min)
+    const indications = [
+        {
+            name: "Acute Hypotension (Adults)",
+            note: "Doses are general recommendations, titrate to effect.",
+            isWeightBased: false,
+            initial: { min: 8, max: 12 }, // μg/min
+            maintenance: { min: 2, max: 4 } // μg/min
+        },
+        {
+            name: "Cardiac Arrest (Adults)",
+            note: "Doses are general recommendations, titrate to effect.",
+            isWeightBased: false,
+            initial: { min: 8, max: 12 }, // μg/min
+            maintenance: { min: 2, max: 4 } // μg/min
+        },
+        {
+            name: "Septic Shock (Adults)",
+            note: "Doses are typically started low and titrated to MAP > 65 mmHg.",
+            isWeightBased: true,
+            // Dosing in μg/kg/min. Range is 0.01 - 3.3 μg/kg/min (wide range for titration)
+            initial: { min: 0.01, max: 0.5 }, // μg/kg/min - Common starting/titration range
+            maintenance: { min: 0.01, max: 3.3 } // μg/kg/min - Full range
+        }
+    ];
+
+    let html = '';
+    
+    // Display the calculated concentration first
+    html += `<div style="text-align: center; margin-bottom: 20px; padding: 10px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 6px;">
+        <p style="margin: 0;">Calculated Dilution **Concentration**: <strong style="color: var(--danger-color);">${concentration.toFixed(2)} μg/mL</strong></p>
+    </div>`;
+
+    indications.forEach(ind => {
+        html += `<div class="indication">
+            <div class="indication-title">${ind.name}</div>
+            <p style="font-size: 0.9em; margin-top: -5px; color: var(--secondary-color); font-style: italic;">${ind.note}</p>`;
+        
+        ['initial', 'maintenance'].forEach(phaseKey => {
+            const phase = ind[phaseKey];
+            if (!phase) return;
+
+            let minRate_ug_min, maxRate_ug_min;
+
+            if (ind.isWeightBased) {
+                // Rates are μg/kg/min, convert to μg/min
+                minRate_ug_min = phase.min * weight;
+                maxRate_ug_min = phase.max * weight;
+                
+                // Add an intermediate check for the actual μg/kg/min range
+                const ug_kg_min_range = `${phase.min.toFixed(2)} - ${phase.max.toFixed(2)} μg/kg/min`;
+
+                html += `<div class="phase">
+                    <div class="phase-title">${phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1)} Phase: <span style="color: #6c757d; font-size: 0.9em;">(${ug_kg_min_range})</span></div>`;
+
+            } else {
+                // Rates are already μg/min
+                minRate_ug_min = phase.min;
+                maxRate_ug_min = phase.max;
+
+                html += `<div class="phase">
+                    <div class="phase-title">${phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1)} Phase:</div>`;
+            }
+            
+            const minCalc = calculateInfusionRate(minRate_ug_min, concentration);
+            const maxCalc = calculateInfusionRate(maxRate_ug_min, concentration);
+
+            html += `
+                <p>
+                    <span class="unit-label">Rate (μg/min):</span> <span class="rate-value">${minCalc.ug_min.toFixed(2)} - ${maxCalc.ug_min.toFixed(2)}</span><br>
+                    <span class="unit-label">Rate (μg/h):</span> <span class="rate-value">${minCalc.ug_h.toFixed(2)} - ${maxCalc.ug_h.toFixed(2)}</span>
+                </p>
+                <p>
+                    <span class="unit-label">Infusion Rate (mL/min):</span> <span class="rate-value">${minCalc.ml_min.toFixed(2)} - ${maxCalc.ml_min.toFixed(2)}</span><br>
+                    <span class="unit-label">Infusion Rate (mL/h):</span> <span class="rate-value">${maxCalc.ml_h < 100 ? minCalc.ml_h.toFixed(2) : Math.round(minCalc.ml_h)} - ${maxCalc.ml_h < 100 ? maxCalc.ml_h.toFixed(2) : Math.round(maxCalc.ml_h)}</span>
+                </p>
+            </div>`;
+        });
+        html += `</div>`;
+    });
+
+    // Disclaimer
+    html += `<div style="margin-top: 25px; padding: 15px; background-color: #fcebe9; border: 1px solid #dc3545; border-radius: 6px; font-size: 0.85em; color: #dc3545;">
+        <p style="margin: 0; font-weight: bold;">**Important Clinical Note:**</p>
+        <p style="margin: 5px 0 0 0;">This calculator provides a guide based on standard dosing ranges. All rates must be **titrated to clinical response** (e.g., target Mean Arterial Pressure - MAP) and monitored closely by a healthcare professional.</p>
+    </div>`;
+
+    resultsDiv.innerHTML = html;
+}
+
+// Show/hide custom inputs
+dilutionSelect.addEventListener('change', function() {
+    customInputs.style.display = this.value === 'custom' ? 'block' : 'none';
+    updateResults();
+});
+
+// Update results automatically on input
+weightInput.addEventListener('input', updateResults);
+customMgInput.addEventListener('input', updateResults);
+customMlInput.addEventListener('input', updateResults);
+dilutionSelect.addEventListener('change', updateResults); // Changed to 'change' for select
+
+// Initial call to set the prompt text
+updateResults();
+</script>
+
+</body>
+</html>
