@@ -91,7 +91,7 @@
         padding: 15px;
         border: 1px solid var(--secondary-color);
         border-radius: 10px;
-        background-color: #ffffff;
+        background-color: var(--dark-bg);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
@@ -142,13 +142,21 @@
 <body>
 
 <div class="container">
-  <header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
-  <a href="https://zakivx.github.io/Codes/medicalTools.html" 
-     style="color:#fff; text-decoration:none; font-weight:bold;">
-    ← Back to Medical Tools
-  </a>
-</header>
+    <header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
+    <a href="https://zakivx.github.io/Codes/medicalTools.html" 
+      style="color:#fff; text-decoration:none; font-weight:bold;">
+      ← Back to Medical Tools
+    </a>
+  </header>
     <h2>Norepinephrine Infusion Calculator</h2>
+
+    <div class="input-group">
+        <label for="ageGroup">Patient Age Group:</label>
+        <select id="ageGroup">
+            <option value="adult">Adult</option>
+            <option value="pediatric">Pediatric</option>
+        </select>
+    </div>
 
     <div class="input-group">
         <label for="weight">Weight (kg):</label>
@@ -184,6 +192,7 @@
 <script>
 const weightInput = document.getElementById('weight');
 const dilutionSelect = document.getElementById('dilution');
+const ageGroupSelect = document.getElementById('ageGroup');
 const customMgInput = document.getElementById('customMg');
 const customMlInput = document.getElementById('customMl');
 const customInputs = document.getElementById('customInputs');
@@ -205,8 +214,62 @@ function calculateInfusionRate(rate_ug_min, concentration) {
     };
 }
 
+function getIndications(ageGroup) {
+    if (ageGroup === 'adult') {
+        return [
+            {
+                name: "Acute Hypotension (Adults)",
+                note: "Dosing: **8 - 12 μg/min** initial; titrate to effect. Titration range is 2 - 4 μg/min.",
+                isWeightBased: false,
+                initial: { min: 8, max: 12 }, // μg/min
+                maintenance: { min: 2, max: 4 } // μg/min
+            },
+            {
+                name: "Cardiac Arrest (Adults)",
+                note: "Dosing: **8 - 12 μg/min** initial; titrate to effect. Titration range is 2 - 4 μg/min.",
+                isWeightBased: false,
+                initial: { min: 8, max: 12 }, // μg/min
+                maintenance: { min: 2, max: 4 } // μg/min
+            },
+            {
+                name: "Septic Shock (Adults)",
+                note: "Dosing: **0.01 - 0.50 μg/kg/min** initial, titrated to MAP > 65 mmHg. Titration range is 0.01 - 3.3 μg/kg/min.",
+                isWeightBased: true,
+                // Dosing in μg/kg/min.
+                initial: { min: 0.01, max: 0.5 }, // μg/kg/min - Common starting/titration range
+                maintenance: { min: 0.01, max: 3.3 } // μg/kg/min - Full range
+            }
+        ];
+    } else { // pediatric
+        return [
+            {
+                name: "Acute Hypotension (Pediatric)",
+                note: "Dosing: Initial **0.05 - 0.1 μg/kg/min**; Titrate to effect. Max dose: 2.0 μg/kg/min.",
+                isWeightBased: true,
+                initial: { min: 0.05, max: 0.1 }, // μg/kg/min (Initial/Titration Start)
+                maxDose: 2.0 // μg/kg/min
+            },
+            {
+                name: "Cardiac Arrest (Pediatric)",
+                note: "Dosing: Initial **0.05 - 0.1 μg/kg/min**; Titrate to effect. Max dose: 2.0 μg/kg/min.",
+                isWeightBased: true,
+                initial: { min: 0.05, max: 0.1 }, // μg/kg/min (Initial/Titration Start)
+                maxDose: 2.0 // μg/kg/min
+            },
+            {
+                name: "Shock (Pediatric)",
+                note: "Dosing: Initial **0.05 - 0.1 μg/kg/min**; Titrate to effect. Max dose: 2.0 μg/kg/min.",
+                isWeightBased: true,
+                initial: { min: 0.05, max: 0.1 }, // μg/kg/min (Initial/Titration Start)
+                maxDose: 2.0 // μg/kg/min
+            }
+        ];
+    }
+}
+
 function updateResults() {
     const weight = parseFloat(weightInput.value);
+    const ageGroup = ageGroupSelect.value;
     
     // Clear results if weight is missing
     if (!weight || weight <= 0) {
@@ -235,31 +298,7 @@ function updateResults() {
         return;
     }
 
-    // Indications and Dosing (in μg/min or μg/kg/min)
-    const indications = [
-        {
-            name: "Acute Hypotension (Adults)",
-            note: "Doses are general recommendations, titrate to effect.",
-            isWeightBased: false,
-            initial: { min: 8, max: 12 }, // μg/min
-            maintenance: { min: 2, max: 4 } // μg/min
-        },
-        {
-            name: "Cardiac Arrest (Adults)",
-            note: "Doses are general recommendations, titrate to effect.",
-            isWeightBased: false,
-            initial: { min: 8, max: 12 }, // μg/min
-            maintenance: { min: 2, max: 4 } // μg/min
-        },
-        {
-            name: "Septic Shock (Adults)",
-            note: "Doses are typically started low and titrated to MAP > 65 mmHg.",
-            isWeightBased: true,
-            // Dosing in μg/kg/min. Range is 0.01 - 3.3 μg/kg/min (wide range for titration)
-            initial: { min: 0.01, max: 0.5 }, // μg/kg/min - Common starting/titration range
-            maintenance: { min: 0.01, max: 3.3 } // μg/kg/min - Full range
-        }
-    ];
+    const indications = getIndications(ageGroup);
 
     let html = '';
     
@@ -273,30 +312,39 @@ function updateResults() {
             <div class="indication-title">${ind.name}</div>
             <p style="font-size: 0.9em; margin-top: -5px; color: var(--secondary-color); font-style: italic;">${ind.note}</p>`;
         
-        ['initial', 'maintenance'].forEach(phaseKey => {
+        
+        // Determine which phases to loop through
+        const phases = ageGroup === 'adult' ? ['initial', 'maintenance'] : ['initial'];
+        
+        phases.forEach(phaseKey => {
             const phase = ind[phaseKey];
             if (!phase) return;
 
             let minRate_ug_min, maxRate_ug_min;
+            let phaseTitle = phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1) + (ageGroup === 'pediatric' ? ' / Titration Start' : ' Phase');
 
             if (ind.isWeightBased) {
                 // Rates are μg/kg/min, convert to μg/min
                 minRate_ug_min = phase.min * weight;
                 maxRate_ug_min = phase.max * weight;
                 
-                // Add an intermediate check for the actual μg/kg/min range
+                // Display the μg/kg/min range
                 const ug_kg_min_range = `${phase.min.toFixed(2)} - ${phase.max.toFixed(2)} μg/kg/min`;
 
                 html += `<div class="phase">
-                    <div class="phase-title">${phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1)} Phase: <span style="color: #6c757d; font-size: 0.9em;">(${ug_kg_min_range})</span></div>`;
+                    <div class="phase-title">${phaseTitle}: <span style="color: #6c757d; font-size: 0.9em;">(${ug_kg_min_range})</span></div>`;
 
             } else {
                 // Rates are already μg/min
                 minRate_ug_min = phase.min;
                 maxRate_ug_min = phase.max;
+                
+                // Display the μg/min range
+                const ug_min_range = `${phase.min.toFixed(2)} - ${phase.max.toFixed(2)} μg/min`;
+
 
                 html += `<div class="phase">
-                    <div class="phase-title">${phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1)} Phase:</div>`;
+                    <div class="phase-title">${phaseTitle}: <span style="color: #6c757d; font-size: 0.9em;">(${ug_min_range})</span></div>`;
             }
             
             const minCalc = calculateInfusionRate(minRate_ug_min, concentration);
@@ -304,8 +352,8 @@ function updateResults() {
 
             html += `
                 <p>
-                    <span class="unit-label">Rate (μg/min):</span> <span class="rate-value">${minCalc.ug_min.toFixed(2)} - ${maxCalc.ug_min.toFixed(2)}</span><br>
-                    <span class="unit-label">Rate (μg/h):</span> <span class="rate-value">${minCalc.ug_h.toFixed(2)} - ${maxCalc.ug_h.toFixed(2)}</span>
+                    <span class="unit-label">Total Dose Rate (μg/min):</span> <span class="rate-value">${minCalc.ug_min.toFixed(2)} - ${maxCalc.ug_min.toFixed(2)}</span><br>
+                    <span class="unit-label">Total Dose Rate (μg/h):</span> <span class="rate-value">${minCalc.ug_h.toFixed(2)} - ${maxCalc.ug_h.toFixed(2)}</span>
                 </p>
                 <p>
                     <span class="unit-label">Infusion Rate (mL/min):</span> <span class="rate-value">${minCalc.ml_min.toFixed(2)} - ${maxCalc.ml_min.toFixed(2)}</span><br>
@@ -313,6 +361,21 @@ function updateResults() {
                 </p>
             </div>`;
         });
+        
+        // Add Max Dose for Pediatric
+        if (ind.maxDose && ind.isWeightBased && ageGroup === 'pediatric') {
+             const max_ug_min = ind.maxDose * weight;
+             const maxCalc = calculateInfusionRate(max_ug_min, concentration);
+             html += `<div class="phase" style="border-left-color: var(--danger-color); background-color: #fcebe9;">
+                    <div class="phase-title" style="color: var(--danger-color); border-bottom-color: var(--danger-color);">Maximum Recommended Dose</div>
+                    <p style="margin-top: 5px; font-size: 0.9em;">
+                        **Weight-Based Dose:** <span class="rate-value">${ind.maxDose.toFixed(2)} μg/kg/min</span><br>
+                        **Total Dose Rate:** <span class="rate-value">${max_ug_min.toFixed(2)} μg/min</span><br>
+                        **Infusion Rate:** <span class="rate-value">${maxCalc.ml_h.toFixed(2)} mL/h</span>
+                    </p>
+                </div>`;
+        }
+        
         html += `</div>`;
     });
 
@@ -331,11 +394,12 @@ dilutionSelect.addEventListener('change', function() {
     updateResults();
 });
 
-// Update results automatically on input
+// Update results automatically on input/change
 weightInput.addEventListener('input', updateResults);
 customMgInput.addEventListener('input', updateResults);
 customMlInput.addEventListener('input', updateResults);
-dilutionSelect.addEventListener('change', updateResults); // Changed to 'change' for select
+dilutionSelect.addEventListener('change', updateResults);
+ageGroupSelect.addEventListener('change', updateResults);
 
 // Initial call to set the prompt text
 updateResults();
