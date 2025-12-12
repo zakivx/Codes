@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rapid Sequence Intubation drugs</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f0f0;
+}
+.container {
+    max-width: 600px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+input[type=number] {
+    width: 80px;
+    font-size: 14px;
+    padding: 4px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    margin-top: 5px;
+}
+input[type=text] {
+    width: -webkit-fill-available;
+    width: -moz-available;
+    width: fill-available;
+    max-width: 100%;
+    margin-bottom: 10px;
+    font-size: 16px;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+.sex-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+.sex-buttons button {
+    flex: 1;
+    padding: 12px;
+    margin-right: 10px;
+    border: 1px solid #007BFF;
+    background-color: white;
+    color: #007BFF;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+.sex-buttons button:last-child {
+    margin-right: 0;
+}
+.sex-buttons button.active {
+    background-color: #007BFF;
+    color: white;
+}
+.drug {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    background: #f7f7f7;
+}
+.drug h4 {
+    margin: 0 0 5px 0;
+}
+#result, .drug span {
+    font-weight: bold;
+    margin-top: 10px;
+}
+.hint {
+    font-size: 12px;
+    color: #555;
+}
+@media (max-width: 500px) {
+    input[type=text], input[type=number], .sex-buttons button {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Rapid Sequence Intubation drugs</h2>
+
+<label>Sex:</label>
+<div class="sex-buttons">
+    <button id="maleBtn" class="active">Male</button>
+    <button id="femaleBtn">Female</button>
+</div>
+
+<label for="height">Height (cm):</label>
+<input type="number" id="height" placeholder="Enter height in cm">
+
+<label for="weight">Weight (kg):</label>
+<input type="number" id="weight" placeholder="Enter weight in kg">
+
+<div id="result">IBW and TBW will appear here</div>
+
+<div id="drugsContainer"></div>
+</div>
+
+<script>
+let sex = 'male';
+const maleBtn = document.getElementById('maleBtn');
+const femaleBtn = document.getElementById('femaleBtn');
+const heightInput = document.getElementById('height');
+const weightInput = document.getElementById('weight');
+const resultDiv = document.getElementById('result');
+const drugsContainer = document.getElementById('drugsContainer');
+
+maleBtn.addEventListener('click', () => { sex='male'; maleBtn.classList.add('active'); femaleBtn.classList.remove('active'); calculate(); });
+femaleBtn.addEventListener('click', () => { sex='female'; femaleBtn.classList.add('active'); maleBtn.classList.remove('active'); calculate(); });
+
+heightInput.addEventListener('input', calculate);
+weightInput.addEventListener('input', calculate);
+
+const drugs = [
+    {name: "Ketamine", dose:[1.5,2], defaultDose:1.5, unit:"mg/kg IBW", concentration:50, basis:"IBW", vialVolume:10},
+    {name: "Etomidate", dose:[0.3,0.4], defaultDose:0.3, unit:"mg/kg TBW", concentration:2, basis:"TBW", vialVolume:10},
+    {name: "Fentanyl", dose:[2,10], defaultDose:2, unit:"μg/kg TBW", concentration:50, basis:"TBW", vialVolume:5},
+    {name: "Midazolam", dose:[0.1,0.3], defaultDose:0.1, unit:"mg/kg TBW", concentration:5, basis:"TBW", vialVolume:3},
+    {name: "Propofol", dose:[1,2.5], defaultDose:1, unit:"mg/kg IBW +0.4xTBW", concentration:10, basis:"IBW/TBW", vialVolume:20},
+    {name: "Thiopental", dose:[3,5], defaultDose:3, unit:"mg/kg TBW", concentration:25, basis:"TBW", vialVolume:20},
+    {name: "Suxamethonium", dose:[1,2], defaultDose:1, unit:"mg/kg TBW", concentration:50, basis:"TBW", vialVolume:2},
+    {name: "Rocuronium", dose:[0.6,1.2], defaultDose:0.6, unit:"mg/kg IBW", concentration:10, basis:"IBW", vialVolume:5},
+    {name: "Vecuronium", dose:[0.15,0.25], defaultDose:0.15, unit:"mg/kg IBW", concentration:2, basis:"IBW", vialVolume:2}
+];
+
+function calculate() {
+    let heightCm = parseFloat(heightInput.value);
+    let weight = parseFloat(weightInput.value);
+
+    let IBW = 0;
+    if(heightCm){
+        let heightIn = heightCm / 2.54;
+        IBW = sex==='male'? 50 + 2.3*(heightIn-60) : 45.5 + 2.3*(heightIn-60);
+        if(heightIn<60) IBW -= (60-heightIn)*2.3;
+        IBW = Math.round(IBW*10)/10;
+    }
+
+    let TBW = weight ? weight : 0;
+    resultDiv.innerText = (IBW && TBW) ? `IBW: ${IBW} kg | TBW: ${TBW} kg` : "IBW and TBW will appear here";
+
+    drugs.forEach((drug, index)=>{
+        const doseInput = document.getElementById(`dose${index}`);
+        const doseResultDiv = document.getElementById(`doseResult${index}`);
+        if(!doseInput || !doseResultDiv) return;
+
+        let doseVal = parseFloat(doseInput.value);
+        let totalDose = 0;
+        if(drug.basis==="IBW") totalDose = IBW ? doseVal*IBW : 0;
+        else if(drug.basis==="TBW") totalDose = TBW ? doseVal*TBW : 0;
+        else totalDose = (IBW && TBW) ? doseVal*IBW + 0.4*TBW : 0;
+
+        let displayDose = totalDose;
+
+        let vol = totalDose && drug.concentration ? Math.round((displayDose/drug.concentration)*100)/100 : 0;
+
+        doseResultDiv.innerHTML = `Calculated Dose: ${displayDose.toFixed(1)} ${drug.unit.includes("μg") ? "μg" : "mg"} | Volume: ${vol} mL`;
+    });
+}
+
+// Initialize drug list with inputs and vial volume
+drugs.forEach((drug, index)=>{
+    let drugDiv = document.createElement('div');
+    drugDiv.classList.add('drug');
+
+    let doseLabel = drug.unit.includes("μg") ? "Dose (μg/kg):" : "Dose (mg/kg):";
+
+    drugDiv.innerHTML=`
+        <h4>${drug.name}</h4>
+        <div class="hint">Recommended: ${drug.dose[0]}-${drug.dose[1]} ${drug.unit}</div>
+        <div class="hint">Vial Volume: ${drug.vialVolume} mL</div>
+        ${doseLabel} <input type="number" id="dose${index}" value="${drug.defaultDose}" step="0.01">
+        <div id="doseResult${index}">Calculated Dose will appear here</div>
+    `;
+
+    drugsContainer.appendChild(drugDiv);
+
+    const doseInput = document.getElementById(`dose${index}`);
+    doseInput.addEventListener('input', calculate);
+});
+
+calculate();
+</script>
+</body>
+</html>
