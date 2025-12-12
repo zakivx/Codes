@@ -7,16 +7,14 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
             background-color: #f4f4f9;
         }
         .container {
             max-width: 1000px;
             margin: auto;
             background: white;
-            padding: 25px;
+            padding: 6px;
             border-radius: 10px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
         h1 {
             color: #333;
@@ -30,6 +28,7 @@
             background-color: #e9ecef;
             border-radius: 6px;
             font-size: 0.9em;
+            display: none;
         }
         .lab-info-summary strong {
             color: #007bff;
@@ -51,6 +50,7 @@
             padding: 10px 0;
             background-color: #e9ecef;
             border-radius: 4px;
+            margin-top: 20px;
         }
         .alpha-nav button {
             background: none;
@@ -135,13 +135,113 @@
             padding: 20px;
             font-style: italic;
         }
+        
+        /* --- MOBILE RESPONSIVENESS ENHANCEMENTS (max-width: 768px) --- */
+        @media (max-width: 768px) {
+            /* Hide the traditional column headers on small screens */
+            .product-header {
+                display: none;
+            }
+
+            /* Convert list items (rows) into stacked blocks (cards) */
+            .product-item {
+                flex-direction: column; /* Stack children vertically */
+                align-items: flex-start; /* Align text to the left */
+                padding: 15px; /* More padding for better touch targets */
+                margin-bottom: 15px; /* Space between cards */
+                border: 1px solid #ddd;
+                border-radius: 8px; /* Rounded corners for the card look */
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                border-bottom: 1px solid #ddd; /* Ensure card border is present */
+            }
+
+            /* Remove list bottom border now that we have a card border */
+            .product-list .product-item:last-child {
+                border-bottom: 1px solid #ddd;
+            }
+
+            /* Style the content blocks within the card */
+            .product-name,
+            .product-lab,
+            .product-price {
+                width: 100%; /* Take full width of the card */
+                flex: none; /* Remove flex sizing */
+                padding: 0; /* Remove padding/right margin from desktop layout */
+                text-align: left; /* Ensure all text is left-aligned */
+                border-left: none; /* Remove price border */
+                margin-bottom: 5px; /* Space between the test name, lab, and price */
+            }
+            
+            .product-name {
+                font-size: 1.1em; /* Make the test name stand out */
+                color: #007bff; /* Highlight the main test name */
+                margin-bottom: 8px;
+            }
+
+            .product-lab {
+                font-size: 0.9em;
+                color: #555;
+                font-style: italic;
+            }
+
+            .product-price {
+                /* Use a custom label to make the price clear */
+                color: #dc3545;
+                font-size: 1.2em;
+                font-weight: bold;
+                margin-top: 10px; /* Add more space before the price */
+                padding-top: 10px;
+                border-top: 1px dashed #eee; /* Visual separator for price */
+            }
+            
+            .product-price::before {
+                content: "Price: "; /* Add a label for clarity on mobile */
+                font-weight: normal;
+                color: #6c757d;
+                font-size: 0.8em;
+                display: block; /* Make the label a block element */
+            }
+            
+            /* Adjustments for the 'Inquire' status */
+            .price-inquire {
+                color: #ffc107;
+                font-weight: normal;
+                font-size: 1em; /* Smaller size for "Inquire" */
+            }
+            
+            .price-inquire::before {
+                content: "Status: ";
+                font-size: 0.8em;
+            }
+
+            /* Improve Alpha Navigation on small screens */
+            .alpha-nav {
+                justify-content: flex-start; /* Start from the left */
+                padding: 10px 5px;
+                overflow-x: auto; /* Allow horizontal scrolling if necessary */
+               margin-top: 20px;  /* Prevent wrapping so the row stays neat */
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .alpha-nav button {
+                min-width: 30px; /* Ensure buttons are large enough to tap */
+                padding: 8px 5px;
+                flex-shrink: 0; /* Prevent shrinking on overflow */
+            }
+            
+            /* Adjust search bar */
+            #searchBar {
+                font-size: 18px;
+            }
+        }
+        /* --- END MOBILE RESPONSIVENESS ENHANCEMENTS --- */
     </style>
 </head>
 <body>
 <div class="container">
     <header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
   <a href="https://zakivx.github.io/Codes/medicalTools.html" 
-     style="color:#fff; text-decoration:none; font-weight:bold;">
+      style="color:#fff; text-decoration:none; font-weight:bold;">
     ← Back to Medical Tools
   </a>
 </header>
@@ -168,7 +268,182 @@
 </div>
 
 <script>
-    // --- Data: Combined List of Tests and Prices from all labs ---
+    // These variables are now available globally because they were declared
+    // in the previous script block (product-data).
+
+    const productList = document.getElementById('productList');
+    const searchBar = document.getElementById('searchBar');
+    let activeLetter = 'All';
+
+    // Global Combined and Sorted List
+    let combinedProducts = [];
+
+    /**
+     * Initializes the combined product list, adding the laboratory source to each item.
+     */
+    function initializeCombinedProducts() {
+        const sadaoui = allProductsRaw.Sadaoui.map(p => ({
+            name: p.name,
+            price: p.price,
+            lab: "Sadaoui (CHLEF)"
+        }));
+        
+        const korteby = allProductsRaw.Korteby.map(p => ({
+            name: p.name,
+            // Standardizing N/A prices to the new label for clarity
+            price: "Inquire at KORTEBY",
+            lab: "Korteby (ALGER)"
+        }));
+
+        const elamhar = allProductsRaw.ElAmhar.map(p => ({
+            name: p.name,
+            price: "Inquire at EL AMHAR", // Default price for new lab
+            lab: "El Amhar (ROUIBA)"
+        }));
+
+        // Merge and sort all products alphabetically
+        combinedProducts = [...sadaoui, ...korteby, ...elamhar].sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    /**
+     * Renders the product list to the HTML page.
+     * @param {Array} list - The array of products to display.
+     */
+    function renderProducts(list) {
+        productList.innerHTML = ''; // Clear previous results
+
+        if (list.length === 0) {
+            productList.innerHTML = '<li class="no-results">No tests found matching your criteria.</li>';
+            return;
+        }
+
+        list.forEach(product => {
+            const listItem = document.createElement('li');
+            listItem.className = 'product-item';
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'product-name';
+            nameSpan.textContent = product.name;
+
+            const labSpan = document.createElement('span');
+            labSpan.className = 'product-lab';
+            labSpan.textContent = product.lab;
+
+            const priceSpan = document.createElement('span');
+            priceSpan.className = 'product-price';
+            
+            // Check if price is an inquiry status to apply different styling
+            if (product.price.includes("Inquire") || product.price === "N/A") {
+                 priceSpan.classList.add('price-inquire');
+                 priceSpan.textContent = product.price.replace("N/A", "Inquire");
+            } else {
+                priceSpan.textContent = product.price;
+            }
+
+
+            listItem.appendChild(nameSpan);
+            listItem.appendChild(labSpan);
+            productList.appendChild(listItem);
+            listItem.appendChild(priceSpan);
+        });
+    }
+
+    /**
+     * Filters the combined product list based on the search bar input and the active letter filter.
+     * @param {string} [letterFilter] - An optional letter to filter by.
+     */
+    function filterProducts(letterFilter) {
+        const searchInput = searchBar.value.toLowerCase();
+        
+        if (letterFilter !== undefined) {
+            activeLetter = letterFilter;
+            searchBar.value = '';
+        } else if (searchInput) {
+            activeLetter = null; // Deactivate letter filter if searching by text
+        } else {
+            activeLetter = 'All'; // Default back to 'All' if search is cleared
+        }
+
+        // Highlight the active button
+        document.querySelectorAll('.alpha-nav button').forEach(button => {
+            button.classList.remove('active');
+        });
+        if (activeLetter) {
+            const activeBtn = document.getElementById('btn-' + activeLetter);
+            if (activeBtn) activeBtn.classList.add('active');
+        } else if (!searchInput) {
+            const allBtn = document.getElementById('btn-All');
+            if (allBtn) allBtn.classList.add('active');
+        }
+
+        // Apply filtering logic
+        const filteredList = combinedProducts.filter(product => {
+            const productName = product.name.toLowerCase();
+            const labName = product.lab.toLowerCase(); // Include lab name in search
+
+            // 1. Filter by text input (takes precedence)
+            if (searchInput) {
+                return productName.includes(searchInput) || labName.includes(searchInput);
+            }
+            
+            // 2. Filter by selected letter (only if text input is empty)
+            if (activeLetter && activeLetter !== 'All') {
+                // Handle accented characters for filtering (e.g., É, É)
+                const firstLetter = productName.charAt(0).toUpperCase();
+                return firstLetter === activeLetter || firstLetter.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().startsWith(activeLetter);
+            }
+
+            return true;
+        });
+
+        renderProducts(filteredList);
+    }
+    
+    /**
+     * Creates and adds the alphabetical navigation buttons based on the combined data.
+     */
+    function createAlphaNav() {
+        const alphaNav = document.getElementById('alphaNav');
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+        // 'All' button
+        const allBtn = document.createElement('button');
+        allBtn.textContent = 'All';
+        allBtn.id = 'btn-All';
+        allBtn.className = 'all active';
+        allBtn.onclick = () => filterProducts('All');
+        alphaNav.appendChild(allBtn);
+
+        // Letter buttons
+        alphabet.forEach(letter => {
+            // Check if any product in the combined list starts with this letter (handling accents)
+            const hasProduct = combinedProducts.some(product => {
+                const normalizedName = product.name.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                return normalizedName.startsWith(letter);
+            });
+            
+            const btn = document.createElement('button');
+            btn.textContent = letter;
+            btn.id = 'btn-' + letter;
+            
+            if (hasProduct) {
+                btn.onclick = () => filterProducts(letter);
+            } else {
+                btn.disabled = true;
+            }
+            alphaNav.appendChild(btn);
+        });
+    }
+
+    // Initial setup when the page loads
+    window.onload = function() {
+        initializeCombinedProducts();
+        createAlphaNav();
+        filterProducts('All'); // Display the full list initially
+    };
+</script>
+
+<script id="product-data">
     const allProductsRaw = {
         Sadaoui: [
             {"name": "Anti-ENDOMYSlUM IGG /IFI", "price": "1 700 DA"},
@@ -1466,178 +1741,7 @@
             {"name": "ZINC"}
         ]
     };
-
-    const productList = document.getElementById('productList');
-    const searchBar = document.getElementById('searchBar');
-    let activeLetter = 'All';
-
-    // Global Combined and Sorted List
-    let combinedProducts = [];
-
-    /**
-     * Initializes the combined product list, adding the laboratory source to each item.
-     */
-    function initializeCombinedProducts() {
-        const sadaoui = allProductsRaw.Sadaoui.map(p => ({
-            name: p.name,
-            price: p.price,
-            lab: "Sadaoui (CHLEF)"
-        }));
-        
-        const korteby = allProductsRaw.Korteby.map(p => ({
-            name: p.name,
-            // Standardizing N/A prices to the new label for clarity
-            price: "Inquire at KORTEBY",
-            lab: "Korteby (ALGER)"
-        }));
-
-        const elamhar = allProductsRaw.ElAmhar.map(p => ({
-            name: p.name,
-            price: "Inquire at EL AMHAR", // Default price for new lab
-            lab: "El Amhar (ROUIBA)"
-        }));
-
-        // Merge and sort all products alphabetically
-        combinedProducts = [...sadaoui, ...korteby, ...elamhar].sort((a, b) => a.name.localeCompare(b.name));
-    }
-
-    /**
-     * Renders the product list to the HTML page.
-     * @param {Array} list - The array of products to display.
-     */
-    function renderProducts(list) {
-        productList.innerHTML = ''; // Clear previous results
-
-        if (list.length === 0) {
-            productList.innerHTML = '<li class="no-results">No tests found matching your criteria.</li>';
-            return;
-        }
-
-        list.forEach(product => {
-            const listItem = document.createElement('li');
-            listItem.className = 'product-item';
-            
-            const nameSpan = document.createElement('span');
-            nameSpan.className = 'product-name';
-            nameSpan.textContent = product.name;
-
-            const labSpan = document.createElement('span');
-            labSpan.className = 'product-lab';
-            labSpan.textContent = product.lab;
-
-            const priceSpan = document.createElement('span');
-            priceSpan.className = 'product-price';
-            
-            // Check if price is an inquiry status to apply different styling
-            if (product.price.includes("Inquire") || product.price === "N/A") {
-                 priceSpan.classList.add('price-inquire');
-                 priceSpan.textContent = product.price.replace("N/A", "Inquire");
-            } else {
-                priceSpan.textContent = product.price;
-            }
-
-
-            listItem.appendChild(nameSpan);
-            listItem.appendChild(labSpan);
-            listItem.appendChild(priceSpan);
-            productList.appendChild(listItem);
-        });
-    }
-
-    /**
-     * Filters the combined product list based on the search bar input and the active letter filter.
-     * @param {string} [letterFilter] - An optional letter to filter by.
-     */
-    function filterProducts(letterFilter) {
-        const searchInput = searchBar.value.toLowerCase();
-        
-        if (letterFilter !== undefined) {
-            activeLetter = letterFilter;
-            searchBar.value = '';
-        } else if (searchInput) {
-            activeLetter = null; // Deactivate letter filter if searching by text
-        } else {
-            activeLetter = 'All'; // Default back to 'All' if search is cleared
-        }
-
-        // Highlight the active button
-        document.querySelectorAll('.alpha-nav button').forEach(button => {
-            button.classList.remove('active');
-        });
-        if (activeLetter) {
-            const activeBtn = document.getElementById('btn-' + activeLetter);
-            if (activeBtn) activeBtn.classList.add('active');
-        } else if (!searchInput) {
-            const allBtn = document.getElementById('btn-All');
-            if (allBtn) allBtn.classList.add('active');
-        }
-
-        // Apply filtering logic
-        const filteredList = combinedProducts.filter(product => {
-            const productName = product.name.toLowerCase();
-            const labName = product.lab.toLowerCase(); // Include lab name in search
-
-            // 1. Filter by text input (takes precedence)
-            if (searchInput) {
-                return productName.includes(searchInput) || labName.includes(searchInput);
-            }
-            
-            // 2. Filter by selected letter (only if text input is empty)
-            if (activeLetter && activeLetter !== 'All') {
-                // Handle accented characters for filtering (e.g., É, É)
-                const firstLetter = productName.charAt(0).toUpperCase();
-                return firstLetter === activeLetter || firstLetter.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().startsWith(activeLetter);
-            }
-
-            return true;
-        });
-
-        renderProducts(filteredList);
-    }
-    
-    /**
-     * Creates and adds the alphabetical navigation buttons based on the combined data.
-     */
-    function createAlphaNav() {
-        const alphaNav = document.getElementById('alphaNav');
-        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-
-        // 'All' button
-        const allBtn = document.createElement('button');
-        allBtn.textContent = 'All';
-        allBtn.id = 'btn-All';
-        allBtn.className = 'all active';
-        allBtn.onclick = () => filterProducts('All');
-        alphaNav.appendChild(allBtn);
-
-        // Letter buttons
-        alphabet.forEach(letter => {
-            // Check if any product in the combined list starts with this letter (handling accents)
-            const hasProduct = combinedProducts.some(product => {
-                const normalizedName = product.name.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                return normalizedName.startsWith(letter);
-            });
-            
-            const btn = document.createElement('button');
-            btn.textContent = letter;
-            btn.id = 'btn-' + letter;
-            
-            if (hasProduct) {
-                btn.onclick = () => filterProducts(letter);
-            } else {
-                btn.disabled = true;
-            }
-            alphaNav.appendChild(btn);
-        });
-    }
-
-    // Initial setup when the page loads
-    window.onload = function() {
-        initializeCombinedProducts();
-        createAlphaNav();
-        filterProducts('All'); // Display the full list initially
-    };
 </script>
-
+  
 </body>
 </html>
