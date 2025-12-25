@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Anthropometrics</title>
+<style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: auto; padding: 20px; background: #f8f9fa; }
+    h2 { padding: 8px; }
+    input, select { padding: 6px; margin: 5px; width: 40px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
+    th { background: #e9ecef; }
+    select#gender { width: 80px; }
+</style>
+</head>
+<body>
+<header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
+  <a href="https://zakivx.github.io/Codes/medicalTools.html" 
+     style="color:#fff; text-decoration:none; font-weight:bold;">
+    ← Back to Medical Tools
+  </a>
+</header>
+<h2>Patient Input</h2>
+<label>Gender: </label>
+<select id="gender" onchange="saveAndCalculate()">
+    <option value="male">Male</option>
+    <option value="female">Female</option>
+</select>
+
+<label>Age (yrs): </label>
+<input type="number" id="age" step="1" oninput="saveAndCalculate()">
+
+<label>Actual Weight (kg): </label>
+<input type="number" id="weight" step="0.1" oninput="saveAndCalculate()">
+
+<label>Height (cm): </label>
+<input type="number" id="height" step="0.1" oninput="saveAndCalculate()">
+
+<h2>Anthropometrics</h2>
+<table>
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Actual Weight</td><td id="aw"></td></tr>
+<tr><td>Ideal Body Weight (IBW)</td><td id="ibw"></td></tr>
+<tr><td>Adjusted Body Weight (ABW)</td><td id="abw"></td></tr>
+<tr><td>Height</td><td id="ht"></td></tr>
+<tr><td>BMI</td><td id="bmi"></td></tr>
+</table>
+
+<h2>Ventilation (IBW-based)</h2>
+<table>
+<tr><th>Tidal Volume</th><th>Value (mL)</th></tr>
+<tr><td>4 mL/kg</td><td id="tv4"></td></tr>
+<tr><td>5 mL/kg</td><td id="tv5"></td></tr>
+<tr><td>6 mL/kg</td><td id="tv6"></td></tr>
+<tr><td>7 mL/kg</td><td id="tv7"></td></tr>
+<tr><td>8 mL/kg</td><td id="tv8"></td></tr>
+<tr><td>9 mL/kg</td><td id="tv9"></td></tr>
+</table>
+
+<h2>Fluids</h2>
+<table>
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Water 25–30 mL/kg/day</td><td id="waterday"></td></tr>
+<tr><td>Water 1 mL/kg/h</td><td id="waterhour"></td></tr>
+</table>
+
+<h2>Electrolytes</h2>
+<table>
+<tr><th>Electrolyte</th><th>Requirement</th></tr>
+<tr><td>Sodium</td><td id="na"></td></tr>
+<tr><td>NaCl</td><td id="nacl"></td></tr>
+<tr><td>Potassium</td><td id="k"></td></tr>
+<tr><td>KCl</td><td id="kcl"></td></tr>
+</table>
+
+<h2>Nutrition</h2>
+<p>Weight type used for calculation: <span id="weightTypeDisplay"></span></p>
+<table>
+<tr><th>Phase</th><th>Calories</th><th>Proteins</th></tr>
+<tr><td>Acute phase (1–2 days)</td><td id="cal1"></td><td id="prot1"></td></tr>
+<tr><td>Rehabilitation (3–7 days)</td><td id="cal2"></td><td id="prot2"></td></tr>
+<tr><td>Rehabilitation &gt; 7 days</td><td id="cal3"></td><td id="prot3"></td></tr>
+</table>
+
+<script>
+function saveAndCalculate() {
+    // Save values to localStorage
+    localStorage.setItem("gender", document.getElementById("gender").value);
+    localStorage.setItem("age", document.getElementById("age").value);
+    localStorage.setItem("weight", document.getElementById("weight").value);
+    localStorage.setItem("height", document.getElementById("height").value);
+
+    calculate();
+}
+
+function loadInputs() {
+    // Load values from localStorage
+    if (localStorage.getItem("gender")) document.getElementById("gender").value = localStorage.getItem("gender");
+    if (localStorage.getItem("age")) document.getElementById("age").value = localStorage.getItem("age");
+    if (localStorage.getItem("weight")) document.getElementById("weight").value = localStorage.getItem("weight");
+    if (localStorage.getItem("height")) document.getElementById("height").value = localStorage.getItem("height");
+
+    calculate();
+}
+
+function calculate() {
+    let w = parseFloat(document.getElementById("weight").value);
+    let h = parseFloat(document.getElementById("height").value);
+    let gender = document.getElementById("gender").value;
+    let age = parseInt(document.getElementById("age").value);
+
+    if (!w || !h || !age) return;
+
+    let h_in = h / 2.54;
+    let ibw = (gender === "male") ? 50 + 2.3 * (h_in - 60) : 45.5 + 2.3 * (h_in - 60);
+    if (ibw < 0) ibw = 0;
+    let abw = ibw + 0.25 * (w - ibw);
+    let bmi = w / Math.pow(h / 100, 2);
+
+    document.getElementById("aw").innerHTML = w.toFixed(1) + " kg";
+    document.getElementById("ibw").innerHTML = ibw.toFixed(1) + " kg";
+    document.getElementById("abw").innerHTML = abw.toFixed(1) + " kg";
+    document.getElementById("ht").innerHTML = h.toFixed(1) + " cm";
+    document.getElementById("bmi").innerHTML = bmi.toFixed(1);
+
+    document.getElementById("tv4").innerHTML = (4 * ibw).toFixed(0);
+    document.getElementById("tv5").innerHTML = (5 * ibw).toFixed(0);
+    document.getElementById("tv6").innerHTML = (6 * ibw).toFixed(0);
+    document.getElementById("tv7").innerHTML = (7 * ibw).toFixed(0);
+    document.getElementById("tv8").innerHTML = (8 * ibw).toFixed(0);
+    document.getElementById("tv9").innerHTML = (9 * ibw).toFixed(0);
+
+    document.getElementById("waterday").innerHTML = (25 * w).toFixed(0) + " – " + (30 * w).toFixed(0) + " mL/day";
+    document.getElementById("waterhour").innerHTML = (1 * w).toFixed(0) + " mL/h";
+
+    document.getElementById("na").innerHTML = (1 * w).toFixed(1) + " – " + (1.5 * w).toFixed(1) +
+        " mmol/day | " + (23 * w).toFixed(0) + " – " + (34.5 * w).toFixed(0) + " mg/day";
+    document.getElementById("nacl").innerHTML = (58 * w).toFixed(0) + " – " + (88 * w).toFixed(0) + " mg/day";
+    document.getElementById("k").innerHTML = (1 * w).toFixed(1) + " mmol/day | " + (39 * w).toFixed(0) + " mg/day";
+    document.getElementById("kcl").innerHTML = (74.5 * w).toFixed(0) + " mg/day";
+
+    let nut_weight = w;
+    let weight_type = "";
+    if (age < 75) {
+        if (bmi < 18.5) { nut_weight = 18.5 * Math.pow(h/100,2); weight_type="BMI 18.5"; }
+        else if (bmi >= 18.5 && bmi < 25) { nut_weight = w; weight_type="Actual Weight"; }
+        else if (bmi >= 25 && bmi < 30) { nut_weight = ibw; weight_type="Ideal Weight (IBW)"; }
+        else { nut_weight = abw; weight_type="Adjusted Weight (ABW)"; }
+    } else {
+        if (bmi < 23) { nut_weight = 23 * Math.pow(h/100,2); weight_type="BMI 23"; }
+        else if (bmi >= 23 && bmi < 28) { nut_weight = w; weight_type="Actual Weight"; }
+        else if (bmi >= 28 && bmi < 33) { nut_weight = ibw; weight_type="Ideal Weight (IBW)"; }
+        else { nut_weight = abw; weight_type="Adjusted Weight (ABW)"; }
+    }
+
+    document.getElementById("weightTypeDisplay").innerText = weight_type;
+    document.getElementById("cal1").innerHTML = (15 * nut_weight).toFixed(0) + " kcal/day (15kcal/kg/j)";
+    document.getElementById("prot1").innerHTML = (1.2 * nut_weight).toFixed(1) + " g/day (1.2g/kg/j)";
+    document.getElementById("cal2").innerHTML = (25 * nut_weight).toFixed(0) + " kcal/day (25kcal/kg/j)";
+    document.getElementById("prot2").innerHTML = (1.2 * nut_weight).toFixed(1) + " g/day (1.2g/kg/j)";
+    document.getElementById("cal3").innerHTML = (30 * nut_weight).toFixed(0) + " kcal/day (30kcal/kg/j)";
+    document.getElementById("prot3").innerHTML = (2 * nut_weight).toFixed(1) + " g/day (2g/kg/j)";
+}
+
+// Load saved inputs on page load
+window.onload = loadInputs;
+</script>
+
+</body>
+</html> 
