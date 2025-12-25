@@ -2,39 +2,87 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anthropometrics</title>
 <style>
-    body { font-family: Arial, sans-serif; max-width: 900px; margin: auto; padding: 20px; background: #f8f9fa; }
-    h2 { padding: 8px; }
-    input, select { padding: 6px; margin: 5px; width: 40px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
-    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
-    th { background: #e9ecef; }
-    select#gender { width: 80px; }
+    body {
+        font-family: Arial, sans-serif;
+        max-width: 100%;
+        margin: 0;
+        padding: 10px;
+        background: #f8f9fa;
+    }
+    h2 {
+        padding: 8px 0;
+        font-size: 1.2em;
+    }
+    label {
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+    input, select {
+        padding: 8px;
+        margin: 5px 0 10px 0;
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 1em;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        background: white;
+        font-size: 0.9em;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: center;
+    }
+    th {
+        background: #e9ecef;
+    }
+    header {
+        background: #007bff;
+        color: #fff;
+        padding: 12px;
+        text-align: center;
+        font-size: 1em;
+    }
+    header a {
+        color: #fff;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    @media (min-width: 600px) {
+        input, select {
+            width: auto;
+            min-width: 60px;
+        }
+        label {
+            display: inline-block;
+            margin-right: 10px;
+        }
+    }
 </style>
 </head>
 <body>
-<header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
-  <a href="https://zakivx.github.io/Codes/medicalTools.html" 
-     style="color:#fff; text-decoration:none; font-weight:bold;">
-    ← Back to Medical Tools
-  </a>
+<header>
+  <a href="https://zakivx.github.io/Codes/medicalTools.html">← Back to Medical Tools</a>
 </header>
+
 <h2>Patient Input</h2>
-<label>Gender: </label>
-<select id="gender" onchange="saveAndCalculate()">
-    <option value="male">Male</option>
-    <option value="female">Female</option>
-</select>
+<label>Gender: 
+    <select id="gender" onchange="saveAndCalculate()">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+    </select>
+</label>
 
-<label>Age (yrs): </label>
-<input type="number" id="age" step="1" oninput="saveAndCalculate()">
-
-<label>Actual Weight (kg): </label>
-<input type="number" id="weight" step="0.1" oninput="saveAndCalculate()">
-
-<label>Height (cm): </label>
-<input type="number" id="height" step="0.1" oninput="saveAndCalculate()">
+<label>Age (yrs): <input type="number" id="age" step="1" oninput="saveAndCalculate()"></label>
+<label>Actual Weight (kg): <input type="number" id="weight" step="0.1" oninput="saveAndCalculate()"></label>
+<label>Height (cm): <input type="number" id="height" step="0.1" oninput="saveAndCalculate()"></label>
 
 <h2>Anthropometrics</h2>
 <table>
@@ -84,22 +132,18 @@
 
 <script>
 function saveAndCalculate() {
-    // Save values to localStorage
     localStorage.setItem("gender", document.getElementById("gender").value);
     localStorage.setItem("age", document.getElementById("age").value);
     localStorage.setItem("weight", document.getElementById("weight").value);
     localStorage.setItem("height", document.getElementById("height").value);
-
     calculate();
 }
 
 function loadInputs() {
-    // Load values from localStorage
     if (localStorage.getItem("gender")) document.getElementById("gender").value = localStorage.getItem("gender");
     if (localStorage.getItem("age")) document.getElementById("age").value = localStorage.getItem("age");
     if (localStorage.getItem("weight")) document.getElementById("weight").value = localStorage.getItem("weight");
     if (localStorage.getItem("height")) document.getElementById("height").value = localStorage.getItem("height");
-
     calculate();
 }
 
@@ -108,7 +152,6 @@ function calculate() {
     let h = parseFloat(document.getElementById("height").value);
     let gender = document.getElementById("gender").value;
     let age = parseInt(document.getElementById("age").value);
-
     if (!w || !h || !age) return;
 
     let h_in = h / 2.54;
@@ -133,8 +176,7 @@ function calculate() {
     document.getElementById("waterday").innerHTML = (25 * w).toFixed(0) + " – " + (30 * w).toFixed(0) + " mL/day";
     document.getElementById("waterhour").innerHTML = (1 * w).toFixed(0) + " mL/h";
 
-    document.getElementById("na").innerHTML = (1 * w).toFixed(1) + " – " + (1.5 * w).toFixed(1) +
-        " mmol/day | " + (23 * w).toFixed(0) + " – " + (34.5 * w).toFixed(0) + " mg/day";
+    document.getElementById("na").innerHTML = (1 * w).toFixed(1) + " – " + (1.5 * w).toFixed(1) + " mmol/day | " + (23 * w).toFixed(0) + " – " + (34.5 * w).toFixed(0) + " mg/day";
     document.getElementById("nacl").innerHTML = (58 * w).toFixed(0) + " – " + (88 * w).toFixed(0) + " mg/day";
     document.getElementById("k").innerHTML = (1 * w).toFixed(1) + " mmol/day | " + (39 * w).toFixed(0) + " mg/day";
     document.getElementById("kcl").innerHTML = (74.5 * w).toFixed(0) + " mg/day";
@@ -162,9 +204,7 @@ function calculate() {
     document.getElementById("prot3").innerHTML = (2 * nut_weight).toFixed(1) + " g/day (2g/kg/j)";
 }
 
-// Load saved inputs on page load
 window.onload = loadInputs;
 </script>
-
 </body>
-</html> 
+</html>
