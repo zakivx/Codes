@@ -121,6 +121,19 @@
     <label>Temperature</label><input id="temperature">
 </div>
 
+<h2>Drogues et Perfusions</h2>
+<div class="section" data-section="Drogues et Perfusions">
+    <label>Noradrenaline : <span id="nora_result" style="color: #0d6efd;">0</span>(2amp) <span id="nora_result2" style="color: #0d6efd;">0</span>(3amp) mcg/kg/min </label>
+<input id="Noradrenaline" type="number" step="0.1" oninput="calcNora()">
+    <label>Adrenaline</label><input id="Adrenaline">
+    <label>Midazolam</label><input id="Midazolam">
+    <label>Fentanly</label><input id="Fentanly">
+    <label>SubFentanyl</label><input id="SubFentanyl">
+    <label>Rocuronium</label><input id="Rocuronium">
+    <label>Nicardepine</label><input id="Nicardepine">
+    <label>Autres</label><textarea id="autreNeuro"></textarea>
+</div>  
+
 <h2>Plan Neurologique</h2>
 <div class="section" data-section="Plan Neurologique">
     <label>Conscience</label><input id="conscience">
@@ -508,15 +521,43 @@ function updateSummary() {
         let sectionHtml = "";
         
         sec.querySelectorAll("input, textarea").forEach(el => {
+          
             if (el.value && el.id !== "new_drug_name") {
                 let labelText = el.previousElementSibling ? el.previousElementSibling.textContent.split(':')[0].trim() : el.id;
                 
                 if (el.id.startsWith("date_drug_")) {
                     labelText = el.parentElement.querySelector('label').textContent.split(':')[0].trim();
                 }
+                // Inside updateSummary() loop:
 
+              
                 let val = el.value;
-                const spanId = "val_j_" + el.id.replace("date_", "");
+                
+                if (el.id === "Noradrenaline") {
+                    const noraCalc = document.getElementById("nora_result").textContent;
+                    const noraCalc2 = document.getElementById("nora_result2").textContent;
+
+                    val = `${el.value} ml/h ${noraCalc}(2amp) ${noraCalc2}(3amp) mcg/kg/min`;
+                }
+                if (el.id === "Adrenaline") {
+                    val = `${el.value} ml/h`;
+                }
+                if (el.id === "Midazolam") {
+                    val = `${el.value} ml/h`;
+                }
+                if (el.id === "Fentanly") {
+                    val = `${el.value} ml/h`;
+                }
+                if (el.id === "SubFentanyl") {
+                    val = `${el.value} ml/h`;
+                }
+                if (el.id === "Rocuronium") {
+                    val = `${el.value} ml/h`;
+                }
+                 if (el.id === "Nicardepine") {
+                    val = `${el.value} ml/h`;
+                }
+                const spanId = "val_j_" + el.id.replace("date_", ""); 
                 const span = document.getElementById(spanId);
                 
                 if (span && span.textContent) {
@@ -527,6 +568,7 @@ function updateSummary() {
                 const separator = el.tagName === "TEXTAREA" ? "<br>" : ": ";
                 
                 sectionHtml += `<div class="summary-item"><strong>${labelText}</strong>${separator}${val}</div>`;
+
             }
         });
         if (sectionHtml) html += `<div class="summary-section"><div class="summary-section-title">${secName}</div>${sectionHtml}</div>`;
@@ -538,12 +580,46 @@ function manualSave() {
     saveData(); 
     alert("Données enregistrées localement"); 
 }
+  
+  function calcNora() {
+    const dose = parseFloat(document.getElementById("Noradrenaline").value);
+    const poids = parseFloat(document.getElementById("poids").value);
+    const resultSpan = document.getElementById("nora_result");
+    const resultSpan2 = document.getElementById("nora_result2");
+
+
+    if (dose && poids && poids > 0) {
+        // Calculation: (Dose * 320 / 60) / Poids
+        const result = (dose * 320 / 60) / poids;
+        const result2= (dose * 480 / 60) / poids;
+
+        resultSpan.textContent = result.toFixed(2); // Shows 3 decimal places
+        resultSpan2.textContent = result2.toFixed(2); // Shows 3 decimal places
+
+    } else {
+        resultSpan.textContent = "0";
+        resultSpan2.textContent = "0";
+    }
+}
+
+// Update your existing calcBMI to also trigger calcNora
+function calcBMI() {
+    const poids = document.getElementById("poids").value;
+    const taille = document.getElementById("taille").value / 100;
+    
+    if (poids && taille && taille > 0) {
+        document.getElementById("bmi").value = (poids / (taille * taille)).toFixed(1);
+    }
+    
+    // Trigger Noradrenaline calculation whenever weight changes
+    calcNora(); 
+}
 
 // Event delegation for auto-save and auto-resize
 document.addEventListener("input", (e) => {
     if(e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
         saveData();
-        if (e.target.tagName === "TEXTAREA") {
+        if (e.target.tagName === "TEXTAREA") {  
             autoResizeTextarea(e.target);
         }
     }
