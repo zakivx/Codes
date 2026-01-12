@@ -11,6 +11,11 @@
     label { font-weight: bold; display: block; margin-top: 8px; font-size: 14px; }
     input, textarea { width: 100%; padding: 8px; margin-top: 4px; border-radius: 5px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; }
     
+    /* Checklist Styling */
+    .checklist-item { display: flex; align-items: center; gap: 10px; margin-top: 5px; cursor: pointer; }
+    .checklist-item input[type="checkbox"] { width: 20px; height: 20px; margin: 0; cursor: pointer; }
+    .checklist-item label { margin: 0; cursor: pointer; flex-grow: 1; }
+
     /* Auto-fit Textarea Styling */
     textarea { 
         resize: none; 
@@ -43,15 +48,13 @@
     .summary-section { margin-bottom: 10px; }
     .summary-section-title { font-weight: bold; text-decoration: underline; margin-top: 5px; color: #333; }
     
-    /* FIX: Preservation of line breaks in summary */
-.summary-item { 
+    .summary-item { 
         margin-left: 10px; 
-        margin-top: 5px; /* Slightly more space between items */
+        margin-top: 5px; 
         white-space: pre-line; 
-        line-height: 1.4; /* Better readability for multi-line text */
+        line-height: 1.4; 
     }
 
-    /* PDF/Print Optimization */
     @media print {
         .button-group, h2, .section, #importFile, .drug-controls, .btn-delete { display: none !important; }
         body { background: white; padding: 0; }
@@ -77,6 +80,171 @@
 
 <input type="file" id="importFile" style="display:none" accept=".json" onchange="importJSON(event)">
 
+<h2>Check-list Sécurité</h2>
+<div class="section" data-section="Check-list">
+<div class="checklist-item">
+    <input type="checkbox" id="fuites">
+    <label for="fuites">Fuites</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="alarmes">
+    <label for="alarmes">Alarmes</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="pressionBallonnet">
+    <label for="pressionBallonnet">Pression du ballonnet de la sonde endotrachéale</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="niveauSondeET">
+    <label for="niveauSondeET">Niveau de la sonde endotrachéale</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="changementTubulures">
+    <label for="changementTubulures">Changement des tubulures</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="interactionMedicamenteuse">
+    <label for="interactionMedicamenteuse">Interactions médicamenteuses</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="interactionMedicamenteuseMaladie">
+    <label for="interactionMedicamenteuseMaladie">Interactions médicamenteuses avec la maladie</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="rationnelTraitement">
+    <label for="rationnelTraitement">Rationnel de chaque traitement</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="feuilles">
+    <label for="feuilles">Feuille de traitement, surveillance et bilan</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="pancarteTableau">
+    <label for="pancarteTableau">Pancarte et tableau à jour</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="appareilsElectriques">
+    <label for="appareilsElectriques">Respirateur, moniteurs et pousse-seringues branchés à l’électricité</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="pniSpo2">
+    <label for="pniSpo2">PNI automatique, SpO₂ en marche et alarmes réglées</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="patientScope">
+    <label for="patientScope">Patient scopé avec capteur de température</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="capnographie">
+    <label for="capnographie">Capnographie branchée et fonctionnelle</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="voieVeineuse">
+    <label for="voieVeineuse">Voie veineuse fonctionnelle</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="catheters">
+    <label for="catheters">Lignes de cathéter montées et pansement vérifié</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="perfusions">
+    <label for="perfusions">Perfusions préparées selon prescription</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="rampes">
+    <label for="rampes">Rampes nettoyées et bouchons sur voies libres</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="catheterArteriel">
+    <label for="catheterArteriel">Cathéter artériel : zéro à jour et tubulure purgée</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="alimentation">
+    <label for="alimentation">Alimentation prescrite en cours</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="soinsBoucheYeux">
+    <label for="soinsBoucheYeux">Soins de bouche et des yeux</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="escarres">
+    <label for="escarres">Escarres vérifiées et pansement adapté réalisé</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="matelasAntiEscarres">
+    <label for="matelasAntiEscarres">Matelas anti-escarres avec moteur branché</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="teteLit">
+    <label for="teteLit">Tête de lit à 30°</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="stock">
+    <label for="stock">Stock de gants, compresses et sondes suffisant</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="serumBetadine">
+    <label for="serumBetadine">Sérum et bétadine pour aspiration</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="filtreRespirateur">
+    <label for="filtreRespirateur">Filtre du respirateur ou humidificateur fonctionnel</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="aspiration">
+    <label for="aspiration">Aspiration fonctionnelle et bocal vidé</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="sacUrines">
+    <label for="sacUrines">Sac d’urines accroché au lit et vidé si plein</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="pousseSeringues">
+    <label for="pousseSeringues">Pousse-seringues fermés si non utilisés</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="nettoyage">
+    <label for="nettoyage">Moniteur, lit, paillasse et sol nettoyés</label>
+</div>
+
+<div class="checklist-item">
+    <input type="checkbox" id="fin">
+    <label for="fin">Scope éteint et câbles rangés</label>
+</div>
+    <label>Autres</label><textarea id="autreCheck"></textarea>
+
+</div>
+
 <h2>Evolution</h2>
 <div class="section" data-section="Evolution">
     <label>Date</label><input type="date" id="dateEvolution">
@@ -85,7 +253,7 @@
   
 <h2>Identification</h2>
 <div class="section" data-section="Identification">
-    <label>Nom</label><input id="nom">
+    <label>Nom et Prénom</label><input id="nom">
     <label>Âge</label><input type="number" id="age">
     <label>Sex</label><input id="sex">
     <label>Antécédents</label><input id="antecedents">
@@ -93,6 +261,7 @@
     <label>Admis pour</label><input id="admission">
     <label>Diagnostic</label><input id="diagnostic">
     <label>Niveau de Soins</label><input id="NiveauSoins">
+    <label>Histoire</label><textarea id="Histoire"></textarea>
 </div>
 
 <h2>Scores</h2>
@@ -131,7 +300,7 @@
     <label>SubFentanyl</label><input id="SubFentanyl">
     <label>Rocuronium</label><input id="Rocuronium">
     <label>Nicardepine</label><input id="Nicardepine">
-    <label>Autres</label><textarea id="autreNeuro"></textarea>
+    <label>Autres</label><textarea id="autreNeuro_drogue"></textarea>
 </div>  
 
 <h2>Plan Neurologique</h2>
@@ -249,6 +418,9 @@
     <label>Dermatologique</label><input id="dermato">
     <label>Balance hydrique</label><input id="balance">
     <label>Thromboprophylaxie</label><input id="thromboprophylaxie">
+    <label>Examen des protheses</label><input id="protheses">
+    <label>Examen des plaie et drain</label><input id="plaieDrain">
+
 </div>
   
 <h2>Traimtment</h2>
@@ -322,7 +494,13 @@ function autoResizeTextarea(el) {
 function saveData() {
     const data = {};
     document.querySelectorAll("input, textarea").forEach(el => {
-        if (el.id) data[el.id] = el.value;
+        if (el.id) {
+            if (el.type === "checkbox") {
+                data[el.id] = el.checked;
+            } else {
+                data[el.id] = el.value;
+            }
+        }
     });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     updateSummary();
@@ -335,29 +513,27 @@ function loadData() {
 }
 
 function applyDataToForm(data) {
-    // 1. Clear existing dynamic drug rows to avoid duplicates
     const container = document.getElementById("treatment-container");
     const existingDrugs = container.querySelectorAll(".drug-row");
     existingDrugs.forEach(d => d.remove());
 
-    // 2. RECREATE the dynamic drug rows first
     Object.keys(data).forEach(key => {
         if (key.startsWith("date_drug_")) {
-            // Extract the original name from the ID 
-            // (e.g., "date_drug_amoxicilline" -> "amoxicilline")
             const drugName = key.replace("date_drug_", "").replace(/_/g, " ");
             addDrug(drugName, data[key]); 
         }
     });
 
-    // 3. NOW fill in all inputs (both static and the ones we just created)
     document.querySelectorAll("input, textarea").forEach(el => {
         if (el.id && data[el.id] !== undefined) {
-            el.value = data[el.id];
+            if (el.type === "checkbox") {
+                el.checked = data[el.id];
+            } else {
+                el.value = data[el.id];
+            }
         }
     });
     
-    // 4. Refresh UI components
     document.querySelectorAll("textarea").forEach(tx => autoResizeTextarea(tx));
     calcBMI();
     calcDays();
@@ -417,7 +593,7 @@ function saveAsPDF() {
 function exportJSON() {
     const data = {};
     document.querySelectorAll("input, textarea").forEach(el => {
-        if (el.id) data[el.id] = el.value;
+        if (el.id) data[el.id] = (el.type === "checkbox") ? el.checked : el.value;
     });
     const name = document.getElementById('nom').value || 'patient';
     const dateStr = new Date().toISOString().slice(0, 10);
@@ -452,7 +628,8 @@ function resetForm() {
     if (confirm("Voulez-vous vraiment effacer toutes les données ?")) {
         localStorage.removeItem(STORAGE_KEY);
         document.querySelectorAll("input, textarea").forEach(el => {
-            el.value = "";
+            if (el.type === "checkbox") el.checked = false;
+            else el.value = "";
             if (el.tagName === "TEXTAREA") autoResizeTextarea(el);
         });
         const drugRows = document.querySelectorAll(".drug-row");
@@ -472,6 +649,7 @@ function calcBMI() {
     if (poids && taille && taille > 0) {
         document.getElementById("bmi").value = (poids / (taille * taille)).toFixed(1);
     }
+    calcNora();
 }
 
 function calcDays() {
@@ -521,54 +699,56 @@ function updateSummary() {
         let sectionHtml = "";
         
         sec.querySelectorAll("input, textarea").forEach(el => {
-          
-            if (el.value && el.id !== "new_drug_name") {
-                let labelText = el.previousElementSibling ? el.previousElementSibling.textContent.split(':')[0].trim() : el.id;
-                
+            const isChecklist = secName === "Check-list";
+            
+            // Logic: 
+            // 1. If it's the checklist, show EVERYTHING (checked or not)
+            // 2. If it's NOT the checklist, only show if it has a value/is checked
+            const shouldShow = isChecklist || 
+                               (el.type === "checkbox" && el.checked) || 
+                               (el.value && el.id !== "new_drug_name" && el.type !== "checkbox");
+
+            if (shouldShow) {
+                let labelText = "";
+                if (el.type === "checkbox") {
+                    labelText = el.parentElement.querySelector('label').textContent.trim();
+                } else {
+                    labelText = el.previousElementSibling ? el.previousElementSibling.textContent.split(':')[0].trim() : el.id;
+                }
+
                 if (el.id.startsWith("date_drug_")) {
                     labelText = el.parentElement.querySelector('label').textContent.split(':')[0].trim();
                 }
-                // Inside updateSummary() loop:
-
               
-                let val = el.value;
+                // Define the value/icon
+                let val = "";
+                if (el.type === "checkbox") {
+                    if (el.checked) {
+                        val = "✅";
+                    } else {
+                        // Red symbol for unchecked items
+                        val = "<span style='color: red;'>❌</span>";
+                    }
+                } else {
+                    val = el.value;
+                }
                 
-                if (el.id === "Noradrenaline") {
+                // Specific Noradrenaline calculation display
+                if (el.id === "Noradrenaline" && el.value) {
                     const noraCalc = document.getElementById("nora_result").textContent;
                     const noraCalc2 = document.getElementById("nora_result2").textContent;
-
-                    val = `${el.value} ml/h ${noraCalc}(2amp) ${noraCalc2}(3amp) mcg/kg/min`;
+                    val = `${el.value} ml/h (${noraCalc} / ${noraCalc2} mcg/kg/min)`;
                 }
-                if (el.id === "Adrenaline") {
-                    val = `${el.value} ml/h`;
-                }
-                if (el.id === "Midazolam") {
-                    val = `${el.value} ml/h`;
-                }
-                if (el.id === "Fentanly") {
-                    val = `${el.value} ml/h`;
-                }
-                if (el.id === "SubFentanyl") {
-                    val = `${el.value} ml/h`;
-                }
-                if (el.id === "Rocuronium") {
-                    val = `${el.value} ml/h`;
-                }
-                 if (el.id === "Nicardepine") {
-                    val = `${el.value} ml/h`;
-                }
+                
+                // Date handling (J + X)
                 const spanId = "val_j_" + el.id.replace("date_", ""); 
                 const span = document.getElementById(spanId);
-                
-                if (span && span.textContent) {
+                if (span && span.textContent && el.value) {
                     val = `${span.textContent} (${val})`;
                 }
                 
-                // DECISION LOGIC: If it's a textarea, add a break, otherwise keep it on the same line
                 const separator = el.tagName === "TEXTAREA" ? "<br>" : ": ";
-                
                 sectionHtml += `<div class="summary-item"><strong>${labelText}</strong>${separator}${val}</div>`;
-
             }
         });
         if (sectionHtml) html += `<div class="summary-section"><div class="summary-section-title">${secName}</div>${sectionHtml}</div>`;
@@ -581,41 +761,23 @@ function manualSave() {
     alert("Données enregistrées localement"); 
 }
   
-  function calcNora() {
+function calcNora() {
     const dose = parseFloat(document.getElementById("Noradrenaline").value);
     const poids = parseFloat(document.getElementById("poids").value);
     const resultSpan = document.getElementById("nora_result");
     const resultSpan2 = document.getElementById("nora_result2");
 
-
     if (dose && poids && poids > 0) {
-        // Calculation: (Dose * 320 / 60) / Poids
         const result = (dose * 320 / 60) / poids;
         const result2= (dose * 480 / 60) / poids;
-
-        resultSpan.textContent = result.toFixed(2); // Shows 3 decimal places
-        resultSpan2.textContent = result2.toFixed(2); // Shows 3 decimal places
-
+        resultSpan.textContent = result.toFixed(2);
+        resultSpan2.textContent = result2.toFixed(2);
     } else {
         resultSpan.textContent = "0";
         resultSpan2.textContent = "0";
     }
 }
 
-// Update your existing calcBMI to also trigger calcNora
-function calcBMI() {
-    const poids = document.getElementById("poids").value;
-    const taille = document.getElementById("taille").value / 100;
-    
-    if (poids && taille && taille > 0) {
-        document.getElementById("bmi").value = (poids / (taille * taille)).toFixed(1);
-    }
-    
-    // Trigger Noradrenaline calculation whenever weight changes
-    calcNora(); 
-}
-
-// Event delegation for auto-save and auto-resize
 document.addEventListener("input", (e) => {
     if(e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
         saveData();
@@ -626,9 +788,8 @@ document.addEventListener("input", (e) => {
 });
 
 window.onload = loadData;
-  
 window.addEventListener("beforeunload", saveData);
-window.addEventListener("pagehide", saveData); // Specifically for iOS Safari
+window.addEventListener("pagehide", saveData); 
 </script>
 
 </body>
