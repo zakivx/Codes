@@ -56,7 +56,7 @@
         .button-group, h2, .section, #importFile, .drug-controls, .btn-delete { display: none !important; }
         body { background: white; padding: 0; }
         #summary { border: none; width: 100%; }
-        #summary h3 { font-size: 20px; }
+        #summary h3 { font-size: 20px; } 
     }
 </style>
 </head>
@@ -322,25 +322,30 @@ function loadData() {
 }
 
 function applyDataToForm(data) {
+    // 1. Clear existing dynamic drug rows to avoid duplicates
     const container = document.getElementById("treatment-container");
     const existingDrugs = container.querySelectorAll(".drug-row");
     existingDrugs.forEach(d => d.remove());
 
+    // 2. RECREATE the dynamic drug rows first
     Object.keys(data).forEach(key => {
         if (key.startsWith("date_drug_")) {
-            const drugLabel = key.replace("date_drug_", "").replace(/_/g, " ");
-            addDrug(drugLabel, data[key]);
+            // Extract the original name from the ID 
+            // (e.g., "date_drug_amoxicilline" -> "amoxicilline")
+            const drugName = key.replace("date_drug_", "").replace(/_/g, " ");
+            addDrug(drugName, data[key]); 
         }
     });
 
+    // 3. NOW fill in all inputs (both static and the ones we just created)
     document.querySelectorAll("input, textarea").forEach(el => {
         if (el.id && data[el.id] !== undefined) {
             el.value = data[el.id];
         }
     });
     
+    // 4. Refresh UI components
     document.querySelectorAll("textarea").forEach(tx => autoResizeTextarea(tx));
-
     calcBMI();
     calcDays();
     updateSummary();
@@ -545,6 +550,9 @@ document.addEventListener("input", (e) => {
 });
 
 window.onload = loadData;
+  
+window.addEventListener("beforeunload", saveData);
+window.addEventListener("pagehide", saveData); // Specifically for iOS Safari
 </script>
 
 </body>
