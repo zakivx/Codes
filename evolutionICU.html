@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evolution ICU</title>
+<style>
+    body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 10px; padding-bottom: 50px; }
+    h2 { background: #0d6efd; color: white; padding: 10px; border-radius: 6px; font-size: 18px; margin-top: 15px; }
+    .section { background: white; padding: 10px; border-radius: 6px; margin-bottom: 10px; border: 1px solid #ddd; }
+    label { font-weight: bold; display: block; margin-top: 8px; font-size: 14px; }
+    input, textarea { width: 100%; padding: 8px; margin-top: 4px; border-radius: 5px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; }
+    textarea { resize: vertical; min-height: 60px; }
+    
+    /* Layout for dynamic drugs */
+    .drug-row { display: flex; align-items: flex-end; gap: 10px; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 5px; }
+    .drug-row div { flex-grow: 1; }
+    .btn-delete { background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 14px;  flex-shrink: 0;flex: none;min-width: unset; }
+    .btn-delete:hover { background: #a71d2a; } 
+
+    /* Button Styling */
+    .button-group { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+    button { flex: 1; min-width: 140px; color: white; border: none; padding: 12px; font-size: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: opacity 0.2s; }
+    button:hover { opacity: 0.9; }
+    
+    .btn-save { background: #198754; } 
+    .btn-pdf { background: #dc3545; } 
+    .btn-export { background: #0dcaf0; } 
+    .btn-import { background: #6c757d; }
+    .btn-reset { background: #ffc107; color: #000; }
+    .btn-add-drug { background: #0d6efd; min-width: 80px; margin-top: 4px; flex: 0 1 auto; }
+    
+    #summary { background: #fff3cd; padding: 15px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; border: 1px solid #ffeeba; }
+    #summary h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+    .summary-section { margin-bottom: 10px; }
+    .summary-section-title { font-weight: bold; text-decoration: underline; margin-top: 5px; color: #333; }
+    .summary-item { margin-left: 10px; margin-top: 2px; }
+
+    /* PDF/Print Optimization */
+    @media print {
+        .button-group, h2, .section, #importFile, .drug-controls, .btn-delete { display: none !important; }
+        body { background: white; padding: 0; }
+        #summary { border: none; width: 100%; }
+        #summary h3 { font-size: 20px; }
+    }
+</style>
+</head>
+<body>
+
+<div id="summary">
+    <h3>Evolution Summary</h3>
+    <div id="summary-content">Aucune donnée saisie pour le moment.</div>
+</div>
+
+<div class="button-group">
+    <button class="btn-save" onclick="manualSave()">💾 Enregistrer</button>
+    <button class="btn-pdf" onclick="saveAsPDF()">📄 Générer PDF</button>
+    <button class="btn-export" onclick="exportJSON()">📤 Exporter JSON</button>
+    <button class="btn-import" onclick="document.getElementById('importFile').click()">📥 Importer JSON</button>
+    <button class="btn-reset" onclick="resetForm()">🔄 Réinitialiser</button>
+</div>
+
+<input type="file" id="importFile" style="display:none" accept=".json" onchange="importJSON(event)">
+
+<h2>Evolution</h2>
+<div class="section" data-section="Evolution">
+    <label>Date</label><input type="date" id="dateEvolution">
+    <label>Operateur</label><input id="Operateur">
+</div>
+  
+<h2>Identification</h2>
+<div class="section" data-section="Identification">
+    <label>Nom</label><input id="nom">
+    <label>Âge</label><input type="number" id="age">
+    <label>Sex</label><input id="sex">
+    <label>Antécédents</label><input id="antecedents">
+    <label>Transféré de</label><input id="transfert">
+    <label>Admis pour</label><input id="admission">
+    <label>Diagnostic</label><input id="diagnostic">
+    <label>Niveau de Soins</label><input id="NiveauSoins">
+</div>
+
+<h2>Scores</h2>
+<div class="section" data-section="Scores">
+    <label>APACHE IV Score (/286)</label><input id="APACHE">
+    <label>APS Score (/239)</label><input id="APSScore">
+    <label>Estimated Mortality Rate (%)</label><input id="EstimatedMortalityRate">
+    <label>Estimated Length of Stay (days)</label><input id="EstimatedLengthOfStay">
+    <label>Comorbidity Index</label><input id="ComorbidityIndex">
+    <label>10 yr survival (%)</label><input id="10yrsurvival">
+    <label>RASS</label><input id="RASS">
+    <label>FOUR</label><input id="FOUR">
+    <label>4AT</label><input id="4AT">
+    <label>Pain</label><input id="Pain">
+    <label>LIEGE</label><input id="LIEGE">
+    <label>MRC</label><input id="MRC">
+    <label>ICH</label><input id="ICH">
+    <label>Autres</label><textarea id="autreScore"></textarea>
+</div>
+  
+<h2>Plan General</h2>
+<div class="section" data-section="Plan General">
+    <label>Etat général</label><input id="etatGeneral">
+    <label>Syndrome hémoragique</label><input id="hémoragique">
+    <label>Syndrome oedemateux</label><input id="oedemateux">
+    <label>Temperature</label><input id="temperature">
+</div>
+
+<h2>Plan Neurologique</h2>
+<div class="section" data-section="Plan Neurologique">
+    <label>Conscience</label><input id="conscience">
+    <label>Coopérance</label><input id="cooperance">
+    <label>Sédation</label><input id="sedation">
+    <label>4AT score</label><input id="at4">
+    <label>Glasgow</label><input id="gcs">
+    <label>Pupilles</label><input id="pupilles">
+    <label>ROT</label><input id="rot">
+    <label>Réflexe de toux</label><input id="toux">
+    <label>Réflexe de déglutition</label><input id="deglutition">
+    <label>Autres</label><textarea id="autreNeuro"></textarea>
+</div>
+
+<h2>Plan Respiratoire</h2>
+<div class="section" data-section="Plan Respiratoire">
+    <label>Ventilé</label><input id="ventile">
+    <label>Mode</label><input id="mode_ventil">
+    <label>Sécrétions</label><input id="secretions">
+    <label>FR</label><input type="number" id="fr">
+    <label>SpO2</label><input type="number" id="spo2">
+    <label>Auscultation</label><input id="auscultationResp">
+    <label>Gazometrie</label><input id="gazo">
+    <label>Radiothorax</label><input id="radio">
+    <label>Autres</label><textarea id="autreResp"></textarea>
+</div>
+  
+<h2>Ventilation</h2>
+<div class="section" data-section="Ventilation">
+    <label>FiO2</label><input id="FiO2">
+    <label>MODE </label><input id="MODE">
+    <label>PEEP </label><input id="PEEP">
+    <label>Peak</label><input id="Peak">
+    <label>Aide</label><input  id="Aide">
+    <label>Volume courant</label><input id="VolumeCourant">
+    <label>Pression inspiratoire</label><input id="PressionInspiratoire">
+    <label>FR</label><input id="FR">
+    <label>I:E</label><input id="IE">
+    <label>Compliance</label><input id="Compliance">
+    <label>Resistance</label><input id="Resistance">
+    <label>P.01</label><input id="P01">
+    <label>NIF</label><input id="NIF">
+    <label>Autres</label><textarea id="autreVenti"></textarea>
+</div>
+
+<h2>Plan Cardiovasculaire</h2>
+<div class="section" data-section="Plan Cardiovasculaire">
+    <label>Hémodynamique</label><input id="hemodynamique">
+    <label>Tension arteriel</label><input id="Tension">
+    <label>FC</label><input id="FC">
+    <label>Pouls</label><input id="pouls">
+    <label>Perfusion</label><input id="perfusion">
+    <label>Auscultation</label><input id="auscultationCardio">
+    <label>ECG</label><input id="ecg">
+    <label>Autres</label><textarea id="autreCardio"></textarea>
+</div>
+
+<h2>Plan Rénal</h2>
+<div class="section" data-section="Plan Rénal">
+    <label>Diurèse</label><input id="diurese">
+    <label>Examen des urines</label><input id="Urine">
+    <label>Bilan rénal</label><input id="bilan_renal">
+    <label>Autres</label><textarea id="autreRenal"></textarea>
+</div>
+
+<h2>Plan Gastro</h2>
+<div class="section" data-section="Plan Gastro">
+    <label>Palpation</label><input id="Palpation">
+    <label>Auscultation</label><input id="AuscultationAbdo">
+    <label>Transit</label><input id="Transit">
+    <label>Autres</label><textarea id="autreGastro"></textarea>
+</div>
+
+<h2>Imagerie</h2>
+<div class="section" data-section="Imagerie">
+    <label>Resultats</label><textarea id="imagerie"></textarea>
+</div>
+  
+  
+<h2>Bilans</h2>
+<div class="section" data-section="Bilans">
+    <label>WBC</label><input id="WBC">
+    <label>CRP</label><input id="CRP">
+    <label>Procalcitonne</label><input id="Procalcitonne">
+    <label>Hémoglobin</label><input id="Hémoglobin">
+    <label>Plaquettes</label><input id="Plaquettes">
+    <label>TP</label><input id="TP">
+    <label>INR</label><input id="INR">
+    <label>TCK</label><input id="TCK">
+    <label>Fibrino</label><input id="Fibrino">
+    <label>Urée</label><input id="Urée">
+    <label>Créatinine</label><input id="Créatinine">
+    <label>Na+</label><input id="Na">
+    <label>K+</label><input id="K">
+    <label>Mg2+</label><input id="Mg2">
+    <label>Ca2+</label><input id="Ca2">
+    <label>PO42-</label><input id="PO42">
+    <label>Cl-</label><input id="Cl">
+    <label>Bili</label><input id="Bili">
+    <label>AST</label><input id="AST">
+    <label>ALT</label><input id="ALT">
+    <label>AlkP</label><input id="AlkP">
+    <label>GGT</label><input id="GGT">
+  <label>Autres</label><textarea id="autreBilans"></textarea>
+</div>
+  
+<h2>Autres</h2>
+<div class="section" data-section="Autres">
+    <label>Plan microbiologique</label><input id="microbio">
+    <label>Anticoagulation</label><input id="anticoag">
+    <label>Nutrition</label><input id="nutrition">
+    <label>Dermatologique</label><input id="dermato">
+    <label>Balance hydrique</label><input id="balance">
+    <label>Thromboprophylaxie</label><input id="thromboprophylaxie">
+</div>
+  
+<h2>Traimtment</h2>
+<div class="section" id="treatment-container" data-section="Traimtment">
+  <label>Médicaments</label><textarea id="Médicaments"></textarea>
+  <label>Dates</label>
+    <div class="drug-controls" style="display: flex; gap: 10px; margin-bottom: 10px;">
+        <input type="text" id="new_drug_name" placeholder="Nom du médicament (ex: amoxicilline)" style="flex: 3;">
+        <button type="button" class="btn-add-drug" onclick="addDrug()">Ajouter</button>
+    </div>
+    <hr>
+</div>
+
+<h2>Anthropométrie & Ventilation</h2>
+<div class="section" data-section="Anthropométrie & Ventilation">
+    <label>Numero de sonde ET</label><input id="numET">
+    <label>Poids réel (kg)</label><input type="number" id="poids" oninput="calcBMI()">
+    <label>Taille (cm)</label><input type="number" id="taille" oninput="calcBMI()">
+    <label>BMI</label><input id="bmi" readonly>
+    <label>Poids idéal</label><input type="number" id="poids_ideal">
+    <label>Poids ajusté</label><input type="number" id="poids_ajuste">
+    <label>Volume tidal (ml)</label><input type="number" id="vt">
+    <label>Objectifs nutritionnels</label><input id="obj_nutrition">
+</div>
+
+<h2>Datation</h2>
+<div class="section" data-section="Datation">
+    <label>Date d’hospitalisation : <span id="val_j_hospitalisation"></span></label>
+    <input type="date" id="date_hospitalisation" onchange="calcDays()">
+    <label>Date d’admission : <span id="val_j_admission"></span></label>
+    <input type="date" id="date_admission" onchange="calcDays()">
+    <label>Date post-op : <span id="val_j_postop"></span></label>
+    <input type="date" id="date_postop" onchange="calcDays()">
+    <label>Date trachéotomie : <span id="val_j_tracheo"></span></label>
+    <input type="date" id="date_tracheo" onchange="calcDays()">
+    <label>Date cathéter veineux central : <span id="val_j_cvc"></span></label>
+    <input type="date" id="date_cvc" onchange="calcDays()">
+    <label>Date cathéter artériel : <span id="val_j_ca"></span></label>
+    <input type="date" id="date_ca" onchange="calcDays()">
+    <label>Date sonde urinaire : <span id="val_j_sonde_urinaire"></span></label>
+    <input type="date" id="date_sonde_urinaire" onchange="calcDays()">
+    <label>Date sonde nasogastrique : <span id="val_j_sonde_ng"></span></label>
+    <input type="date" id="date_sonde_ng" onchange="calcDays()">
+    <label>Date écho thrombose : <span id="val_j_echo_thrombose"></span></label>
+    <input type="date" id="date_echo_thrombose" onchange="calcDays()">
+    <label>Date HFNO2 : <span id="val_j_hfno2"></span></label>
+    <input type="date" id="date_hfno2" onchange="calcDays()">
+    <label>Date ventilation invasive : <span id="val_j_vent_invasive"></span></label>
+    <input type="date" id="date_vent_invasive" onchange="calcDays()">
+    <label>Date ventilation non invasive : <span id="val_j_vent_noninvasive"></span></label>
+    <input type="date" id="date_vent_noninvasive" onchange="calcDays()">
+</div>
+
+<script>
+const STORAGE_KEY = "icu_patient_data";
+
+// 1. CORE DATA FUNCTIONS
+function saveData() {
+    const data = {};
+    document.querySelectorAll("input, textarea").forEach(el => {
+        if (el.id) data[el.id] = el.value;
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    updateSummary();
+}
+
+function loadData() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+    applyDataToForm(JSON.parse(saved));
+}
+
+function applyDataToForm(data) {
+    // Clear dynamic drugs from the UI before re-adding (prevents duplicates on reload)
+    const container = document.getElementById("treatment-container");
+    const existingDrugs = container.querySelectorAll(".drug-row");
+    existingDrugs.forEach(d => d.remove());
+
+    // 1. Recreate dynamic drugs from the saved data
+    Object.keys(data).forEach(key => {
+        if (key.startsWith("date_drug_")) {
+            const drugLabel = key.replace("date_drug_", "").replace(/_/g, " ");
+            addDrug(drugLabel, data[key]);
+        }
+    });
+
+    // 2. Fill all inputs (static + the dynamic ones just created)
+    document.querySelectorAll("input, textarea").forEach(el => {
+        if (el.id && data[el.id] !== undefined) {
+            el.value = data[el.id];
+        }
+    });
+    calcBMI();
+    calcDays();
+    updateSummary();
+}
+
+// 2. TREATMENT / DRUG DYNAMIC FUNCTIONS
+function addDrug(name = null, dateValue = "") {
+    const drugInput = document.getElementById("new_drug_name");
+    const drugName = name || drugInput.value.trim();
+    if (!drugName) return;
+
+    const container = document.getElementById("treatment-container");
+    const drugId = drugName.toLowerCase().replace(/\s+/g, '_');
+    
+    if (document.getElementById("date_drug_" + drugId) && !name) {
+        alert("Ce médicament existe déjà.");
+        return;
+    }
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "drug-row";
+    wrapper.id = "wrapper_drug_" + drugId;
+    
+    // We added an explicit call to calcDays() inside the template 
+    // and ensured the value is set BEFORE appending to DOM
+    wrapper.innerHTML = `
+        <div>
+            <label>${drugName} : <span id="val_j_drug_${drugId}"></span></label>
+            <input type="date" id="date_drug_${drugId}" value="${dateValue}" oninput="calcDays(); saveData();">
+        </div>
+        <button type="button" class="btn-delete" onclick="deleteDrug('${drugId}')" title="Supprimer">🗑️</button>
+    `;
+    
+    container.appendChild(wrapper);
+    if(!name) drugInput.value = ""; 
+    
+    // Crucial: Calculate days immediately after adding to UI
+    calcDays();
+    saveData();
+}
+
+function deleteDrug(drugId) {
+    if (confirm("Supprimer ce médicament ?")) {
+        const row = document.getElementById("wrapper_drug_" + drugId);
+        if (row) {
+            row.remove();
+            saveData();
+            updateSummary();
+        }
+    }
+}
+
+// 3. UTILITY FUNCTIONS
+function saveAsPDF() {
+    updateSummary();
+    window.print();
+}
+
+function exportJSON() {
+    const data = {};
+    document.querySelectorAll("input, textarea").forEach(el => {
+        if (el.id) data[el.id] = el.value;
+    });
+    const name = document.getElementById('nom').value || 'patient';
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const filename = `ICU_${name}_${dateStr}.json`;
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function importJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            applyDataToForm(data);
+            saveData();
+            alert("Données importées !");
+        } catch (err) {
+            alert("Erreur: Fichier JSON invalide");
+        }
+    };
+    reader.readAsText(file);
+}
+
+function resetForm() {
+    if (confirm("Voulez-vous vraiment effacer toutes les données ?")) {
+        // Clear storage
+        localStorage.removeItem(STORAGE_KEY);
+
+        // Clear all standard inputs
+        document.querySelectorAll("input, textarea").forEach(el => {
+            el.value = "";
+        });
+
+        // Remove all dynamic drug rows
+        const drugRows = document.querySelectorAll(".drug-row");
+        drugRows.forEach(row => row.remove());
+
+        // Clear all "J X" display spans
+        document.querySelectorAll("[id^='val_j_']").forEach(span => {
+            span.textContent = "";
+        });
+
+        // Update the summary UI instantly
+        updateSummary(); 
+        
+        // Reset BMI display
+        document.getElementById("bmi").value = "";
+    }
+}
+
+// 4. CALCULATIONS
+function calcBMI() {
+    const poids = document.getElementById("poids").value;
+    const taille = document.getElementById("taille").value / 100;
+    if (poids && taille && taille > 0) {
+        document.getElementById("bmi").value = (poids / (taille * taille)).toFixed(1);
+    }
+}
+
+function calcDays() {
+    const today = new Date(); 
+    today.setHours(0, 0, 0, 0);
+
+    // Collect all static date fields
+    let jFields = [
+        ["date_hospitalisation","val_j_hospitalisation"],["date_admission","val_j_admission"], ["date_postop","val_j_postop"], 
+        ["date_tracheo","val_j_tracheo"], ["date_cvc","val_j_cvc"], 
+        ["date_ca","val_j_ca"], ["date_sonde_urinaire","val_j_sonde_urinaire"],
+        ["date_sonde_ng","val_j_sonde_ng"], ["date_echo_thrombose","val_j_echo_thrombose"],
+        ["date_hfno2","val_j_hfno2"], ["date_vent_invasive","val_j_vent_invasive"], 
+        ["date_vent_noninvasive","val_j_vent_noninvasive"]
+    ];
+
+    // Add dynamic drug fields
+    document.querySelectorAll("input[id^='date_drug_']").forEach(el => {
+        const spanId = "val_j_" + el.id.replace("date_", "");
+        jFields.push([el.id, spanId]);
+    });
+
+    jFields.forEach(pair => {
+        const dateInput = document.getElementById(pair[0]);
+        const displaySpan = document.getElementById(pair[1]);
+        
+        if (dateInput && displaySpan && dateInput.value) {
+            const parts = dateInput.value.split('-');
+            // Force local time creation
+            const d = new Date(parts[0], parts[1] - 1, parts[2]);
+            d.setHours(0, 0, 0, 0);
+            
+            const diffTime = today.getTime() - d.getTime();
+            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+            
+            // J 1 for today, J 2 for yesterday, etc.
+            displaySpan.textContent = diffDays >= 0 ? "J " + (diffDays + 1) : "";
+        } else if (displaySpan) { 
+            displaySpan.textContent = "";
+        }
+    });
+}
+
+// 5. SUMMARY UI
+function updateSummary() {
+    const summaryDiv = document.getElementById("summary-content");
+    const sections = document.querySelectorAll(".section[data-section]");
+    let html = "";
+    
+    sections.forEach(sec => {
+        const secName = sec.getAttribute("data-section");
+        let sectionHtml = "";
+        
+        sec.querySelectorAll("input, textarea").forEach(el => {
+            // Skip the add-drug input box itself
+            if (el.value && el.id !== "new_drug_name") {
+                let label = el.previousElementSibling ? el.previousElementSibling.textContent.split(':')[0].trim() : el.id;
+                
+                // For dynamic drugs, extract name from label
+                if (el.id.startsWith("date_drug_")) {
+                    label = el.parentElement.querySelector('label').textContent.split(':')[0].trim();
+                }
+
+                let val = el.value;
+                const spanId = "val_j_" + el.id.replace("date_", "");
+                const span = document.getElementById(spanId);
+                if (span && span.textContent) {
+                    val = `${span.textContent} (${val})`;
+                }
+                sectionHtml += `<div class="summary-item"><strong>${label}</strong>: ${val}</div>`;
+            }
+        });
+        if (sectionHtml) html += `<div class="summary-section"><div class="summary-section-title">${secName}</div>${sectionHtml}</div>`;
+    });
+    summaryDiv.innerHTML = html || "Aucune donnée saisie pour le moment.";
+}
+
+function manualSave() { 
+    saveData(); 
+    alert("Données enregistrées localement"); 
+}
+
+// Event delegation for auto-save
+document.addEventListener("input", (e) => {
+    if(e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
+        saveData();
+    }
+});
+
+window.onload = loadData;
+</script>
+
+</body>
+</html>
