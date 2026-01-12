@@ -10,7 +10,15 @@
     .section { background: white; padding: 10px; border-radius: 6px; margin-bottom: 10px; border: 1px solid #ddd; }
     label { font-weight: bold; display: block; margin-top: 8px; font-size: 14px; }
     input, textarea { width: 100%; padding: 8px; margin-top: 4px; border-radius: 5px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; }
-    textarea { resize: vertical; min-height: 60px; }
+    
+    /* Auto-fit Textarea Styling */
+    textarea { 
+        resize: none; 
+        min-height: 60px; 
+        max-height: 200px; 
+        overflow-y: hidden; 
+        transition: height 0.1s ease;
+    }
     
     /* Layout for dynamic drugs */
     .drug-row { display: flex; align-items: flex-end; gap: 10px; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 5px; }
@@ -34,7 +42,14 @@
     #summary h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
     .summary-section { margin-bottom: 10px; }
     .summary-section-title { font-weight: bold; text-decoration: underline; margin-top: 5px; color: #333; }
-    .summary-item { margin-left: 10px; margin-top: 2px; }
+    
+    /* FIX: Preservation of line breaks in summary */
+.summary-item { 
+        margin-left: 10px; 
+        margin-top: 5px; /* Slightly more space between items */
+        white-space: pre-line; 
+        line-height: 1.4; /* Better readability for multi-line text */
+    }
 
     /* PDF/Print Optimization */
     @media print {
@@ -128,7 +143,7 @@
     <label>FR</label><input type="number" id="fr">
     <label>SpO2</label><input type="number" id="spo2">
     <label>Auscultation</label><input id="auscultationResp">
-    <label>Gazometrie</label><input id="gazo">
+    <label>Gazometrie</label><textarea id="gazo"></textarea>
     <label>Radiothorax</label><input id="radio">
     <label>Autres</label><textarea id="autreResp"></textarea>
 </div>
@@ -155,6 +170,7 @@
 <div class="section" data-section="Plan Cardiovasculaire">
     <label>Hémodynamique</label><input id="hemodynamique">
     <label>Tension arteriel</label><input id="Tension">
+    <label>PAM</label><input id="PAM">
     <label>FC</label><input id="FC">
     <label>Pouls</label><input id="pouls">
     <label>Perfusion</label><input id="perfusion">
@@ -214,7 +230,7 @@
   
 <h2>Autres</h2>
 <div class="section" data-section="Autres">
-    <label>Plan microbiologique</label><input id="microbio">
+    <label>Plan microbiologique</label><textarea id="microbio"></textarea>
     <label>Anticoagulation</label><input id="anticoag">
     <label>Nutrition</label><input id="nutrition">
     <label>Dermatologique</label><input id="dermato">
@@ -276,6 +292,19 @@
 <script>
 const STORAGE_KEY = "icu_patient_data";
 
+// Auto-resize function
+function autoResizeTextarea(el) {
+    el.style.height = 'auto';
+    const newHeight = el.scrollHeight;
+    el.style.height = newHeight + 'px';
+    
+    if (newHeight >= 200) {
+        el.style.overflowY = 'auto';
+    } else {
+        el.style.overflowY = 'hidden';
+    }
+}
+
 // 1. CORE DATA FUNCTIONS
 function saveData() {
     const data = {};
@@ -293,12 +322,10 @@ function loadData() {
 }
 
 function applyDataToForm(data) {
-    // Clear dynamic drugs from the UI before re-adding (prevents duplicates on reload)
     const container = document.getElementById("treatment-container");
     const existingDrugs = container.querySelectorAll(".drug-row");
     existingDrugs.forEach(d => d.remove());
 
-    // 1. Recreate dynamic drugs from the saved data
     Object.keys(data).forEach(key => {
         if (key.startsWith("date_drug_")) {
             const drugLabel = key.replace("date_drug_", "").replace(/_/g, " ");
@@ -306,12 +333,14 @@ function applyDataToForm(data) {
         }
     });
 
-    // 2. Fill all inputs (static + the dynamic ones just created)
     document.querySelectorAll("input, textarea").forEach(el => {
         if (el.id && data[el.id] !== undefined) {
             el.value = data[el.id];
         }
     });
+    
+    document.querySelectorAll("textarea").forEach(tx => autoResizeTextarea(tx));
+
     calcBMI();
     calcDays();
     updateSummary();
@@ -335,8 +364,6 @@ function addDrug(name = null, dateValue = "") {
     wrapper.className = "drug-row";
     wrapper.id = "wrapper_drug_" + drugId;
     
-    // We added an explicit call to calcDays() inside the template 
-    // and ensured the value is set BEFORE appending to DOM
     wrapper.innerHTML = `
         <div>
             <label>${drugName} : <span id="val_j_drug_${drugId}"></span></label>
@@ -348,7 +375,6 @@ function addDrug(name = null, dateValue = "") {
     container.appendChild(wrapper);
     if(!name) drugInput.value = ""; 
     
-    // Crucial: Calculate days immediately after adding to UI
     calcDays();
     saveData();
 }
@@ -406,27 +432,17 @@ function importJSON(event) {
 
 function resetForm() {
     if (confirm("Voulez-vous vraiment effacer toutes les données ?")) {
-        // Clear storage
         localStorage.removeItem(STORAGE_KEY);
-
-        // Clear all standard inputs
         document.querySelectorAll("input, textarea").forEach(el => {
             el.value = "";
+            if (el.tagName === "TEXTAREA") autoResizeTextarea(el);
         });
-
-        // Remove all dynamic drug rows
         const drugRows = document.querySelectorAll(".drug-row");
         drugRows.forEach(row => row.remove());
-
-        // Clear all "J X" display spans
         document.querySelectorAll("[id^='val_j_']").forEach(span => {
             span.textContent = "";
         });
-
-        // Update the summary UI instantly
         updateSummary(); 
-        
-        // Reset BMI display
         document.getElementById("bmi").value = "";
     }
 }
@@ -444,7 +460,6 @@ function calcDays() {
     const today = new Date(); 
     today.setHours(0, 0, 0, 0);
 
-    // Collect all static date fields
     let jFields = [
         ["date_hospitalisation","val_j_hospitalisation"],["date_admission","val_j_admission"], ["date_postop","val_j_postop"], 
         ["date_tracheo","val_j_tracheo"], ["date_cvc","val_j_cvc"], 
@@ -454,7 +469,6 @@ function calcDays() {
         ["date_vent_noninvasive","val_j_vent_noninvasive"]
     ];
 
-    // Add dynamic drug fields
     document.querySelectorAll("input[id^='date_drug_']").forEach(el => {
         const spanId = "val_j_" + el.id.replace("date_", "");
         jFields.push([el.id, spanId]);
@@ -466,14 +480,11 @@ function calcDays() {
         
         if (dateInput && displaySpan && dateInput.value) {
             const parts = dateInput.value.split('-');
-            // Force local time creation
             const d = new Date(parts[0], parts[1] - 1, parts[2]);
             d.setHours(0, 0, 0, 0);
             
             const diffTime = today.getTime() - d.getTime();
             const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-            
-            // J 1 for today, J 2 for yesterday, etc.
             displaySpan.textContent = diffDays >= 0 ? "J " + (diffDays + 1) : "";
         } else if (displaySpan) { 
             displaySpan.textContent = "";
@@ -492,22 +503,25 @@ function updateSummary() {
         let sectionHtml = "";
         
         sec.querySelectorAll("input, textarea").forEach(el => {
-            // Skip the add-drug input box itself
             if (el.value && el.id !== "new_drug_name") {
-                let label = el.previousElementSibling ? el.previousElementSibling.textContent.split(':')[0].trim() : el.id;
+                let labelText = el.previousElementSibling ? el.previousElementSibling.textContent.split(':')[0].trim() : el.id;
                 
-                // For dynamic drugs, extract name from label
                 if (el.id.startsWith("date_drug_")) {
-                    label = el.parentElement.querySelector('label').textContent.split(':')[0].trim();
+                    labelText = el.parentElement.querySelector('label').textContent.split(':')[0].trim();
                 }
 
                 let val = el.value;
                 const spanId = "val_j_" + el.id.replace("date_", "");
                 const span = document.getElementById(spanId);
+                
                 if (span && span.textContent) {
                     val = `${span.textContent} (${val})`;
                 }
-                sectionHtml += `<div class="summary-item"><strong>${label}</strong>: ${val}</div>`;
+                
+                // DECISION LOGIC: If it's a textarea, add a break, otherwise keep it on the same line
+                const separator = el.tagName === "TEXTAREA" ? "<br>" : ": ";
+                
+                sectionHtml += `<div class="summary-item"><strong>${labelText}</strong>${separator}${val}</div>`;
             }
         });
         if (sectionHtml) html += `<div class="summary-section"><div class="summary-section-title">${secName}</div>${sectionHtml}</div>`;
@@ -520,10 +534,13 @@ function manualSave() {
     alert("Données enregistrées localement"); 
 }
 
-// Event delegation for auto-save
+// Event delegation for auto-save and auto-resize
 document.addEventListener("input", (e) => {
     if(e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
         saveData();
+        if (e.target.tagName === "TEXTAREA") {
+            autoResizeTextarea(e.target);
+        }
     }
 });
 
