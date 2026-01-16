@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Substance Converter</title>
+<style>
+    /* Reset some defaults for mobile */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        max-width: 480px;
+        margin: auto;
+        background-color: #f7f7f7;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 1.5rem;
+    }
+
+    label {
+        display: block;
+        margin-top: 15px;
+        font-weight: bold;
+        font-size: 1rem;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+        width: 100%;
+        padding: 12px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+        font-size: 1rem;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+    }
+
+    .dropdown {
+        position: relative;
+        width: 100%;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #fff;
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        width: 100%;
+        z-index: 1000;
+        border-radius: 6px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .dropdown-content div {
+        padding: 10px;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .dropdown-content div:hover {
+        background-color: #e0e0e0;
+    }
+
+    #converter {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+        body {
+            padding: 15px;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            padding: 14px;
+            font-size: 1.1rem;
+        }
+
+        .dropdown-content div {
+            padding: 12px;
+            font-size: 1.1rem;
+        }
+    }
+</style>
+</head>
+<body>
+  <header style="background:#007bff; color:#fff; padding:10px; margin-bottom: 20px; text-align:center;">
+  <a href="https://zakivx.github.io/Codes/medicalTools.html" style="color:#fff; text-decoration:none; font-weight:bold;"> ← Back to Medical Tools </a>
+</header>
+<h2>Units Converter</h2>
+
+<label for="substance-search">Choose a substance:</label>
+<div class="dropdown">
+    <input type="text" id="substance-search" placeholder="Search for a substance...">
+    <div class="dropdown-content" id="substance-list"></div>
+</div>
+
+<div id="converter"><p>Please choose a substance above to start converting.</p></div>
+
+<script>
+const substances = {
+    "calcium": {
+        name: "Calcium",
+        conversions: {
+            "mg": 1000,
+            "g": 1,
+            "mmol": 24.95,
+            "meq": 49.90,
+            "Calcium Chloride (g)": 3.7,
+            "Calcium Gluconate (g)": 10.99
+        }
+    },
+    "magnesium": {
+        name: "Magnesium",
+        conversions: {
+            "mg": 1000,
+            "g": 1,
+            "mmol": 41.14,
+            "meq": 82.28,
+            "Sulfate de Magnesium (g)": 10.27
+        }
+    },
+    "sodium": {
+        name: "Sodium",
+        conversions: {
+            "mg": 1000,
+            "g": 1,
+            "mmol": 43.49,
+            "meq": 43.49,
+            "NaCl (g)": 2.54,
+            "NaCl 10% (mL)": 25.4
+        }
+    },
+    "Potassium ": {
+        name: "Potassium",
+        conversions: {
+            "mg": 1000,
+            "g": 1,
+            "mmol": 25.57,
+            "meq": 25.57,
+            "KCl (g)": 1.918,
+            "KCl 10% (mL)": 19.18,
+            "KALIGON 15% (mL)" :6.66,
+        }
+    },
+    "Creatinine": {
+        name: "Creatinine",
+        conversions: {
+            "mg/L": 1,
+            "mg/dL": 0.1,
+            "µmol/L": 8.84,
+        }
+    }
+};
+
+let currentSubstance = null;
+
+const searchInput = document.getElementById("substance-search");
+const listContainer = document.getElementById("substance-list");
+
+// Populate dropdown list
+function populateList(filter = "") {
+    listContainer.innerHTML = "";
+    const keys = Object.keys(substances);
+    keys.forEach(key => {
+        if (substances[key].name.toLowerCase().includes(filter.toLowerCase())) {
+            const div = document.createElement("div");
+            div.textContent = substances[key].name;
+            div.dataset.key = key;
+            div.addEventListener("click", () => {
+                currentSubstance = key;
+                searchInput.value = substances[key].name;
+                listContainer.style.display = "none";
+                createConverter(currentSubstance);
+            });
+            listContainer.appendChild(div);
+        }
+    });
+    listContainer.style.display = keys.some(k => substances[k].name.toLowerCase().includes(filter.toLowerCase())) ? "block" : "none";
+}
+
+// Search as you type
+searchInput.addEventListener("input", () => populateList(searchInput.value));
+
+// Hide dropdown when clicking outside
+document.addEventListener("click", (e) => {
+    if (!e.target.closest(".dropdown")) {
+        listContainer.style.display = "none";
+    }
+});
+
+// Create converter inputs
+function createConverter(substanceKey) {
+    const container = document.getElementById("converter");
+    container.innerHTML = '';
+    const substance = substances[substanceKey];
+
+    for (const [unit, valuePerGram] of Object.entries(substance.conversions)) {
+        const label = document.createElement("label");
+        label.textContent = unit + ":";
+        const input = document.createElement("input");
+        input.type = "number";
+        input.step = "any";
+        input.value = unit === "g" ? 1 : (1 * valuePerGram).toFixed(2);
+        input.dataset.unit = unit;
+        input.addEventListener("input", () => updateValues(unit, parseFloat(input.value)));
+        container.appendChild(label);
+        container.appendChild(input);
+    }
+}
+
+// Update all values
+function updateValues(changedUnit, value) {
+    const substance = substances[currentSubstance];
+    const inputs = document.querySelectorAll("#converter input");
+    let grams;
+
+    if (changedUnit === "g") grams = value;
+    else if (changedUnit === "mg") grams = value / substance.conversions["mg"];
+    else grams = value / substance.conversions[changedUnit];
+
+    inputs.forEach(input => {
+        const unit = input.dataset.unit;
+        if (unit !== changedUnit) {
+            input.value = (grams * substance.conversions[unit]).toFixed(2);
+        }
+    });
+}
+</script>
+</body>
+</html>
