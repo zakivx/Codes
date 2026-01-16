@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Nutrition Calculator — Auto BMI & Auto Save</title>
+<title>Nutrition Calculator — Clinical Logic</title>
 <style>
   body { font-family: Arial, sans-serif; padding: 18px; max-width:900px; margin:auto; }
   .section { border: 1px solid #ccc; padding: 14px; margin-top: 18px; border-radius: 8px; position: relative; }
   h2 { margin-top: 0; }
-  input { padding: 8px; margin: 6px 0; width: 100%; box-sizing: border-box; }
+  input, select { padding: 8px; margin: 6px 0; width: 100%; box-sizing: border-box; }
   .result { background: #f7f7f7; padding: 10px; margin-top: 10px; border-radius: 6px; }
   .item { margin-top: 8px; padding: 8px; background: #eef; border-radius: 6px; }
   .item div { flex:1 ; height : -webkit-fill-available}
@@ -16,252 +16,374 @@
   .suggestions div { padding: 8px; cursor: pointer; }
   .suggestions div:hover { background:#def; }
   label.small { font-size:12px; margin-top:6px; display:block; color:#333; }
-  button.small {     padding: 6px 10px;
-    width: auto;
-    position: relative;
-    float: right; }
+  button.small { padding: 6px 10px; width: auto; position: relative; float: right; }
+  .warning { color: #d9534f; font-weight: bold; }
+  .safe { color: #5cb85c; font-weight: bold; }
+  .neutral { color: #666; font-style: italic; font-size: 0.9em; }
+  .target-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em; }
+  .target-table td { padding: 5px; border-bottom: 1px solid #eee; }
+  .target-table tr:last-child td { border-bottom: none; }
+  .weight-label { color: #007bff; font-weight: bold; text-decoration: underline; }
 </style>
 </head>
 <body>
 <header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
-  <a href="https://zakivx.github.io/Codes/medicalTools.html" 
-     style="color:#fff; text-decoration:none; font-weight:bold;">
-    ← Back to Medical Tools
-  </a>
+  <a href="https://zakivx.github.io/Codes/medicalTools.html" style="color:#fff; text-decoration:none; font-weight:bold;"> ← Back to Medical Tools </a>
 </header>
 <h1>Nutrition Calculator</h1>
 
-<label>Weight (kg)</label>
-<input type="number" id="weight" />
+<div style="display: flex; gap: 10px;">
+  <div style="flex:1;">
+    <label>Gender</label>
+    <select id="gender">
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+  </div>
+  <div style="flex:1;">
+    <label>Age (years)</label>
+    <input type="number" id="age" />
+  </div>
+</div>
 
+<label>Actual Weight (kg)</label>
+<input type="number" id="weight" />
 <label>Tall (cm)</label>
 <input type="number" id="tall" />
-
-<label>Calorie Target (kcal)</label>
-<input type="number" id="calTarget" />
-
-<label>Protein Target (g)</label>
-<input type="number" id="protTarget" />
+<label style="display:none">Manual Calorie Target (kcal)</label>
+<input type="number" style="display:none"id="calTarget" />
+<label style="display:none">Manual Protein Target (g)</label>
+<input type="number" style="display:none" id="protTarget" />
 
 <div class="result" id="results"></div>
 
+<div class="section" id="targetSection">
+  <h2>Calculated Targets</h2>
+  <div id="targetDisplay"><i>Enter data to see targets...</i></div>
+</div>
+
 <div class="section" id="parenteralSection">
   <h2>Parenteral Products</h2>
-  <input type="text" id="parenteralSearch" placeholder="Type product name (e.g. O)..." autocomplete="off" />
+  <input type="text" id="parenteralSearch" placeholder="Search..." autocomplete="off" />
   <div id="parenteralSuggestions" class="suggestions" style="display:none"></div>
-  <label class="small">Click a suggestion to add it to the selection (quantity will start at 0)</label>
   <div id="parenteralList"></div>
 </div>
 
 <div class="section" id="enteralSection">
   <h2>Enteral Products</h2>
-  <input type="text" id="enteralSearch" placeholder="Type product name (e.g. N)..." autocomplete="off" />
+  <input type="text" id="enteralSearch" placeholder="Search..." autocomplete="off" />
   <div id="enteralSuggestions" class="suggestions" style="display:none"></div>
-  <label class="small">Click a suggestion to add it to the selection (quantity will start at 0)</label>
   <div id="enteralList"></div>
 </div>
 
 <div class="section">
   <h2>Totals</h2>
   <div id="totals">Kcal: 0 | Protein: 0 g | mL: 0</div>
+  <div id="electrolyteTotals" style="font-size: 0.9em; margin-top: 5px; color: #555;">Na: 0 | K: 0 | Mg: 0 | Ca: 0 (mmol)</div>
+  <div id="ivSafety" style="font-size: 0.85em; margin-top: 12px; border-top: 2px solid #007bff; padding-top: 10px; line-height: 1.6;"></div>
 </div>
 
 <script>
 const products = {
   parenteral: {
-    "Oliclinomel N4-550": { kcal: 610, protein: 22, liquid: true, base: 1000 },
-    "Oliclinomel N4-550E": { kcal: 610, protein: 22, liquid: true, base: 1000 },
-    "Oliclinomel N7-1000": { kcal: 1200, protein: 40, liquid: true, base: 1000 },
-    "Oliclinomel N7-1000E": { kcal: 1200, protein: 40, liquid: true, base: 1000 },
-    "Glucose 5%": { kcal: 100, protein: 0, liquid: true, base: 500 },
-    "Glucose 10%": { kcal: 200, protein: 0, liquid: true, base: 500 }
+    "Oliclinomel N4-550": { kcal: 610, protein: 22, glucose: 80, lipids: 20, liquid: true, base: 1000 },
+    "Oliclinomel N4-550E": { kcal: 610, protein: 22, glucose: 80, lipids: 20, liquid: true, base: 1000, na: 21, k: 16, mg: 2.2, ca: 2 },
+    "Oliclinomel N7-1000": { kcal: 1200, protein: 40, glucose: 160, lipids: 40, liquid: true, base: 1000 },
+    "Oliclinomel N7-1000E": { kcal: 1200, protein: 40, glucose: 160, lipids: 40, liquid: true, base: 1000, na: 32, k: 24, mg: 2.2, ca: 2 },
+    "Glucose 5%": { kcal: 100, protein: 0, glucose: 25, lipids: 0, liquid: true, base: 500, isG5: true },
+    "Glucose 10%": { kcal: 200, protein: 0, glucose: 50, lipids: 0, liquid: true, base: 500 },
+    "Natripack 10%": { kcal: 0, protein: 0, liquid: false, isPack: true, base: 1, na: 17, k: 0, mg: 0, ca: 0, peri: 154, cent: 500 },
+    "Kalipack 10%": { kcal: 0, protein: 0, liquid: false, isPack: true, base: 1, na: 0, k: 13.4, mg: 0, ca: 0, peri: 40, cent: 80 },
+    "Calcipack 10%": { kcal: 0, protein: 0, liquid: false, isPack: true, base: 1, na: 0, k: 0, mg: 0, ca: 6.8, peri: 50, cent: 100 },
+    "Magnipack 15%": { kcal: 0, protein: 0, liquid: false, isPack: true, base: 1, na: 0, k: 0, mg: 4, ca: 0, peri: 20, cent: 40 }
   },
   enteral: {
-    "Nutrison Standard 1L": { kcal: 1000, protein: 40, liquid: true, base: 1000 },
+    "Nutrison Standard 1L": { kcal: 1000, protein: 40, glucose: 1.2, lipids: 39, liquid: true, base: 1000, na: 39.1, k: 38.4, mg: 8.6, ca: 20 },
     "Fortimax En Poudre 200Ml": { kcal: 303, protein: 20, liquid: true, base: 200 },
-    "Fortimel 125Ml": { kcal: 306, protein: 18, liquid: true, base: 125 },
-    "Protifar": { kcal: 9.2, protein: 2.2, liquid: false, base: 2.5 }
+    "Fortimel 125Ml": { kcal: 306, protein: 18, glucose: 0.11, lipids: 12, liquid: true, base: 125, na: 1.9, k: 3.12, mg: 2.75, ca: 10.9 },
+    "Protifar 2.2g protein/2.5g": { kcal: 3.68, protein: 0.872, lipids: 0.016, liquid: false, isPack: false, base: 1, na: 0.0435, k: 0.0358, mg: 0.0082, ca: 0.337 },
+    "Kaligon 15%": { kcal: 0, protein: 0, liquid: true, base: 1, k: 0.64 }
   }
 };
 
-// ----- AUTO-SAVE FUNCTIONS -----
-function saveInput(id, value) { localStorage.setItem(id, value); }
-function loadInput(id, defaultValue=''){ return localStorage.getItem(id) || defaultValue; }
-
-// ----- BMI / adjusted weight -----
 function calculate(){
   const w = parseFloat(document.getElementById('weight').value);
   const tcm = parseFloat(document.getElementById('tall').value);
-  if (!w || !tcm) { document.getElementById('results').innerHTML = ""; return; }
-  const t = tcm/100;
-  const bmi = w / (t*t);
-  const ideal = 25 * (t*t);
-  const adj = ideal + 0.25 * (w - ideal);
-  document.getElementById('results').innerHTML =
-    '<b>BMI:</b> ' + bmi.toFixed(2) +
-    '<br><b>Adjusted weight:</b> ' + adj.toFixed(2) + ' kg';
+  const age = parseFloat(document.getElementById('age').value);
+  const gender = document.getElementById('gender').value;
+
+  if (!w || !tcm || isNaN(age)) { 
+    document.getElementById('results').innerHTML = ""; 
+    document.getElementById('targetDisplay').innerHTML = "<i>Enter data to see targets...</i>";
+    return; 
+  }
+
+  const heightIn = tcm / 2.54;
+  const tMeters = tcm / 100;
+  const bmi = w / (tMeters * tMeters);
+
+  // IBW Calculation (Devine Formula)
+  let ibw = (gender === 'male') ? 50 + 2.3 * (heightIn - 60) : 45.5 + 2.3 * (heightIn - 60);
+  // Adjusted Weight Calculation
+  let adjWeight = ibw + 0.25 * (w - ibw);
+
+  // LOGIC SELECTION FOR CALCULATION WEIGHT
+  let calcWeight = w;
+  let weightTypeUsed = "Actual Weight";
+
+  if (age < 75) {
+      if (bmi < 18.5) { 
+          calcWeight = 18.5 * (tMeters * tMeters); 
+          weightTypeUsed = "Weight at BMI 18.5"; 
+      } else if (bmi >= 18.5 && bmi < 25) { 
+          calcWeight = w; 
+          weightTypeUsed = "Actual Weight"; 
+      } else if (bmi >= 25 && bmi < 30) { 
+          calcWeight = ibw; 
+          weightTypeUsed = "Ideal Weight"; 
+      } else { 
+          calcWeight = adjWeight; 
+          weightTypeUsed = "Adjusted Weight"; 
+      }
+  } else { // Age >= 75
+      if (bmi < 23) { 
+          calcWeight = 23 * (tMeters * tMeters); 
+          weightTypeUsed = "Weight at BMI 23"; 
+      } else if (bmi >= 23 && bmi < 28) { 
+          calcWeight = w; 
+          weightTypeUsed = "Actual Weight"; 
+      } else if (bmi >= 28 && bmi < 33) { 
+          calcWeight = ibw; 
+          weightTypeUsed = "Ideal Weight"; 
+      } else { 
+          calcWeight = adjWeight; 
+          weightTypeUsed = "Adjusted Weight"; 
+      }
+  }
+
+  document.getElementById('results').innerHTML = 
+    `<b>BMI:</b> ${bmi.toFixed(2)} | <b>IBW:</b> ${ibw.toFixed(1)} kg | <b>AdjW:</b> ${adjWeight.toFixed(1)} kg<br>` +
+    `<span class="weight-label">Using ${weightTypeUsed} (${calcWeight.toFixed(1)} kg) for calculations.</span>`;
+
+  // TARGET DISPLAY
+const cw = calcWeight;
+  let targetHtml = `<table class="target-table">
+    <tr><td><b>Phases</b></td><td><b>Kcal</b></td><td><b>Prot (g)</b></td></tr>
+    <tr><td>J1-J2 (15kcal and 1.2g)</td><td>${(cw*15).toFixed(0)}</td><td>${(cw*1.2).toFixed(1)}</td></tr>
+    <tr><td>J3-J7 (25kcal and 1.2g)</td><td>${(cw*25).toFixed(0)}</td><td>${(cw*1.2).toFixed(1)}</td></tr>
+    <tr><td>> J7 (30kcal and 2g)</td><td>${(cw*30).toFixed(0)}</td><td>${(cw*2.0).toFixed(1)}</td></tr>
+    <tr><td colspan="3" style="background:#f0f0f0; padding:2px;"></td></tr>
+    <tr><td><b>IV Lipids (1-1.5 g/kg)</b></td><td colspan="2">${(w*1).toFixed(1)} - ${(w*1.5).toFixed(1)} g/day</td></tr>
+    <tr><td><b>Water (25-30ml/kg)</b></td><td colspan="2">${(w*25).toFixed(0)}-${(w*30).toFixed(0)} mL/day (${(cw*1).toFixed(0)} ml/h)</td></tr>
+    <tr><td><b>Na (1à 1,5 mmol/kg/day) </b></td><td colspan="2"> ${(w*1).toFixed(1)}-${(w*1.5).toFixed(1)} (mmol/day)</td></tr>
+    <tr><td><b>K (1 mmol/kg/day) </b></td><td colspan="2"> ${(w*1).toFixed(1)} (mmol/day)</td></tr>
+    <tr><td><b>Ca (mmol/day)</b></td><td colspan="2">5–100</td></tr> 
+    <tr><td><b>Mg (mmol/day)</b></td><td colspan="2">5–100</td></tr>
+    <tr><td><b>Glucose (1-1.5 g/kg)</b></td><td colspan="2">${(w*1).toFixed(1)}-${(w*1.5).toFixed(1)} g/day</td></tr>
+  </table>`;
+  
+  document.getElementById('targetDisplay').innerHTML = targetHtml;
   recalcTotals();
 }
 
-// Load saved values for BMI inputs
-['weight','tall','calTarget','protTarget'].forEach(id => {
+// Event Listeners
+['weight','tall','age','gender','calTarget','protTarget'].forEach(id => {
   const el = document.getElementById(id);
-  el.value = loadInput(id);
-  el.addEventListener('input', () => {
-    saveInput(id, el.value);
-    calculate();
+  el.addEventListener('input', () => { 
+    localStorage.setItem(id, el.value);
+    calculate(); 
   });
+  if(localStorage.getItem(id)) el.value = localStorage.getItem(id);
 });
 
-// ----- search & suggestions -----
-function matchProducts(type, q) {
-  q = (q||'').toLowerCase();
-  return Object.keys(products[type]).filter(name => name.toLowerCase().includes(q));
-}
+// Reuse existing product & logic functions from previous versions
+function matchProducts(type, q) { q = (q||'').toLowerCase(); return Object.keys(products[type]).filter(name => name.toLowerCase().includes(q)); }
+// Function to build and show suggestions
 function buildSuggestions(type) {
   const searchEl = document.getElementById(type + 'Search');
   const sugEl = document.getElementById(type + 'Suggestions');
   const q = searchEl.value.trim();
   const matches = matchProducts(type, q);
+  
   sugEl.innerHTML = '';
-  if (matches.length === 0) { sugEl.style.display = 'none'; return; }
+  if (matches.length === 0) { 
+    sugEl.style.display = 'none'; 
+    return; 
+  }
+  
   for (const name of matches) {
     const row = document.createElement('div');
     row.textContent = name;
-    row.onclick = () => { addSelectedProduct(type, name); sugEl.style.display = 'none'; searchEl.value = ''; };
+    // Use mousedown instead of onclick to ensure it fires before the blur event
+    row.onmousedown = (e) => {
+      e.preventDefault(); // Prevents focus loss before selection
+      addSelectedProduct(type, name);
+      sugEl.style.display = 'none';
+      searchEl.value = '';
+    };
     sugEl.appendChild(row);
   }
   sugEl.style.display = 'block';
 }
+
+// Event Listeners for search inputs
 ['parenteral','enteral'].forEach(type => {
-  const searchEl = document.getElementById(type + 'Search');
-  searchEl.addEventListener('input', () => buildSuggestions(type));
-  searchEl.addEventListener('focus', () => buildSuggestions(type));
-  searchEl.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      const list = matchProducts(type, e.target.value);
-      if (list[0]) addSelectedProduct(type, list[0]);
-      e.preventDefault();
+  const s = document.getElementById(type + 'Search');
+  const sug = document.getElementById(type + 'Suggestions');
+
+  s.addEventListener('input', () => buildSuggestions(type));
+  s.addEventListener('focus', () => buildSuggestions(type));
+  
+  // Close the list when clicking outside or losing focus
+  s.addEventListener('blur', () => {
+    // Small timeout to allow the 'onmousedown' event to trigger first
+    setTimeout(() => { sug.style.display = 'none'; }, 200);
+  });
+});
+
+// Global click-away listener (Extra safety)
+document.addEventListener('click', (e) => {
+  ['parenteral', 'enteral'].forEach(type => {
+    const s = document.getElementById(type + 'Search');
+    const sug = document.getElementById(type + 'Suggestions');
+    if (e.target !== s && e.target !== sug) {
+      sug.style.display = 'none';
     }
   });
 });
-document.addEventListener('click', (ev) => {
-  if (!document.getElementById('parenteralSection').contains(ev.target)) document.getElementById('parenteralSuggestions').style.display = 'none';
-  if (!document.getElementById('enteralSection').contains(ev.target)) document.getElementById('enteralSuggestions').style.display = 'none';
+['parenteral','enteral'].forEach(type => {
+  const s = document.getElementById(type + 'Search');
+  s.addEventListener('input', () => buildSuggestions(type));
+  s.addEventListener('focus', () => buildSuggestions(type));
 });
 
 function safeId(type, name) { return (type + '_' + name).replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,''); }
 
-// ----- PRODUCTS SELECTION & AUTO-SAVE -----
 function addSelectedProduct(type, name, qtySaved=0, volSaved=0) {
   const container = document.getElementById(type + 'List');
   const id = safeId(type, name);
   if (document.getElementById(id+'_top')) return;
   const prod = products[type][name];
-
-  // Top row
   const topRow = document.createElement('div');
-  topRow.className = 'item'; 
-  topRow.id = id + '_top';
-  topRow.style.display = 'flex';
-  topRow.style.gap = '10px';
-  topRow.style.alignItems = 'center';
-
+  topRow.className = 'item'; topRow.id = id + '_top'; topRow.style.display = 'flex'; topRow.style.gap = '10px'; topRow.style.alignItems = 'center';
   const left = document.createElement('div');
-  left.innerHTML = '<b>' + name + '</b><br><small>' + prod.kcal + ' kcal per ' + prod.base + (prod.liquid ? ' mL' : ' g') + '</small>';
-
+  left.innerHTML = `<b>${name}</b><br><small>${prod.kcal} kcal / ${prod.base}${prod.isPack ? 'g' : (prod.liquid ? 'mL' : 'g')}</small>`;
   const mid = document.createElement('div');
-  mid.innerHTML = 'Qty (<small>' + (prod.liquid ? 'mL/day' : 'g/day') + '</small>):<br>';
+  mid.innerHTML = `Qty (${prod.isPack ? 'g' : (prod.liquid ? 'mL' : 'g')}):<br>`;
   const qtyInput = document.createElement('input');
-  qtyInput.type = 'number'; qtyInput.min = 0; qtyInput.value = qtySaved; qtyInput.className='quantity'; qtyInput.style.width='100%';
-  qtyInput.addEventListener('input', () => { updateItem(type, name); saveProducts(); });
+  qtyInput.type = 'number'; qtyInput.value = qtySaved; qtyInput.className='quantity';
+  qtyInput.addEventListener('input', () => { recalcTotals(); saveProducts(); });
   mid.appendChild(qtyInput);
-
-  if (!prod.liquid){
-    mid.appendChild(document.createElement('br')); 
-    mid.appendChild(document.createTextNode('Volume (mL):')); 
+  if (!prod.liquid && !prod.isPack){
     mid.appendChild(document.createElement('br'));
+    mid.appendChild(document.createTextNode('Vol(mL):'));
     const volInput = document.createElement('input');
-    volInput.type='number'; volInput.min=0; volInput.value=volSaved; volInput.className='volume'; volInput.style.width='100%';
-    volInput.addEventListener('input', () => { updateItem(type, name); saveProducts(); });
+    volInput.type='number'; volInput.value=volSaved; volInput.className='volume';
+    volInput.addEventListener('input', () => { recalcTotals(); saveProducts(); });
     mid.appendChild(volInput);
   }
-
   const right = document.createElement('div');
-  const removeBtn = document.createElement('button');
-  removeBtn.className='small'; removeBtn.textContent='Remove';
-  removeBtn.onclick = () => { topRow.remove(); bottomRow.remove(); saveProducts(); recalcTotals(); };
-  right.appendChild(removeBtn);
-
+  const rb = document.createElement('button'); rb.className='small'; rb.textContent='Remove';
+  rb.onclick = () => { topRow.remove(); bottomRow.remove(); recalcTotals(); saveProducts(); };
+  right.appendChild(rb);
   topRow.appendChild(left); topRow.appendChild(mid); topRow.appendChild(right);
-
-// Bottom row for summary
-const bottomRow = document.createElement('div');
-bottomRow.id = id + '_vals';
-bottomRow.style.width = '-webkit-fill-available';
-bottomRow.style.background = 'rgb(213 213 223)';
-bottomRow.style.padding = '6px';
-bottomRow.style.marginTop = '4px';
-bottomRow.style.borderRadius = '6px';
-bottomRow.textContent = 'Kcal: 0 | Protein: 0 g | mL: 0 | Flow: 0 mL/h';
-
-
-
-  container.appendChild(topRow);
-  container.appendChild(bottomRow);
-
-  updateItem(type, name);
-  saveProducts();
-}
-
-function updateItem(type, name) {
-  const idTop = safeId(type, name) + '_top';
-  const idVals = safeId(type, name) + '_vals';
-  const el = document.getElementById(idTop);
-  if (!el) return;
-  const prod = products[type][name];
-  const qty = parseFloat(el.querySelector('input.quantity').value)||0;
-  const factor = qty / prod.base;
-  const kcal = prod.kcal * factor; 
-  const protein = prod.protein * factor;
-  let vol = qty;
-  if (!prod.liquid) { vol = parseFloat(el.querySelector('input.volume')?.value)||0; }
-  const flowRate = vol/24;
-  document.getElementById(idVals).textContent =
-    'Kcal: ' + kcal.toFixed(1) + ' | Protein: ' + protein.toFixed(1) + ' g | mL: ' + vol.toFixed(0) + ' | Flow: ' + flowRate.toFixed(1) + ' mL/h';
+  const bottomRow = document.createElement('div');
+  bottomRow.id = id + '_vals'; 
+  // Design preserved: using your existing gray background and font-size
+  bottomRow.style = "width:100%; background:#e9ecef; padding:6px; margin-top:4px; border-radius:6px; font-size:11px; line-height:1.4;";
+  container.appendChild(topRow); container.appendChild(bottomRow);
   recalcTotals();
 }
 
 function recalcTotals() {
-  let totK=0, totP=0, totML=0;
+  let totK=0, totP=0, totML=0, g5Vol=0, totGlu=0, totLip=0;
+  let packs = { k:0, na:0, mg:0, ca:0 };
+  let tNa=0, tK=0, tMg=0, tCa=0;
+  const weight = parseFloat(document.getElementById('weight').value) || 0;
+
   ['parenteral','enteral'].forEach(type=>{
     const list=document.getElementById(type+'List');
     Array.from(list.querySelectorAll('.item')).forEach(it=>{
       const name=it.querySelector('b').innerText;
-      const prod=products[type][name]; if(!prod) return;
+      const prod=products[type][name];
       const qty=parseFloat(it.querySelector('input.quantity').value)||0;
-      const f=qty/prod.base; totK+=prod.kcal*f; totP+=prod.protein*f;
-      if(prod.liquid) totML+=qty; else totML+=parseFloat(it.querySelector('input.volume')?.value)||0;
+      const f=qty/prod.base;
+      
+      const pkcal = prod.kcal * f;
+      const pprot = prod.protein * f;
+      const pna = (prod.na || 0) * f;
+      const pk = (prod.k || 0) * f;
+      const pmg = (prod.mg || 0) * f;
+      const pca = (prod.ca || 0) * f;
+      const pglu = (prod.glucose || 0) * f;
+      const plip = (prod.lipids || 0) * f;
+      
+      totK += pkcal; totP += pprot;
+      tNa += pna; tK += pk; tMg += pmg; tCa += pca;
+      totGlu += pglu; totLip += plip;
+
+      if(type === 'parenteral' && (prod.isPack || prod.isG5 === undefined)) {
+          packs.na += pna; packs.k += pk; packs.mg += pmg; packs.ca += pca;
+      }
+      if(prod.isG5) g5Vol += qty;
+      
+      let volRow = 0;
+      if(!prod.isPack) { 
+        if(prod.liquid) volRow = qty; 
+        else volRow = parseFloat(it.querySelector('input.volume')?.value)||0; 
+      }
+      totML += volRow;
+
+      const flow = (volRow / 24).toFixed(1);
+      const idVals = safeId(type, name) + '_vals';
+      document.getElementById(idVals).innerHTML = 
+        `Kcal: ${pkcal.toFixed(1)} | Prot: ${pprot.toFixed(1)}g | mL: ${volRow.toFixed(0)} | Flow: ${flow} mL/h<br>` +
+        `Na: ${pna.toFixed(1)} | K: ${pk.toFixed(1)} | Ca: ${pca.toFixed(1)} | Mg: ${pmg.toFixed(1)} | Glu: ${pglu.toFixed(1)}g | Lip: ${plip.toFixed(1)}g`;
     });
   });
-  document.getElementById('totals').innerText='Kcal: '+totK.toFixed(1)+' kcal | Protein: '+totP.toFixed(1)+' g | mL: '+totML.toFixed(0);
+
+  let girStr = "";
+  if (weight > 0 && totGlu > 0) {
+    const gir = (totGlu * 1000) / (weight * 1440);
+    girStr = ` | Glu: ${totGlu.toFixed(1)}g | Lip: ${totLip.toFixed(1)}g`;
+  } else {
+    girStr = ` | Glu: ${totGlu.toFixed(1)}g | Lip: ${totLip.toFixed(1)}g`;
+  }
+  
+  document.getElementById('totals').innerText = `Kcal: ${totK.toFixed(1)} | Prot: ${totP.toFixed(1)}g | mL: ${totML.toFixed(0)}${girStr}`;
+  document.getElementById('electrolyteTotals').innerText = `Na: ${tNa.toFixed(1)} | K: ${tK.toFixed(1)} | Mg: ${tMg.toFixed(1)} | Ca: ${tCa.toFixed(1)} (mmol)`;
+  
+  
+  // IV Safety Logic continues here...
+  const safetyDiv = document.getElementById('ivSafety');
+  if (g5Vol > 0 && (packs.k > 0 || packs.na > 0 || packs.mg > 0 || packs.ca > 0)) {
+    const volL = g5Vol / 1000;
+    let html = `<b>IV Concentration & Rates (Diluent: ${g5Vol}mL over 24h):</b><br>`;
+    const check = (label, val, peri, cent, rateLimit) => {
+      const conc = val / volL;
+      const rate = val / 24;
+      const statusClass = conc <= peri ? 'safe' : (conc <= cent ? 'neutral' : 'warning');
+      const statusText = conc <= peri ? 'Safe Peri' : (conc <= cent ? 'Central' : 'EXCEEDS');
+      const rateClass = rate <= rateLimit ? 'safe' : 'warning';
+      return `${label}: <span class="${statusClass}">${conc.toFixed(1)} mmol/L (${statusText})</span> [Limit: peri ${peri}, cent ${cent}] | Rate: <span class="${rateClass}">${rate.toFixed(2)} mmol/h</span> [Limit: ${rateLimit}]<br>`;
+    };
+    html += check("K+", packs.k, 40, 80, 20);      
+    html += check("Na+", packs.na, 154, 500, 10);  
+    html += check("Mg2+", packs.mg, 20, 40, 2.5);  
+    html += check("Ca2+", packs.ca, 50, 100, 2.5); 
+    safetyDiv.innerHTML = html;
+  } else { safetyDiv.innerHTML = ""; }
 }
 
-// Save all selected products
 function saveProducts() {
   ['parenteral','enteral'].forEach(type=>{
-    const list=document.getElementById(type+'List');
-    const items=Array.from(list.querySelectorAll('.item')).map(it=>{
-      const name=it.querySelector('b').innerText;
-      const qty=parseFloat(it.querySelector('input.quantity').value)||0;
-      const vol=parseFloat(it.querySelector('input.volume')?.value)||0;
-      return {name, qty, vol};
+    const items = Array.from(document.getElementById(type+'List').querySelectorAll('.item')).map(it=>{
+      return { name: it.querySelector('b').innerText, qty: it.querySelector('input.quantity').value, vol: it.querySelector('input.volume')?.value||0 };
     });
     localStorage.setItem(type+'_products', JSON.stringify(items));
   });
 }
 
-// Restore saved products
 function restoreProducts(type) {
   const saved = JSON.parse(localStorage.getItem(type+'_products')||'[]');
   saved.forEach(p => addSelectedProduct(type, p.name, p.qty, p.vol));
