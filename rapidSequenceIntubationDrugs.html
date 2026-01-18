@@ -125,6 +125,8 @@ input[type=text] {
 <div id="result">IBW and TBW will appear here</div>
 
 <div id="drugsContainer"></div>
+
+<button onclick="clearSavedData()" style="margin-top:20px; width:100%; padding:10px; background:#6c757d; color:white; border:none; border-radius:5px; cursor:pointer;">Clear Saved Data</button>
 </div>
 
 <script>
@@ -136,23 +138,92 @@ const weightInput = document.getElementById('weight');
 const resultDiv = document.getElementById('result');
 const drugsContainer = document.getElementById('drugsContainer');
 
-maleBtn.addEventListener('click', () => { sex='male'; maleBtn.classList.add('active'); femaleBtn.classList.remove('active'); calculate(); });
-femaleBtn.addEventListener('click', () => { sex='female'; femaleBtn.classList.add('active'); maleBtn.classList.remove('active'); calculate(); });
+// --- NEW: Save/Load Functions ---
+function saveData() {
+    const data = {
+        sex: sex,
+        height: heightInput.value,
+        weight: weightInput.value,
+        doses: {}
+    };
+    // Save each drug's custom dose
+    drugs.forEach((drug, index) => {
+        const input = document.getElementById(`dose${index}`);
+        if (input) data.doses[index] = input.value;
+    });
+    localStorage.setItem('rsiAppData', JSON.stringify(data));
+}
 
-heightInput.addEventListener('input', calculate);
-weightInput.addEventListener('input', calculate);
+function loadData() {
+    const saved = localStorage.getItem('rsiAppData');
+    if (!saved) return;
+    const data = JSON.parse(saved);
+
+    // Restore Sex
+    sex = data.sex || 'male';
+    if (sex === 'female') {
+        femaleBtn.classList.add('active');
+        maleBtn.classList.remove('active');
+    } else {
+        maleBtn.classList.add('active');
+        femaleBtn.classList.remove('active');
+    }
+
+    // Restore Height/Weight
+    heightInput.value = data.height || '';
+    weightInput.value = data.weight || '';
+
+    // Restore Doses (after container is built)
+    if (data.doses) {
+        Object.keys(data.doses).forEach(index => {
+            const input = document.getElementById(`dose${index}`);
+            if (input) input.value = data.doses[index];
+        });
+    }
+}
+// ------------------------------
+
+maleBtn.addEventListener('click', () => { 
+    sex='male'; 
+    maleBtn.classList.add('active'); 
+    femaleBtn.classList.remove('active'); 
+    calculate(); 
+    saveData(); // Save on change
+});
+
+femaleBtn.addEventListener('click', () => { 
+    sex='female'; 
+    femaleBtn.classList.add('active'); 
+    maleBtn.classList.remove('active'); 
+    calculate(); 
+    saveData(); // Save on change
+});
+
+// Save on input change
+heightInput.addEventListener('input', () => { calculate(); saveData(); });
+weightInput.addEventListener('input', () => { calculate(); saveData(); });
 
 const drugs = [
-    {name: "Ketamine", dose:[1.5,2], defaultDose:1.5, unit:"mg/kg IBW", concentration:50, basis:"IBW", vialVolume:10},
-    {name: "Etomidate", dose:[0.3,0.4], defaultDose:0.3, unit:"mg/kg TBW", concentration:2, basis:"TBW", vialVolume:10},
-    {name: "Fentanyl", dose:[2,10], defaultDose:2, unit:"μg/kg TBW", concentration:50, basis:"TBW", vialVolume:5},
-    {name: "Midazolam", dose:[0.1,0.3], defaultDose:0.1, unit:"mg/kg TBW", concentration:5, basis:"TBW", vialVolume:3},
-    {name: "Propofol", dose:[1,2.5], defaultDose:1, unit:"mg/kg IBW +0.4xTBW", concentration:10, basis:"IBW/TBW", vialVolume:20},
-    {name: "Thiopental", dose:[3,5], defaultDose:3, unit:"mg/kg TBW", concentration:25, basis:"TBW", vialVolume:20},
-    {name: "Suxamethonium", dose:[1,2], defaultDose:1, unit:"mg/kg TBW", concentration:50, basis:"TBW", vialVolume:2},
-    {name: "Rocuronium", dose:[0.6,1.2], defaultDose:0.6, unit:"mg/kg IBW", concentration:10, basis:"IBW", vialVolume:5},
-    {name: "Vecuronium", dose:[0.15,0.25], defaultDose:0.15, unit:"mg/kg IBW", concentration:2, basis:"IBW", vialVolume:2}
+    {name: "Ketamine", dose:[1.5,2], defaultDose:1.5, unit:"mg/kg IBW", concentration:50, basis:"IBW", vialVolume:10, hintText: "", vial:"50mg/mL 10mL"},
+    {name: "Etomidate", dose:[0.3,0.4], defaultDose:0.3, unit:"mg/kg TBW", concentration:2, basis:"TBW", vialVolume:10, hintText: "0.25-0.40 mg/Kg", vial:"2mg/mL 10mL"},
+    {name: "Fentanyl", dose:[2,10], defaultDose:2, unit:"μg/kg TBW", concentration:50, basis:"TBW", vialVolume:5, hintText: "", vial:"250μg/5mL (50μg/1mL)"},
+    {name: "Sufentanil", dose:[1,2], defaultDose:2, unit:"μg/kg TBW", concentration:5, basis:"TBW", vialVolume:10, hintText: "", vial:"250μg/5mL (50μg/1mL)"},
+    {name: "Midazolam", dose:[0.1,0.3], defaultDose:0.1, unit:"mg/kg TBW", concentration:5, basis:"TBW", vialVolume:3, hintText: "0.2-0.3mg/Kg", vial:"5mg/mL 3mL"},
+    {name: "Propofol", dose:[1,2.5], defaultDose:1, unit:"mg/kg IBW +0.4xTBW", concentration:10, basis:"IBW/TBW", vialVolume:20, hintText: "", vial:"10mg/mL 20mL"},
+    {name: "Thiopental", dose:[3,5], defaultDose:3, unit:"mg/kg TBW", concentration:25, basis:"TBW", vialVolume:20, hintText: "", vial:""},
+    {name: "Suxamethonium", dose:[1,2], defaultDose:1, unit:"mg/kg TBW", concentration:50, basis:"TBW", vialVolume:2, hintText: "", vial:""},
+    {name: "Rocuronium", dose:[0.6,1.2], defaultDose:0.6, unit:"mg/kg IBW", concentration:10, basis:"IBW", vialVolume:5, hintText: "0.6-0.9 mg/Kg", vial:"50mg/5mL (10mg/1mL)"},
+    {name: "Vecuronium", dose:[0.15,0.25], defaultDose:0.15, unit:"mg/kg IBW", concentration:2, basis:"IBW", vialVolume:2, hintText: "", vial:""},
+    {name: "Ephedrine 3mg/mL dilution", dose:[5,10], defaultDose:3, unit:"mg", concentration:3, basis:"Fixed", vialVolume:10, hintText: "3mg par injection", vial:"30mg/1ml dilué en 10mL (3mg/mL)"}
 ];
+
+function getDoseByBasis(drug, multiplier, IBW, TBW) {
+    if(drug.basis === "Fixed") return multiplier;
+    if(drug.basis === "IBW") return IBW ? multiplier * IBW : 0;
+    if(drug.basis === "TBW") return TBW ? multiplier * TBW : 0;
+    if(drug.basis === "IBW/TBW") return (IBW && TBW) ? (multiplier * IBW) + (0.4 * TBW) : 0;
+    return 0;
+}
 
 function calculate() {
     let heightCm = parseFloat(heightInput.value);
@@ -162,54 +233,97 @@ function calculate() {
     if(heightCm){
         let heightIn = heightCm / 2.54;
         IBW = sex==='male'? 50 + 2.3*(heightIn-60) : 45.5 + 2.3*(heightIn-60);
-        if(heightIn<60) IBW -= (60-heightIn)*2.3;
+        if(heightIn < 60) IBW -= (60-heightIn)*2.3;
         IBW = Math.round(IBW*10)/10;
     }
-
     let TBW = weight ? weight : 0;
-    resultDiv.innerText = (IBW && TBW) ? `IBW: ${IBW} kg | TBW: ${TBW} kg` : "IBW and TBW will appear here";
+    resultDiv.innerText = (IBW && TBW) ? `IBW: ${IBW} kg | TBW: ${TBW} kg` : "Enter Height and Weight";
 
-    drugs.forEach((drug, index)=>{
+    drugs.forEach((drug, index) => {
         const doseInput = document.getElementById(`dose${index}`);
         const doseResultDiv = document.getElementById(`doseResult${index}`);
+        const rangeResultDiv = document.getElementById(`rangeResult${index}`);
         if(!doseInput || !doseResultDiv) return;
 
+        let unitLabel = drug.unit.includes("μg") ? "μg" : "mg";
         let doseVal = parseFloat(doseInput.value);
-        let totalDose = 0;
-        if(drug.basis==="IBW") totalDose = IBW ? doseVal*IBW : 0;
-        else if(drug.basis==="TBW") totalDose = TBW ? doseVal*TBW : 0;
-        else totalDose = (IBW && TBW) ? doseVal*IBW + 0.4*TBW : 0;
+        let totalDose = getDoseByBasis(drug, doseVal, IBW, TBW);
+        let vol = totalDose && drug.concentration ? (totalDose/drug.concentration).toFixed(2) : 0;
+         
+        doseResultDiv.innerHTML = `Calculated Dose: ${totalDose.toFixed(1)} ${unitLabel} | Volume: ${vol} mL`;
 
-        let displayDose = totalDose;
+        let minDose = getDoseByBasis(drug, drug.dose[0], IBW, TBW);
+        let maxDose = getDoseByBasis(drug, drug.dose[1], IBW, TBW);
+        let minVol = minDose && drug.concentration ? (minDose/drug.concentration).toFixed(2) : 0;
+        let maxVol = maxDose && drug.concentration ? (maxDose/drug.concentration).toFixed(2) : 0;
 
-        let vol = totalDose && drug.concentration ? Math.round((displayDose/drug.concentration)*100)/100 : 0;
-
-        doseResultDiv.innerHTML = `Calculated Dose: ${displayDose.toFixed(1)} ${drug.unit.includes("μg") ? "μg" : "mg"} | Volume: ${vol} mL`;
+        rangeResultDiv.innerHTML = `
+            <div style="color: #666; font-size: 0.85em; margin-top: 5px; border-top: 1px dashed #ccc; padding-top: 5px;">
+                min dose: ${minDose.toFixed(1)} ${unitLabel} | Volume: ${minVol} mL<br>
+                max dose: ${maxDose.toFixed(1)} ${unitLabel} | Volume: ${maxVol} mL
+            </div>
+        `;
     });
 }
 
-// Initialize drug list with inputs and vial volume
+// Initialization
 drugs.forEach((drug, index)=>{
     let drugDiv = document.createElement('div');
     drugDiv.classList.add('drug');
 
-    let doseLabel = drug.unit.includes("μg") ? "Dose (μg/kg):" : "Dose (mg/kg):";
-
     drugDiv.innerHTML=`
-        <h4>${drug.name}</h4>
+        <h4 style="margin:0;">${drug.name}</h4>
+        ${drug.vial ? `<div style="font-size: 11px; color: #555;">Vial: ${drug.vial}</div>` : ''}
+        ${drug.hintText ? `<div style="color: #d9534f; font-size: 12px; font-weight: bold;">Note: ${drug.hintText}</div>` : ''}
         <div class="hint">Recommended: ${drug.dose[0]}-${drug.dose[1]} ${drug.unit}</div>
-        <div class="hint">Vial Volume: ${drug.vialVolume} mL</div>
-        ${doseLabel} <input type="number" id="dose${index}" value="${drug.defaultDose}" step="0.01">
-        <div id="doseResult${index}">Calculated Dose will appear here</div>
+        
+        <label style="font-size: 13px; display:inline;">Dose:</label> 
+        <input type="number" id="dose${index}" value="${drug.defaultDose}" step="0.1" style="width: 60px;">
+        
+        <div id="doseResult${index}" style="font-weight: bold; color: #007BFF; margin-top:5px;"></div>
+        <div id="rangeResult${index}"></div>
     `;
 
     drugsContainer.appendChild(drugDiv);
-
-    const doseInput = document.getElementById(`dose${index}`);
-    doseInput.addEventListener('input', calculate);
+    
+    // Add event listener to save custom doses
+    document.getElementById(`dose${index}`).addEventListener('input', () => {
+        calculate();
+        saveData();
+    });
 });
 
+function clearSavedData() {
+    // 1. Clear the storage
+    localStorage.removeItem('rsiAppData');
+
+    // 2. Reset UI inputs to defaults
+    heightInput.value = '';
+    weightInput.value = '';
+    
+    // Reset Sex to Male
+    sex = 'male';
+    maleBtn.classList.add('active');
+    femaleBtn.classList.remove('active');
+
+    // 3. Reset drug dose inputs to their original defaultDose
+    drugs.forEach((drug, index) => {
+        const input = document.getElementById(`dose${index}`);
+        if (input) {
+            input.value = drug.defaultDose;
+        }
+    });
+
+    // 4. Update the calculations and display
+    calculate();
+    
+    // Optional: Alert the user
+    alert("Data cleared and reset to defaults.");
+}
+  
+// FINAL STEP: Load saved data and initial calculation
+loadData();
 calculate();
 </script>
-</body>
-</html>
+</body> 
+</html>  
