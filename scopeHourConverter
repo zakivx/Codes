@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Scope Hour Converter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    margin: 0;
+    box-sizing: border-box;
+}
+h2, h3 {
+    margin-bottom: 10px;
+}
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.container label {
+    flex-basis: 100%;
+}
+.container input {
+    font-size: 18px;
+    padding: 10px;
+    width: 100%;
+    max-width: 200px;
+}
+.result {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 15px;
+}
+@media (min-width: 500px) {
+    .container {
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+    .container label {
+        flex-basis: auto;
+        margin-right: 5px;
+    }
+    .container input {
+        width: auto;
+    }
+}
+</style>
+</head>
+<body>
+
+<h2>Scope Hour Converter</h2>
+
+<h3>Calibration</h3>
+<div class="container">
+    <label for="calA">A calibration:</label>
+    <input type="time" id="calA" value="12:45">
+</div>
+  </br>
+<div class="container">
+    <label for="calB">B calibration:</label>
+    <input type="time" id="calB" value="10:10">
+</div>
+
+<h3>Convert</h3>
+<div class="container">
+    <label for="inputA">Input A:</label>
+    <input type="time" id="inputA">
+</div>
+  </br>
+<div class="container">
+    <label for="inputB">Input B:</label>
+    <input type="time" id="inputB">
+</div>
+
+<p class="result">Result: <span id="result">--:--</span></p>
+
+<script>
+function timeToMinutes(t){
+    let parts = t.split(":");
+    return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+}
+
+function minutesToTime(m){
+    m = ((m % 1440) + 1440) % 1440; // wrap around 24h
+    let h = Math.floor(m / 60);
+    let min = m % 60;
+    return String(h).padStart(2,'0') + ":" + String(min).padStart(2,'0');
+}
+
+let updating = false;
+
+function convertAtoB(){
+    if(updating) return;
+    updating = true;
+
+    let calA = document.getElementById("calA").value;
+    let calB = document.getElementById("calB").value;
+    let inputA = document.getElementById("inputA").value;
+
+    if(inputA){
+        let offset = timeToMinutes(calB) - timeToMinutes(calA);
+        let result = timeToMinutes(inputA) + offset;
+        let timeB = minutesToTime(result);
+        document.getElementById("inputB").value = timeB;
+        document.getElementById("result").innerText = timeB;
+    }
+
+    updating = false;
+}
+
+function convertBtoA(){
+    if(updating) return;
+    updating = true;
+
+    let calA = document.getElementById("calA").value;
+    let calB = document.getElementById("calB").value;
+    let inputB = document.getElementById("inputB").value;
+
+    if(inputB){
+        let offset = timeToMinutes(calB) - timeToMinutes(calA);
+        let result = timeToMinutes(inputB) - offset;
+        let timeA = minutesToTime(result);
+        document.getElementById("inputA").value = timeA;
+        document.getElementById("result").innerText = timeA;
+    }
+
+    updating = false;
+}
+
+// live update
+document.getElementById("inputA").addEventListener("input", convertAtoB);
+document.getElementById("inputB").addEventListener("input", convertBtoA);
+document.getElementById("calA").addEventListener("input", () => { convertAtoB(); convertBtoA(); });
+document.getElementById("calB").addEventListener("input", () => { convertAtoB(); convertBtoA(); });
+</script>
+
+</body>
+</html>
