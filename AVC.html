@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Form</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --border: #d1d8e0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 850px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 { text-align: center; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+        h3 { font-size: 1rem; color: var(--accent); margin-top: 20px; border-left: 4px solid var(--accent); padding-left: 10px; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; margin-top: 10px; }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            border: none;
+            background: var(--accent);
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover { background: #2980b9; }
+
+        /* Result Table Styling */
+        #result-container {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-family: monospace;
+        }
+
+        .result-table td {
+            padding: 8px 12px;
+            border: 1px solid #eee;
+        }
+
+        .result-table td:first-child {
+            font-weight: bold;
+            width: 40%;
+            background: #f9f9f9;
+        }
+
+        .section-row {
+            background: #f0f2f5 !important;
+            height: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Registre des Accidents Vasculaires Cérébraux de la Wilaya de Constantine</h2>
+    <div class="grid">
+        <div><label>Établissement</label><input id="etab"></div>
+        <div><label>Service</label><input id="service"></div>
+    </div>
+    <h3>Identification</h3>
+    <div class="grid">
+        <div><label>Nom</label><input id="nom"></div>
+        <div><label>Prénom</label><input id="prenom"></div>
+    </div>
+
+    <div class="grid">
+        <div><label>Date de naissance</label><input type="date" id="dob"></div>
+        <div><label>Âge</label><input type="number" id="age" min="0" max="150"></div>
+        <div><label>Genre</label>
+            <select id="genre">
+                <option value="1">Masculin (1)</option>
+                <option value="2">Féminin (2)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div><label>Wilaya (0-58)</label><input type="number" id="wilaya" min="0" max="58"></div>
+        <div><label>Commune (0-58)</label><input type="number" id="commune" min="0" max="58"></div>
+        <div><label>Provenance</label>
+            <select id="provenance">
+                <option value="1">Domicile (1)</option>
+                <option value="2">Autre (2)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div><label>Transport</label>
+            <select id="transport">
+                <option value="1">Médicalisé (1)</option>
+                <option value="2">Non médicalisé (2)</option>
+            </select>
+        </div>
+        <div><label>Hospitalisation</label>
+            <select id="hospitalisation">
+                <option value="1">Oui (1)</option>
+                <option value="0">Non (0)</option>
+            </select>
+        </div>
+    </div>
+
+   <h3>Clinique - Para clinique</h3>
+    <div class="grid">
+        <div><label>Date d'arrivée</label><input type="date" id="date_arrivee"></div>
+        <div><label>Heure d'arrivée</label><input type="time" id="heure_arrivee"></div>
+    </div>
+    <div class="grid">
+        <div><label>Date début clinique</label><input type="date" id="date_debut"></div>
+        <div><label>Heure début clinique</label><input type="time" id="heure_debut"></div>
+    </div>
+
+    <h3>Tableau des Troubles cliniques à l'admission</h3>
+    <div class="grid">
+        <div><label>Conscience</label><select id="conscience"><option value="1">Oui (1)</option><option value="0">Non (0)</option></select></div>
+        <div><label>Déficit moteur</label><select id="moteur"><option value="1">Oui (1)</option><option value="0">Non (0)</option></select></div>
+        <div><label>Langage</label><select id="langage"><option value="1">Oui (1)</option><option value="0">Non (0)</option></select></div>
+        <div><label>Visuel</label><select id="visuel"><option value="1">Oui (1)</option><option value="0">Non (0)</option></select></div>
+        <div><label>Sensitif</label><select id="sensitif"><option value="1">Oui (1)</option><option value="0">Non (0)</option></select></div>
+        <div><label>Nerfs crâniens</label><select id="nerfs"><option value="1">Oui (1)</option><option value="0">Non (0)</option></select></div>
+        <div><label>Équilibre</label><select id="equilibre"><option value="1">Oui (1)</option><option value="0">Non (0)</option></select></div>
+        <div><label>Épilepsie</label><select id="epilepsie"><option value="1">Oui (1)</option><option value="0">Non (0)</option></select></div>
+        <div><label>Céphalées</label><select id="cephalees"><option value="1">Oui (1)</option><option value="0">Non (0)</option></select></div>
+        <div><label>Autres</label><select id="autres"><option value="1">Oui (1)</option><option value="0">Non (0)</option></select></div>
+    </div>
+
+    <h3>Examens</h3>
+    <div class="grid">
+        <div><label>Imagerie</label>
+            <select id="imagerie">
+                <option value="1">IRM (1)</option>
+                <option value="2">TDM (2)</option>
+                <option value="3">Angio-IRM (3)</option>
+                <option value="4">Angio-Scanner (4)</option>
+            </select>
+        </div>
+        <div><label>Lieu</label>
+            <select id="lieu">
+                <option value="1">Origine (1)</option>
+                <option value="2">Autre (2)</option>
+            </select>
+        </div>
+        <div><label>Délai</label>
+            <select id="delai">
+                <option value="1">Immédiat (1)</option>
+                <option value="2">Différé (2)</option>
+            </select>
+        </div>
+    </div>
+
+    <button onclick="generateTable()">Générer résultat</button>
+
+    <div id="result-container">
+        <h3>Rapport de Données</h3>
+        <table class="result-table" id="table-output">
+            <tbody id="result-body"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function formatDate(val) {
+    if (!val) return "nn/nn/nnnn";
+    const [y, m, d] = val.split('-');
+    return `${d}/${m}/${y}`;
+}
+
+function generateTable() {
+    const getV = (id) => document.getElementById(id).value || "0";
+    const getT = (id) => document.getElementById(id).value || "nn:nn";
+    const dob = document.getElementById("dob").value;
+    const arr = document.getElementById("date_arrivee").value;
+    const deb = document.getElementById("date_debut").value;
+
+    const data = [
+        ["Date de naissance", formatDate(dob)],
+        ["Âge", getV("age")],
+        ["Genre", getV("genre")],
+        ["SEP", ""], // Spacer
+        ["Wilaya", getV("wilaya")],
+        ["Commune", getV("commune")],
+        ["Provenance", getV("provenance")],
+        ["Transport", getV("transport")],
+        ["Hospitalisation", getV("hospitalisation")],
+        ["SEP", ""], // Spacer
+        ["Date arrivée", formatDate(arr)],
+        ["Heure arrivée", getT("heure_arrivee")],
+        ["SEP", ""], // Spacer
+        ["Date début clinique", formatDate(deb)],
+        ["Heure début", getT("heure_debut")],
+        ["SEP", ""], // Spacer
+        ["Conscience", getV("conscience")],
+        ["Déficit moteur", getV("moteur")],
+        ["Langage", getV("langage")],
+        ["Visuel", getV("visuel")],
+        ["Sensitif", getV("sensitif")],
+        ["Nerfs crâniens", getV("nerfs")],
+        ["Équilibre", getV("equilibre")],
+        ["Épilepsie", getV("epilepsie")],
+        ["Céphalées", getV("cephalees")],
+        ["Autres", getV("autres")],
+        ["SEP", ""], // Spacer
+        ["Imagerie", getV("imagerie")],
+        ["Lieu", getV("lieu")],
+        ["Délai", getV("delai")]
+    ];
+
+    const tbody = document.getElementById("result-body");
+    tbody.innerHTML = "";
+
+    data.forEach(row => {
+        const tr = document.createElement("tr");
+        if (row[0] === "SEP") {
+            tr.className = "section-row";
+            tr.innerHTML = `<td colspan="2"></td>`;
+        } else {
+            tr.innerHTML = `<td>${row[0]} </td><td>${row[1]}</td>`;
+        }
+        tbody.appendChild(tr);
+    });
+
+    document.getElementById("result-container").style.display = "block";
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
