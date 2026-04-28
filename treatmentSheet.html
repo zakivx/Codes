@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prescription Builder</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            background: #ddd;
+            color: #000;
+        }
+
+        /* ─── CONTROLS ─── */
+        #controls {
+            max-width: 210mm;
+            margin: 16px auto;
+            background: #fff;
+            border: 1px solid #999;
+            border-radius: 4px;
+            padding: 14px 16px;
+        }
+
+        .ctrl-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: flex-end;
+            padding: 8px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .ctrl-row:last-child { border-bottom: none; }
+
+        label { font-size: 11px; font-weight: bold; display: block; margin-bottom: 3px; }
+
+        input, select {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            padding: 5px 7px;
+            border: 1px solid #aaa;
+            border-radius: 3px;
+            background: #fff;
+            color: #000;
+        }
+        input:focus, select:focus { outline: 2px solid #333; }
+
+        .small-input { width: 54px; font-size: 11px; padding: 4px 6px; }
+
+        button {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 6px 12px;
+            border: 1.5px solid #333;
+            border-radius: 3px;
+            background: #fff;
+            color: #000;
+            cursor: pointer;
+        }
+        button:hover { background: #eee; }
+        .btn-dark { background: #222; color: #fff; border-color: #222; }
+        .btn-dark:hover { background: #444; }
+
+        .insulin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            padding: 10px;
+            background: #fafafa;
+        }
+        .insulin-grid strong { font-size: 11px; display: block; margin-bottom: 6px; letter-spacing: 0.05em; }
+        .ins-row { display: flex; gap: 5px; margin-bottom: 4px; align-items: center; font-size: 11px; }
+
+        /* ─── PRINT PAGE ─── */
+        #printPage {
+            width: 210mm;
+            min-height: 297mm;
+            background: #fff;
+            margin: 0 auto 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ─── HEADER ─── */
+        .page-header {
+           
+            padding: 14px 15mm 10px;
+            text-align: center;
+              margin-top: 30px;
+        }
+        .page-header h2 {
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .page-header h3 {
+            font-size: 12px;
+            font-weight: normal;
+            margin-top: 3px;
+        }
+        .page-title {
+            margin-top: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            border: 2px solid #000;
+            display: inline-block;
+            padding: 3px 18px;
+        }
+
+        /* ─── TABLE AREA ─── */
+        #tableArea { flex: 1; padding: 30px 9mm 9mm; }
+
+        /* Patient info */
+        .patient-grid {
+            display: grid;
+            grid-template-columns: 2.5fr 0.7fr 1.5fr 1.3fr;
+            gap: 0;
+            border: 1px solid #000;
+            margin-bottom: 4px;
+        }
+        .patient-cell {
+            padding: 5px 7px;
+            border-right: 1px solid #000;
+            font-size: 12px;
+        }
+        .patient-cell:last-child { border-right: none; }
+        .patient-cell .lbl { font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; display: block; color: #555; margin-bottom: 1px; }
+
+        .days-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0;
+            border: 1px solid #000;
+            border-top: none;
+            margin-bottom: 4px;
+        }
+        .day-cell {
+            padding: 4px 7px;
+            border-right: 1px solid #000;
+            font-size: 11px;
+        }
+        .day-cell:last-child { border-right: none; }
+        .day-cell .lbl { font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; color: #555; }
+
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0;
+            border: 1px solid #000;
+            border-top: none;
+            margin-bottom: 30px;
+        }
+        .metric-cell {
+            padding: 4px 6px;
+            border-right: 1px solid #000;
+            font-size: 11px;
+        }
+        .metric-cell:last-child { border-right: none; }
+        .metric-cell .lbl { font-size: 8.5px; font-weight: bold; text-transform: uppercase; color: #555; display: block; }
+
+        /* ─── DRUG TABLE ─── */
+        #drugTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        #drugTable th {
+            background: #000;
+            color: #fff;
+            padding: 6px 8px;
+            font-size: 10.5px;
+            font-weight: bold;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: left;
+            border: 1px solid #000;
+        }
+        #drugTable td {
+            padding: 6px 8px;
+            font-size: 12px;
+            border: 1px solid #999;
+            vertical-align: middle;
+        }
+        #drugTable tbody tr:nth-child(even) td { background: #f5f5f5; }
+
+        /* row number */
+        .rn { font-size: 10px; color: #888; margin-right: 5px; }
+
+        .actions-cell { white-space: nowrap; text-align: center; width: 120px; border-color: #ddd !important; }
+        .actions-cell button {
+            padding: 2px 7px;
+            font-size: 10px;
+            margin: 1px;
+            border-radius: 2px;
+        }
+
+        /* ─── BOTTOM ─── */
+        .bottom-sections {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 12px;
+            margin-top: 6px;
+        }
+
+        /* Soins */
+        .soins-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        .soins-table th {
+            background: #000;
+            color: #fff;
+            padding: 5px 7px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            border: 1px solid #000;
+            text-align: left;
+        }
+        .soins-table td {
+            padding: 4px 7px;
+            border: 1px solid #999;
+            vertical-align: top;
+            font-size: 11px;
+        }
+        .soins-table td:last-child { font-size: 10px; color: #444; }
+
+        /* Insulin display */
+        .insulin-display {
+            margin-top: 8px;
+        }
+        .insulin-display-title {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: #000;
+            color: #fff;
+            padding: 4px 8px;
+        }
+        .insulin-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        .insulin-table td {
+            padding: 4px 7px;
+            border: 1px solid #999;
+            text-align: center;
+        }
+        .gray {
+            background: #eee;
+            font-weight: bold;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+        .dots { color: #aaa; }
+
+        /* Checklist */
+        .checklist-wrap {
+            display: flex;
+            gap: 10px;
+        }
+        .checklist-group {
+            flex: 1;
+            border: 1px solid #999;
+        }
+        .checklist-group h4 {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: #000;
+            color: #fff;
+            padding: 4px 8px;
+        }
+        .checklist-body { padding: 6px 8px; }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+            font-size: 11px;
+        }
+        .checklist-item input[type="checkbox"] { width: 12px; height: 12px; margin: 0; padding: 0; border: none; }
+
+        /* Extra image */
+        #extraImageContainer { display: none; text-align: center; margin-bottom: 8px; }
+        #extraImageContainer img { width: 300px; }
+
+        /* Dialog */
+        dialog {
+            border: 2px solid #000;
+            border-radius: 4px;
+            padding: 0;
+            width: 380px;
+            font-family: Arial, sans-serif;
+        }
+        dialog::backdrop { background: rgba(0,0,0,0.5); }
+        .modal-head {
+            background: #000;
+            color: #fff;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .modal-body { padding: 14px; }
+        .modal-field { margin-bottom: 10px; }
+        .modal-field label { font-size: 11px; font-weight: bold; display: block; margin-bottom: 3px; }
+        .modal-field input { width: 100%; }
+        .modal-foot {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 10px 14px;
+            border-top: 1px solid #ccc;
+        }
+
+        /* ─── PRINT ─── */
+        @media print {
+            #controls, .actions-cell { display: none !important; }
+            body { background: none; margin: 0; }
+            #printPage { width: 210mm; height: 297mm; margin: 0; box-shadow: none; }
+            @page { size: A4; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- CONTROLS -->
+<div id="controls">
+    <div class="ctrl-row">
+        <div>
+            <label>Storage Box</label>
+            <select id="boxSelect"></select>
+            <button class="btn-dark" onclick="saveToBox()">Save</button>
+            <button onclick="loadFromBox()">Load</button>
+        </div>
+        <div class="insulin-grid">
+            <div>
+                <strong>ACTRAPID</strong>
+                <div class="ins-row"><input type="text" id="act_h1" placeholder="h" class="small-input" oninput="syncInsulin()"> → <input type="text" id="act_u1" placeholder="UI" class="small-input" oninput="syncInsulin()"></div>
+                <div class="ins-row"><input type="text" id="act_h2" placeholder="h" class="small-input" oninput="syncInsulin()"> → <input type="text" id="act_u2" placeholder="UI" class="small-input" oninput="syncInsulin()"></div>
+                <div class="ins-row"><input type="text" id="act_h3" placeholder="h" class="small-input" oninput="syncInsulin()"> → <input type="text" id="act_u3" placeholder="UI" class="small-input" oninput="syncInsulin()"></div>
+                <div class="ins-row"><input type="text" id="act_h4" placeholder="h" class="small-input" oninput="syncInsulin()"> → <input type="text" id="act_u4" placeholder="UI" class="small-input" oninput="syncInsulin()"></div>
+            </div>
+            <div>
+                <strong>NPH</strong>
+                <div class="ins-row"><input type="text" id="nph_h1" placeholder="h" class="small-input" oninput="syncInsulin()"> → <input type="text" id="nph_u1" placeholder="UI" class="small-input" oninput="syncInsulin()"></div>
+                <div class="ins-row"><input type="text" id="nph_h2" placeholder="h" class="small-input" oninput="syncInsulin()"> → <input type="text" id="nph_u2" placeholder="UI" class="small-input" oninput="syncInsulin()"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ctrl-row">
+        <input type="text" id="p_name" placeholder="Nom et Prénom" style="flex:2;min-width:150px" oninput="syncPatient()">
+        <input type="text" id="p_box" placeholder="Box" style="width:60px" oninput="syncPatient()">
+        <input type="text" id="p_doc" placeholder="Médecin" style="flex:1;min-width:110px" oninput="syncPatient()">
+        <input type="text" id="p_date" placeholder="Date JJ/MM/AA" style="flex:1;min-width:110px" oninput="syncPatient()">
+    </div>
+
+    <div class="ctrl-row">
+        <input type="text" id="p_jhosp" placeholder="J Hospitalisation" style="width:135px" oninput="syncPatient()">
+        <input type="text" id="p_jint" placeholder="J Intubation" style="width:115px" oninput="syncPatient()">
+        <input type="text" id="p_jtrach" placeholder="J Trachéotomie" style="width:125px" oninput="syncPatient()">
+    </div>
+
+    <div class="ctrl-row">
+        <input type="text" id="p_poids" placeholder="Poids" style="width:70px" oninput="syncPatient()">
+        <input type="text" id="p_pi" placeholder="P. Idéal" style="width:75px" oninput="syncPatient()">
+        <input type="text" id="p_pa" placeholder="P. Ajusté" style="width:80px" oninput="syncPatient()">
+        <input type="text" id="p_taille" placeholder="Taille" style="width:65px" oninput="syncPatient()">
+        <input type="text" id="p_mdrd" placeholder="MDRD" style="width:65px" oninput="syncPatient()">
+        <input type="text" id="p_cock" placeholder="Cockcroft" style="width:80px" oninput="syncPatient()">
+        <button onclick="toggleExtraImage()">Insuline selon Dextro</button>
+         <button onclick="toggleExtraImageShema()">Insuline shema</button>
+
+    </div>
+
+    <div class="ctrl-row">
+        <input type="text" id="name" placeholder="Médicament" style="flex:2;min-width:120px">
+        <input type="number" id="jours" placeholder="Jours" style="width:65px">
+        <input type="text" id="dose" placeholder="Dose" style="flex:1;min-width:80px">
+        <input type="number" id="times" placeholder="Qté" style="width:60px">
+        <input type="text" id="route" placeholder="Voie" style="flex:1;min-width:80px">
+        <input type="text" id="schedule" placeholder="Horaires" style="flex:1.5;min-width:100px">
+        <button class="btn-dark" onclick="addDrug()">+ Ajouter</button>
+        <button onclick="clearAllDrugs()">Effacer tout</button>
+        <button class="btn-dark" onclick="window.print()">🖨 Imprimer</button>
+    </div>
+</div>
+
+<!-- PRINT PAGE -->
+<div id="printPage">
+
+    <div class="page-header">
+        <h2>Centre Hospitalier Universitaire Dr Ben Badis — Constantine</h2>
+        <h3>Service de Réanimation Médicale</h3>
+        <div class="page-title">Feuille de Traitements</div>
+    </div>
+
+    <div id="tableArea">
+
+        <div class="patient-grid">
+            <div class="patient-cell"><span class="lbl">Nom &amp; Prénom</span><span id="out_name"></span></div>
+            <div class="patient-cell"><span class="lbl">Box</span><span id="out_box"></span></div>
+            <div class="patient-cell"><span class="lbl">Médecin</span><span id="out_doc"></span></div>
+            <div class="patient-cell"><span class="lbl">Date</span><span id="out_date"></span></div>
+        </div>
+
+        <div class="days-row">
+            <div class="day-cell"><span class="lbl">J Hosp</span><span id="out_jhosp"></span></div>
+            <div class="day-cell"><span class="lbl">J Intub</span><span id="out_jint"></span></div>
+            <div class="day-cell"><span class="lbl">J Trach</span><span id="out_jtrach"></span></div>
+        </div>
+
+        <div class="metrics-row">
+            <div class="metric-cell"><span class="lbl">Poids</span><span id="out_poids"></span></div>
+            <div class="metric-cell"><span class="lbl">P. Idéal</span><span id="out_pi"></span></div>
+            <div class="metric-cell"><span class="lbl">P. Ajusté</span><span id="out_pa"></span></div>
+            <div class="metric-cell"><span class="lbl">Taille</span><span id="out_taille"></span></div>
+            <div class="metric-cell"><span class="lbl">MDRD</span><span id="out_mdrd"></span></div>
+            <div class="metric-cell"><span class="lbl">Cockcroft</span><span id="out_cock"></span></div>
+        </div>
+
+        <table id="drugTable">
+            <thead>
+                <tr>
+                    <th>Médicament</th>
+                    <th>J</th>
+                    <th>Dose</th>
+                    <th>Prises</th>
+                    <th>Voie</th>
+                    <th>Horaires</th>
+                    <th class="actions-cell">Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <div class="bottom-sections">
+            <div>
+                <div id="extraImageContainer">
+                    <img src="https://i.ibb.co/KzFYWJR3/Screenshot-4.png" alt="Prescription Add-on">
+                </div>
+
+                <table class="soins-table">
+                    <thead><tr><th>Soins</th><th>Produit</th><th>Horaires</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="checkbox"> Yeux</td>
+                            <td><input type="checkbox"> SSI 0.9%<br><input type="checkbox"> Occlusion</td>
+                            <td>8, 12, 16, 20, 00, 04</td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"> Bouche</td>
+                            <td><input type="checkbox"> SB 1.4%<br><input type="checkbox"> Fungisone<br><input type="checkbox"> Xylocaïne</td>
+                            <td>8, 12, 16, 20, 00, 04</td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"> Cutané</td>
+                            <td><input type="checkbox"> Dexeryl</td>
+                            <td>8, 20</td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"> Escarres</td>
+                            <td colspan="2">Voir la feuille dédiée</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="insulin-display" id="shema">
+                    <div class="insulin-display-title">Insuline</div>
+                    <table class="insulin-table">
+                        <tr>
+                            <td class="gray" rowspan="4" style="width:55px">Actrapid</td>
+                            <td class="dots" id="o_act_h1">.... h</td><td id="o_act_u1">UI</td>
+                            <td class="gray" style="width:35px">NPH</td>
+                            <td class="dots" id="o_nph_h1">.... h</td><td id="o_nph_u1">UI</td>
+                        </tr>
+                        <tr>
+                            <td class="dots" id="o_act_h2">.... h</td><td id="o_act_u2">UI</td>
+                            <td class="gray"></td>
+                            <td class="dots" id="o_nph_h2">.... h</td><td id="o_nph_u2">UI</td>
+                        </tr>
+                        <tr>
+                            <td class="dots" id="o_act_h3">.... h</td><td id="o_act_u3">UI</td>
+                            <td></td><td></td><td></td>
+                        </tr>
+                        <tr>
+                            <td class="dots" id="o_act_h4">.... h</td><td id="o_act_u4">UI</td>
+                            <td></td><td></td><td></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="checklist-wrap">
+                <div class="checklist-group">
+                    <h4>Intéractions</h4>
+                    <div class="checklist-body">
+                        <div class="checklist-item"><input type="checkbox"> Entre médicaments</div>
+                        <div class="checklist-item"><input type="checkbox"> Dans les voies IV</div>
+                        <div class="checklist-item"><input type="checkbox"> Avec la maladie</div>
+                        <div class="checklist-item"><input type="checkbox"> Avec les tubulures</div>
+                    </div>
+                </div>
+                <div class="checklist-group">
+                    <h4>Autres</h4>
+                    <div class="checklist-body">
+                        <div class="checklist-item"><input type="checkbox"> Ajustement thérap.</div>
+                        <div class="checklist-item"><input type="checkbox"> Restriction hydrique</div>
+                        <div class="checklist-item"><input type="checkbox"> Voie orale permise</div>
+                        <div class="checklist-item"><input type="checkbox"> Vit B1 et K</div>
+                        <div class="checklist-item"><input type="checkbox"> Patch de Nicotine</div>
+                        <div class="checklist-item"><input type="checkbox"> Contre-indications</div>
+                        <div class="checklist-item"><input type="checkbox"> Disponibilité</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- EDIT DIALOG -->
+<dialog id="editDialog">
+    <div class="modal-head">Modifier le médicament</div>
+    <div class="modal-body">
+        <div class="modal-field"><label>Médicament</label><input type="text" id="edit_name"></div>
+        <div class="modal-field"><label>Jours</label><input type="number" id="edit_jours"></div>
+        <div class="modal-field"><label>Dose</label><input type="text" id="edit_dose"></div>
+        <div class="modal-field"><label>Prises</label><input type="number" id="edit_times"></div>
+        <div class="modal-field"><label>Voie</label><input type="text" id="edit_route"></div>
+        <div class="modal-field"><label>Horaires</label><input type="text" id="edit_schedule"></div>
+    </div>
+    <div class="modal-foot">
+        <button onclick="document.getElementById('editDialog').close()">Annuler</button>
+        <button class="btn-dark" onclick="saveEdit()">Enregistrer</button>
+    </div>
+</dialog>
+
+<script>
+let currentRow = null;
+let storageBoxes = {};
+
+const boxSelect = document.getElementById('boxSelect');
+for (let i = 1; i <= 18; i++) {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = 'Box ' + i;
+    boxSelect.appendChild(opt);
+}
+
+function syncPatient() {
+    const fields = ['name','box','doc','date','jhosp','jint','jtrach','poids','pi','pa','taille','mdrd','cock'];
+    fields.forEach(f => {
+        const el = document.getElementById("out_" + f);
+        if (el) el.textContent = document.getElementById("p_" + f).value;
+    });
+}
+
+function toggleExtraImage(forceState = null) {
+    const c = document.getElementById("extraImageContainer");
+    c.style.display = forceState !== null ? (forceState ? "block" : "none") : (c.style.display === "block" ? "none" : "block");
+}
+function toggleExtraImageShema(forceState = null) {
+    const c = document.getElementById("shema");
+    c.style.display = forceState !== null ? (forceState ? "block" : "none") : (c.style.display === "block" ? "none" : "block");
+}
+  
+function syncInsulin() { 
+    ['act_h1','act_u1','act_h2','act_u2','act_h3','act_u3','act_h4','act_u4','nph_h1','nph_u1','nph_h2','nph_u2'].forEach(id => {
+        const val = document.getElementById(id).value;
+        const t = document.getElementById("o_" + id);
+        if (!t) return;
+        t.textContent = id.includes('_h') ? (val ? val + " h" : ".... h") : (val ? val + " UI" : "UI");
+    });
+}
+
+function addDrug(data = null) {
+    const fields = ["name","jours","dose","times","route","schedule"];
+    const values = data || fields.map(id => document.getElementById(id).value);
+    if (!values[0]) return data ? null : alert("Nom du médicament requis.");
+    const tbody = document.querySelector("#drugTable tbody");
+    const row = tbody.insertRow();
+    [row.dataset.name, row.dataset.jours, row.dataset.dose, row.dataset.times, row.dataset.route, row.dataset.schedule] = values;
+    renderRow(row);
+    if (!data) fields.forEach(id => document.getElementById(id).value = "");
+}
+
+function renderRow(row) {
+    const n = row.rowIndex;
+    row.innerHTML = `
+        <td><span class="rn">${n}.</span>${row.dataset.name}</td>
+        <td style="text-align:center">${row.dataset.jours || '—'}</td>
+        <td>${row.dataset.dose}</td>
+        <td>${row.dataset.times}</td>
+        <td>${row.dataset.route}</td>
+        <td>${row.dataset.schedule}</td>
+        <td class="actions-cell">
+            <button onclick="moveRow(this,-1)">↑</button>
+            <button onclick="moveRow(this,1)">↓</button>
+            <button onclick="openEdit(this)">Edit</button>
+            <button onclick="this.closest('tr').remove();refreshNums()">✕</button>
+        </td>`;
+}
+
+function refreshNums() {
+    document.querySelectorAll("#drugTable tbody tr").forEach((row, i) => {
+        const s = row.querySelector('.rn');
+        if (s) s.textContent = (i + 1) + '.';
+    });
+}
+
+function moveRow(btn, dir) {
+    const row = btn.closest("tr");
+    if (dir === -1 && row.previousElementSibling) row.parentNode.insertBefore(row, row.previousElementSibling);
+    else if (dir === 1 && row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling, row);
+    refreshNums();
+}
+
+function openEdit(btn) {
+    currentRow = btn.closest("tr");
+    ["name","jours","dose","times","route","schedule"].forEach(f => document.getElementById("edit_" + f).value = currentRow.dataset[f]);
+    document.getElementById("editDialog").showModal();
+}
+
+function saveEdit() {
+    ["name","jours","dose","times","route","schedule"].forEach(f => currentRow.dataset[f] = document.getElementById("edit_" + f).value);
+    renderRow(currentRow);
+    document.getElementById("editDialog").close();
+}
+
+function clearAllDrugs() {
+    if (confirm("Supprimer tous les médicaments ?")) document.querySelector("#drugTable tbody").innerHTML = "";
+}
+
+function saveToBox() {
+    const n = boxSelect.value;
+    const ins = {};
+    ['act_h1','act_u1','act_h2','act_u2','act_h3','act_u3','act_h4','act_u4','nph_h1','nph_u1','nph_h2','nph_u2']
+        .forEach(id => ins[id] = document.getElementById(id).value);
+    const pat = {};
+    ['name','box','doc','date','jhosp','jint','jtrach','poids','pi','pa','taille','mdrd','cock']
+        .forEach(f => pat[f] = document.getElementById("p_" + f).value);
+    storageBoxes[n] = {
+        patient: pat,
+        drugs: Array.from(document.querySelectorAll("#drugTable tbody tr")).map(r =>
+            [r.dataset.name, r.dataset.jours, r.dataset.dose, r.dataset.times, r.dataset.route, r.dataset.schedule]),
+        checks: Array.from(document.querySelectorAll('#printPage input[type="checkbox"]')).map(c => c.checked),
+        insulin: ins,
+        showExtraImage: document.getElementById("extraImageContainer").style.display === "block"
+    };
+    localStorage.setItem('prescriptionStorage', JSON.stringify(storageBoxes));
+    alert("Sauvegardé — Box " + n);
+}
+
+function loadFromBox() {
+    const data = (JSON.parse(localStorage.getItem('prescriptionStorage')) || {})[boxSelect.value];
+    if (!data) return alert("Box vide !");
+    Object.keys(data.patient).forEach(k => { const el = document.getElementById("p_" + k); if (el) el.value = data.patient[k]; });
+    syncPatient();
+    document.querySelector("#drugTable tbody").innerHTML = "";
+    data.drugs.forEach(d => addDrug(d));
+    const cks = document.querySelectorAll('#printPage input[type="checkbox"]');
+    if (data.checks) data.checks.forEach((v, i) => { if (cks[i]) cks[i].checked = v; });
+    if (data.insulin) Object.keys(data.insulin).forEach(id => { const el = document.getElementById(id); if (el) el.value = data.insulin[id]; });
+    syncInsulin();
+    toggleExtraImage(data.showExtraImage);
+}
+
+window.onload = () => { const s = localStorage.getItem('prescriptionStorage'); if (s) storageBoxes = JSON.parse(s); };
+</script>
+</body>
+</html>
