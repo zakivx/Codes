@@ -33,6 +33,18 @@
         }
         .ctrl-row:last-child { border-bottom: none; }
 
+        .ctrl-section-label {
+            width: 100%;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #555;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 2px;
+        }
+
         .field {
             display: flex;
             flex-direction: column;
@@ -163,7 +175,7 @@
             gap: 0;
             border: 1px solid #000;
             border-top: none;
-            margin-bottom: 30px;
+            margin-bottom: 16px;
         }
         .metric-cell {
             padding: 4px 6px;
@@ -173,11 +185,23 @@
         .metric-cell:last-child { border-right: none; }
         .metric-cell .lbl { font-size: 8.5px; font-weight: bold; text-transform: uppercase; color: #555; display: block; }
 
+        /* ─── SECTION TITLES ─── */
+        .section-title {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background: #000;
+            color: #fff;
+            padding: 4px 8px;
+            margin-bottom: 0;
+        }
+
         /* ─── DRUG TABLE ─── */
         #drugTable {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
         #drugTable th {
             background: #000;
@@ -197,6 +221,56 @@
             vertical-align: middle;
         }
         #drugTable tbody tr:nth-child(even) td { background: #f5f5f5; }
+
+        /* ─── PERFUSION TABLE ─── */
+        #perfTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+        }
+        #perfTable th {
+            background: #333;
+            color: #fff;
+            padding: 5px 8px;
+            font-size: 10.5px;
+            font-weight: bold;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: left;
+            border: 1px solid #333;
+        }
+        #perfTable td {
+            padding: 5px 8px;
+            font-size: 12px;
+            border: 1px solid #999;
+            vertical-align: middle;
+        }
+        #perfTable tbody tr:nth-child(even) td { background: #f5f5f5; }
+
+        /* ─── DROGUES TABLE ─── */
+        #drogTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+        }
+        #drogTable th {
+            background: #555;
+            color: #fff;
+            padding: 5px 8px;
+            font-size: 10.5px;
+            font-weight: bold;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: left;
+            border: 1px solid #555;
+        }
+        #drogTable td {
+            padding: 5px 8px;
+            font-size: 12px;
+            border: 1px solid #999;
+            vertical-align: middle;
+        }
+        #drogTable tbody tr:nth-child(even) td { background: #f5f5f5; }
 
         /* row number */
         .rn { font-size: 10px; color: #888; margin-right: 5px; }
@@ -310,7 +384,7 @@
             border: 2px solid #000;
             border-radius: 4px;
             padding: 0;
-            width: 380px;
+            width: 420px;
             font-family: Arial, sans-serif;
         }
         dialog::backdrop { background: rgba(0,0,0,0.5); }
@@ -337,8 +411,24 @@
         @media print {
             #controls, .actions-cell { display: none !important; }
             body { background: none; margin: 0; }
-            #printPage { width: 210mm; height: 297mm; margin: 0; box-shadow: none; }
-            @page { size: A4; margin: 0; }
+            #printPage { width: 210mm; margin: 0; box-shadow: none; }
+
+            /* Page 1: no top margin. Pages 2+: 15mm top margin */
+            @page        { size: A4; margin: 0; }
+            @page :first { margin-top: 0mm; }
+            @page :left  { margin-top: 15mm; }
+            @page :right { margin-top: 15mm; }
+
+            /* Keep bottom-sections whole — if it doesn't fit, push it entirely to next page */
+            .bottom-sections {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            /* Hide tables that have no data rows */
+            #drugTable.empty-table,
+            #perfTable.empty-table,
+            #drogTable.empty-table { display: none !important; }
         }
     </style>
 </head>
@@ -425,7 +515,7 @@
 
     <!-- Row 4b: Insulin grid + toggle buttons -->
     <div class="ctrl-row" style="align-items:flex-start">
-        <div class="insulin-grid" style="">
+        <div class="insulin-grid">
             <div>
                 <strong>ACTRAPID</strong>
                 <div class="ins-row">
@@ -471,6 +561,7 @@
 
     <!-- Row 5: Add drug -->
     <div class="ctrl-row">
+        <div style="width:100%" class="ctrl-section-label">💊 Médicaments</div>
         <div class="field" style="flex:2;min-width:120px">
             <label for="name">Médicament</label>
             <input type="text" id="name">
@@ -501,6 +592,53 @@
             <button class="btn-dark" onclick="window.print()">🖨 Imprimer</button>
         </div>
     </div>
+
+    <!-- Row 6: Add perfusion -->
+    <div class="ctrl-row">
+        <div style="width:100%" class="ctrl-section-label">💧 Perfusions</div>
+        <div class="field" style="flex:2;min-width:130px">
+            <label for="perf_name">Perfusion</label>
+            <input type="text" id="perf_name" placeholder="ex: NaCl 0.9%, G5%...">
+        </div>
+        <div class="field" style="flex:1;min-width:90px">
+            <label for="perf_qte">Quantité</label>
+            <input type="text" id="perf_qte" placeholder="ex: 500 mL">
+        </div>
+        <div class="field" style="flex:1;min-width:90px">
+            <label for="perf_debit">Débit</label>
+            <input type="text" id="perf_debit" placeholder="ex: 42 mL/h">
+        </div>
+        <div style="display:flex;gap:6px;align-self:flex-end">
+            <button class="btn-dark" onclick="addPerf()">+ Ajouter</button>
+            <button onclick="clearAllPerfs()">Effacer tout</button>
+        </div>
+    </div>
+
+    <!-- Row 7: Add drogue seringue -->
+    <div class="ctrl-row">
+        <div style="width:100%" class="ctrl-section-label">💉 Drogues (Seringues Auto-Pousseuses)</div>
+        <div class="field" style="flex:1.5;min-width:110px">
+            <label for="drog_name">Drogue</label>
+            <input type="text" id="drog_name" placeholder="ex: Noradrénaline">
+        </div>
+        <div class="field" style="flex:2;min-width:130px">
+            <label for="drog_prep">Préparation</label>
+            <input type="text" id="drog_prep" placeholder="ex: 4 mg dans 50 mL NaCl">
+        </div>
+        <div class="field" style="flex:1;min-width:80px">
+            <label for="drog_debit">Débit</label>
+            <input type="text" id="drog_debit" placeholder="ex: 5 mL/h">
+        </div>
+        <div class="field" style="flex:1.5;min-width:110px">
+            <label for="drog_obj">Objectif</label>
+            <input type="text" id="drog_obj" placeholder="ex: PAM > 65 mmHg">
+        </div>
+        <div style="display:flex;gap:6px;align-self:flex-end">
+            <button class="btn-dark" onclick="addDrog()">+ Ajouter</button>
+            <button onclick="clearAllDrogs()">Effacer tout</button>
+        </div>
+    </div>
+
 </div>
 
 <!-- PRINT PAGE -->
@@ -536,6 +674,7 @@
             <div class="metric-cell"><span class="lbl">Cockcroft</span><span id="out_cock"></span></div>
         </div>
 
+        <!-- MÉDICAMENTS -->
         <table id="drugTable">
             <thead>
                 <tr>
@@ -545,6 +684,33 @@
                     <th>Prises</th>
                     <th>Voie</th>
                     <th>Horaires</th>
+                    <th class="actions-cell">Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <!-- PERFUSIONS -->
+        <table id="perfTable">
+            <thead>
+                <tr>
+                    <th>Perfusion</th>
+                    <th>Quantité</th>
+                    <th>Débit</th>
+                    <th class="actions-cell">Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <!-- DROGUES SAP -->
+        <table id="drogTable">
+            <thead>
+                <tr>
+                    <th>Drogue</th>
+                    <th>Préparation</th>
+                    <th>Débit</th>
+                    <th>Objectif</th>
                     <th class="actions-cell">Actions</th>
                 </tr>
             </thead>
@@ -636,7 +802,7 @@
     </div>
 </div>
 
-<!-- EDIT DIALOG -->
+<!-- EDIT DRUG DIALOG -->
 <dialog id="editDialog">
     <div class="modal-head">Modifier le médicament</div>
     <div class="modal-body">
@@ -650,6 +816,35 @@
     <div class="modal-foot">
         <button onclick="document.getElementById('editDialog').close()">Annuler</button>
         <button class="btn-dark" onclick="saveEdit()">Enregistrer</button>
+    </div>
+</dialog>
+
+<!-- EDIT PERFUSION DIALOG -->
+<dialog id="editPerfDialog">
+    <div class="modal-head">Modifier la perfusion</div>
+    <div class="modal-body">
+        <div class="modal-field"><label>Perfusion</label><input type="text" id="editp_name"></div>
+        <div class="modal-field"><label>Quantité</label><input type="text" id="editp_qte"></div>
+        <div class="modal-field"><label>Débit</label><input type="text" id="editp_debit"></div>
+    </div>
+    <div class="modal-foot">
+        <button onclick="document.getElementById('editPerfDialog').close()">Annuler</button>
+        <button class="btn-dark" onclick="savePerfEdit()">Enregistrer</button>
+    </div>
+</dialog>
+
+<!-- EDIT DROGUE DIALOG -->
+<dialog id="editDrogDialog">
+    <div class="modal-head">Modifier la drogue SAP</div>
+    <div class="modal-body">
+        <div class="modal-field"><label>Drogue</label><input type="text" id="editd_name"></div>
+        <div class="modal-field"><label>Préparation</label><input type="text" id="editd_prep"></div>
+        <div class="modal-field"><label>Débit</label><input type="text" id="editd_debit"></div>
+        <div class="modal-field"><label>Objectif</label><input type="text" id="editd_obj"></div>
+    </div>
+    <div class="modal-foot">
+        <button onclick="document.getElementById('editDrogDialog').close()">Annuler</button>
+        <button class="btn-dark" onclick="saveDrogEdit()">Enregistrer</button>
     </div>
 </dialog>
 
@@ -691,6 +886,7 @@ function syncInsulin() {
     });
 }
 
+/* ─── MÉDICAMENTS ─── */
 function addDrug(data = null) {
     const fields = ["name","jours","dose","times","route","schedule"];
     const values = data || fields.map(id => document.getElementById(id).value);
@@ -698,11 +894,11 @@ function addDrug(data = null) {
     const tbody = document.querySelector("#drugTable tbody");
     const row = tbody.insertRow();
     [row.dataset.name, row.dataset.jours, row.dataset.dose, row.dataset.times, row.dataset.route, row.dataset.schedule] = values;
-    renderRow(row);
+    renderDrugRow(row);
     if (!data) fields.forEach(id => document.getElementById(id).value = "");
 }
 
-function renderRow(row) {
+function renderDrugRow(row) {
     const n = row.rowIndex;
     row.innerHTML = `
         <td><span class="rn">${n}.</span>${row.dataset.name}</td>
@@ -712,36 +908,37 @@ function renderRow(row) {
         <td>${row.dataset.route}</td>
         <td>${row.dataset.schedule}</td>
         <td class="actions-cell">
-            <button onclick="moveRow(this,-1)">↑</button>
-            <button onclick="moveRow(this,1)">↓</button>
-            <button onclick="openEdit(this)">Edit</button>
-            <button onclick="this.closest('tr').remove();refreshNums()">✕</button>
+            <button onclick="moveDrugRow(this,-1)">↑</button>
+            <button onclick="moveDrugRow(this,1)">↓</button>
+            <button onclick="openEditDrug(this)">Edit</button>
+            <button onclick="this.closest('tr').remove();refreshDrugNums()">✕</button>
         </td>`;
 }
 
-function refreshNums() {
+function refreshDrugNums() {
     document.querySelectorAll("#drugTable tbody tr").forEach((row, i) => {
         const s = row.querySelector('.rn');
         if (s) s.textContent = (i + 1) + '.';
     });
 }
 
-function moveRow(btn, dir) {
+function moveDrugRow(btn, dir) {
     const row = btn.closest("tr");
     if (dir === -1 && row.previousElementSibling) row.parentNode.insertBefore(row, row.previousElementSibling);
     else if (dir === 1 && row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling, row);
-    refreshNums();
+    refreshDrugNums();
 }
 
-function openEdit(btn) {
+function openEditDrug(btn) {
     currentRow = btn.closest("tr");
-    ["name","jours","dose","times","route","schedule"].forEach(f => document.getElementById("edit_" + f).value = currentRow.dataset[f]);
+    currentRow._editType = 'drug';
+    ["name","jours","dose","times","route","schedule"].forEach(f => document.getElementById("edit_" + f).value = currentRow.dataset[f] || '');
     document.getElementById("editDialog").showModal();
 }
 
 function saveEdit() {
     ["name","jours","dose","times","route","schedule"].forEach(f => currentRow.dataset[f] = document.getElementById("edit_" + f).value);
-    renderRow(currentRow);
+    renderDrugRow(currentRow);
     document.getElementById("editDialog").close();
 }
 
@@ -749,6 +946,130 @@ function clearAllDrugs() {
     if (confirm("Supprimer tous les médicaments ?")) document.querySelector("#drugTable tbody").innerHTML = "";
 }
 
+/* ─── PERFUSIONS ─── */
+function addPerf(data = null) {
+    const fields = ["perf_name","perf_qte","perf_debit"];
+    const values = data || fields.map(id => document.getElementById(id).value);
+    if (!values[0]) return data ? null : alert("Nom de la perfusion requis.");
+    const tbody = document.querySelector("#perfTable tbody");
+    const row = tbody.insertRow();
+    [row.dataset.name, row.dataset.qte, row.dataset.debit] = values;
+    renderPerfRow(row);
+    if (!data) fields.forEach(id => document.getElementById(id).value = "");
+}
+
+function renderPerfRow(row) {
+    const n = row.rowIndex;
+    row.innerHTML = `
+        <td><span class="rn">${n}.</span>${row.dataset.name}</td>
+        <td>${row.dataset.qte}</td>
+        <td>${row.dataset.debit}</td>
+        <td class="actions-cell">
+            <button onclick="movePerfRow(this,-1)">↑</button>
+            <button onclick="movePerfRow(this,1)">↓</button>
+            <button onclick="openEditPerf(this)">Edit</button>
+            <button onclick="this.closest('tr').remove();refreshPerfNums()">✕</button>
+        </td>`;
+}
+
+function refreshPerfNums() {
+    document.querySelectorAll("#perfTable tbody tr").forEach((row, i) => {
+        const s = row.querySelector('.rn');
+        if (s) s.textContent = (i + 1) + '.';
+    });
+}
+
+function movePerfRow(btn, dir) {
+    const row = btn.closest("tr");
+    if (dir === -1 && row.previousElementSibling) row.parentNode.insertBefore(row, row.previousElementSibling);
+    else if (dir === 1 && row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling, row);
+    refreshPerfNums();
+}
+
+function openEditPerf(btn) {
+    currentRow = btn.closest("tr");
+    document.getElementById("editp_name").value = currentRow.dataset.name || '';
+    document.getElementById("editp_qte").value = currentRow.dataset.qte || '';
+    document.getElementById("editp_debit").value = currentRow.dataset.debit || '';
+    document.getElementById("editPerfDialog").showModal();
+}
+
+function savePerfEdit() {
+    currentRow.dataset.name = document.getElementById("editp_name").value;
+    currentRow.dataset.qte = document.getElementById("editp_qte").value;
+    currentRow.dataset.debit = document.getElementById("editp_debit").value;
+    renderPerfRow(currentRow);
+    document.getElementById("editPerfDialog").close();
+}
+
+function clearAllPerfs() {
+    if (confirm("Supprimer toutes les perfusions ?")) document.querySelector("#perfTable tbody").innerHTML = "";
+}
+
+/* ─── DROGUES SAP ─── */
+function addDrog(data = null) {
+    const fields = ["drog_name","drog_prep","drog_debit","drog_obj"];
+    const values = data || fields.map(id => document.getElementById(id).value);
+    if (!values[0]) return data ? null : alert("Nom de la drogue requis.");
+    const tbody = document.querySelector("#drogTable tbody");
+    const row = tbody.insertRow();
+    [row.dataset.name, row.dataset.prep, row.dataset.debit, row.dataset.obj] = values;
+    renderDrogRow(row);
+    if (!data) fields.forEach(id => document.getElementById(id).value = "");
+}
+
+function renderDrogRow(row) {
+    const n = row.rowIndex;
+    row.innerHTML = `
+        <td><span class="rn">${n}.</span>${row.dataset.name}</td>
+        <td>${row.dataset.prep}</td>
+        <td>${row.dataset.debit}</td>
+        <td>${row.dataset.obj}</td>
+        <td class="actions-cell">
+            <button onclick="moveDrogRow(this,-1)">↑</button>
+            <button onclick="moveDrogRow(this,1)">↓</button>
+            <button onclick="openEditDrog(this)">Edit</button>
+            <button onclick="this.closest('tr').remove();refreshDrogNums()">✕</button>
+        </td>`;
+}
+
+function refreshDrogNums() {
+    document.querySelectorAll("#drogTable tbody tr").forEach((row, i) => {
+        const s = row.querySelector('.rn');
+        if (s) s.textContent = (i + 1) + '.';
+    });
+}
+
+function moveDrogRow(btn, dir) {
+    const row = btn.closest("tr");
+    if (dir === -1 && row.previousElementSibling) row.parentNode.insertBefore(row, row.previousElementSibling);
+    else if (dir === 1 && row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling, row);
+    refreshDrogNums();
+}
+
+function openEditDrog(btn) {
+    currentRow = btn.closest("tr");
+    document.getElementById("editd_name").value = currentRow.dataset.name || '';
+    document.getElementById("editd_prep").value = currentRow.dataset.prep || '';
+    document.getElementById("editd_debit").value = currentRow.dataset.debit || '';
+    document.getElementById("editd_obj").value = currentRow.dataset.obj || '';
+    document.getElementById("editDrogDialog").showModal();
+}
+
+function saveDrogEdit() {
+    currentRow.dataset.name = document.getElementById("editd_name").value;
+    currentRow.dataset.prep = document.getElementById("editd_prep").value;
+    currentRow.dataset.debit = document.getElementById("editd_debit").value;
+    currentRow.dataset.obj = document.getElementById("editd_obj").value;
+    renderDrogRow(currentRow);
+    document.getElementById("editDrogDialog").close();
+}
+
+function clearAllDrogs() {
+    if (confirm("Supprimer toutes les drogues SAP ?")) document.querySelector("#drogTable tbody").innerHTML = "";
+}
+
+/* ─── SAVE / LOAD ─── */
 function saveToBox() {
     const n = boxSelect.value;
     const ins = {};
@@ -761,6 +1082,10 @@ function saveToBox() {
         patient: pat,
         drugs: Array.from(document.querySelectorAll("#drugTable tbody tr")).map(r =>
             [r.dataset.name, r.dataset.jours, r.dataset.dose, r.dataset.times, r.dataset.route, r.dataset.schedule]),
+        perfs: Array.from(document.querySelectorAll("#perfTable tbody tr")).map(r =>
+            [r.dataset.name, r.dataset.qte, r.dataset.debit]),
+        drogs: Array.from(document.querySelectorAll("#drogTable tbody tr")).map(r =>
+            [r.dataset.name, r.dataset.prep, r.dataset.debit, r.dataset.obj]),
         checks: Array.from(document.querySelectorAll('#printPage input[type="checkbox"]')).map(c => c.checked),
         insulin: ins,
         showExtraImage: document.getElementById("extraImageContainer").style.display === "block"
@@ -776,6 +1101,10 @@ function loadFromBox() {
     syncPatient();
     document.querySelector("#drugTable tbody").innerHTML = "";
     data.drugs.forEach(d => addDrug(d));
+    document.querySelector("#perfTable tbody").innerHTML = "";
+    if (data.perfs) data.perfs.forEach(d => addPerf(d));
+    document.querySelector("#drogTable tbody").innerHTML = "";
+    if (data.drogs) data.drogs.forEach(d => addDrog(d));
     const cks = document.querySelectorAll('#printPage input[type="checkbox"]');
     if (data.checks) data.checks.forEach((v, i) => { if (cks[i]) cks[i].checked = v; });
     if (data.insulin) Object.keys(data.insulin).forEach(id => { const el = document.getElementById(id); if (el) el.value = data.insulin[id]; });
@@ -784,6 +1113,20 @@ function loadFromBox() {
 }
 
 window.onload = () => { const s = localStorage.getItem('prescriptionStorage'); if (s) storageBoxes = JSON.parse(s); };
+
+/* ─── Hide empty tables before printing ─── */
+window.addEventListener('beforeprint', () => {
+    ['drugTable', 'perfTable', 'drogTable'].forEach(id => {
+        const tbl = document.getElementById(id);
+        const isEmpty = tbl.querySelector('tbody').rows.length === 0;
+        tbl.classList.toggle('empty-table', isEmpty);
+    });
+});
+window.addEventListener('afterprint', () => {
+    ['drugTable', 'perfTable', 'drogTable'].forEach(id => {
+        document.getElementById(id).classList.remove('empty-table');
+    });
+});
 </script>
 </body>
 </html>
