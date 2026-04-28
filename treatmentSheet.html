@@ -33,7 +33,13 @@
         }
         .ctrl-row:last-child { border-bottom: none; }
 
-        label { font-size: 11px; font-weight: bold; display: block; margin-bottom: 3px; }
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        label { font-size: 11px; font-weight: bold; display: block; }
 
         input, select {
             font-family: Arial, sans-serif;
@@ -74,6 +80,8 @@
         }
         .insulin-grid strong { font-size: 11px; display: block; margin-bottom: 6px; letter-spacing: 0.05em; }
         .ins-row { display: flex; gap: 5px; margin-bottom: 4px; align-items: center; font-size: 11px; }
+        .ins-row .field { flex-direction: column; gap: 2px; }
+        .ins-row .field label { font-size: 9px; color: #555; }
 
         /* ─── PRINT PAGE ─── */
         #printPage {
@@ -88,10 +96,9 @@
 
         /* ─── HEADER ─── */
         .page-header {
-           
             padding: 14px 15mm 10px;
             text-align: center;
-              margin-top: 30px;
+            margin-top: 30px;
         }
         .page-header h2 {
             font-size: 14px;
@@ -339,64 +346,160 @@
 
 <!-- CONTROLS -->
 <div id="controls">
+
+    <!-- Row 1: Box selector -->
     <div class="ctrl-row">
-        <div>
-            <label>Storage Box</label>
-            <select id="boxSelect"></select>
-            <button class="btn-dark" onclick="saveToBox()">Save</button>
-            <button onclick="loadFromBox()">Load</button>
+        <div class="field">
+            <label for="boxSelect">Boîte de stockage</label>
+            <div style="display:flex;gap:6px;align-items:center">
+                <select id="boxSelect"></select>
+                <button class="btn-dark" onclick="saveToBox()">Sauvegarder</button>
+                <button onclick="loadFromBox()">Charger</button>
+            </div>
         </div>
-        <div class="insulin-grid">
+    </div>
+
+    <!-- Row 2: Patient identity -->
+    <div class="ctrl-row">
+        <div class="field" style="flex:2;min-width:150px">
+            <label for="p_name">Nom et Prénom</label>
+            <input type="text" id="p_name" oninput="syncPatient()">
+        </div>
+        <div class="field" style="width:60px">
+            <label for="p_box">Box</label>
+            <input type="text" id="p_box" oninput="syncPatient()">
+        </div>
+        <div class="field" style="flex:1;min-width:110px">
+            <label for="p_doc">Médecin</label>
+            <input type="text" id="p_doc" oninput="syncPatient()">
+        </div>
+        <div class="field" style="flex:1;min-width:110px">
+            <label for="p_date">Date (JJ/MM/AA)</label>
+            <input type="text" id="p_date" oninput="syncPatient()">
+        </div>
+    </div>
+
+    <!-- Row 3: Hospitalisation days -->
+    <div class="ctrl-row">
+        <div class="field" style="width:135px">
+            <label for="p_jhosp">J Hospitalisation</label>
+            <input type="text" id="p_jhosp" oninput="syncPatient()">
+        </div>
+        <div class="field" style="width:115px">
+            <label for="p_jint">J Intubation</label>
+            <input type="text" id="p_jint" oninput="syncPatient()">
+        </div>
+        <div class="field" style="width:125px">
+            <label for="p_jtrach">J Trachéotomie</label>
+            <input type="text" id="p_jtrach" oninput="syncPatient()">
+        </div>
+    </div>
+
+    <!-- Row 4: Metrics -->
+    <div class="ctrl-row">
+        <div class="field" style="width:70px">
+            <label for="p_poids">Poids</label>
+            <input type="text" id="p_poids" oninput="syncPatient()">
+        </div>
+        <div class="field" style="width:75px">
+            <label for="p_pi">P. Idéal</label>
+            <input type="text" id="p_pi" oninput="syncPatient()">
+        </div>
+        <div class="field" style="width:80px">
+            <label for="p_pa">P. Ajusté</label>
+            <input type="text" id="p_pa" oninput="syncPatient()">
+        </div>
+        <div class="field" style="width:65px">
+            <label for="p_taille">Taille</label>
+            <input type="text" id="p_taille" oninput="syncPatient()">
+        </div>
+        <div class="field" style="width:65px">
+            <label for="p_mdrd">MDRD</label>
+            <input type="text" id="p_mdrd" oninput="syncPatient()">
+        </div>
+        <div class="field" style="width:80px">
+            <label for="p_cock">Cockcroft</label>
+            <input type="text" id="p_cock" oninput="syncPatient()">
+        </div>
+    </div>
+
+    <!-- Row 4b: Insulin grid + toggle buttons -->
+    <div class="ctrl-row" style="align-items:flex-start">
+        <div class="insulin-grid" style="">
             <div>
                 <strong>ACTRAPID</strong>
-                <div class="ins-row"><input type="text" id="act_h1" placeholder="h" class="small-input" oninput="syncInsulin()"> → <input type="text" id="act_u1" placeholder="UI" class="small-input" oninput="syncInsulin()"></div>
-                <div class="ins-row"><input type="text" id="act_h2" placeholder="h" class="small-input" oninput="syncInsulin()"> → <input type="text" id="act_u2" placeholder="UI" class="small-input" oninput="syncInsulin()"></div>
-                <div class="ins-row"><input type="text" id="act_h3" placeholder="h" class="small-input" oninput="syncInsulin()"> → <input type="text" id="act_u3" placeholder="UI" class="small-input" oninput="syncInsulin()"></div>
-                <div class="ins-row"><input type="text" id="act_h4" placeholder="h" class="small-input" oninput="syncInsulin()"> → <input type="text" id="act_u4" placeholder="UI" class="small-input" oninput="syncInsulin()"></div>
+                <div class="ins-row">
+                    <div class="field"><label>Heure</label><input type="text" id="act_h1" class="small-input" oninput="syncInsulin()"></div>
+                    <span style="align-self:flex-end;padding-bottom:5px">→</span>
+                    <div class="field"><label>UI</label><input type="text" id="act_u1" class="small-input" oninput="syncInsulin()"></div>
+                </div>
+                <div class="ins-row">
+                    <div class="field"><label>Heure</label><input type="text" id="act_h2" class="small-input" oninput="syncInsulin()"></div>
+                    <span style="align-self:flex-end;padding-bottom:5px">→</span>
+                    <div class="field"><label>UI</label><input type="text" id="act_u2" class="small-input" oninput="syncInsulin()"></div>
+                </div>
+                <div class="ins-row">
+                    <div class="field"><label>Heure</label><input type="text" id="act_h3" class="small-input" oninput="syncInsulin()"></div>
+                    <span style="align-self:flex-end;padding-bottom:5px">→</span>
+                    <div class="field"><label>UI</label><input type="text" id="act_u3" class="small-input" oninput="syncInsulin()"></div>
+                </div>
+                <div class="ins-row">
+                    <div class="field"><label>Heure</label><input type="text" id="act_h4" class="small-input" oninput="syncInsulin()"></div>
+                    <span style="align-self:flex-end;padding-bottom:5px">→</span>
+                    <div class="field"><label>UI</label><input type="text" id="act_u4" class="small-input" oninput="syncInsulin()"></div>
+                </div>
             </div>
             <div>
                 <strong>NPH</strong>
-                <div class="ins-row"><input type="text" id="nph_h1" placeholder="h" class="small-input" oninput="syncInsulin()"> → <input type="text" id="nph_u1" placeholder="UI" class="small-input" oninput="syncInsulin()"></div>
-                <div class="ins-row"><input type="text" id="nph_h2" placeholder="h" class="small-input" oninput="syncInsulin()"> → <input type="text" id="nph_u2" placeholder="UI" class="small-input" oninput="syncInsulin()"></div>
+                <div class="ins-row">
+                    <div class="field"><label>Heure</label><input type="text" id="nph_h1" class="small-input" oninput="syncInsulin()"></div>
+                    <span style="align-self:flex-end;padding-bottom:5px">→</span>
+                    <div class="field"><label>UI</label><input type="text" id="nph_u1" class="small-input" oninput="syncInsulin()"></div>
+                </div>
+                <div class="ins-row">
+                    <div class="field"><label>Heure</label><input type="text" id="nph_h2" class="small-input" oninput="syncInsulin()"></div>
+                    <span style="align-self:flex-end;padding-bottom:5px">→</span>
+                    <div class="field"><label>UI</label><input type="text" id="nph_u2" class="small-input" oninput="syncInsulin()"></div>
+                </div>
             </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+            <button onclick="toggleExtraImage()">Insuline selon Dextro</button>
+            <button onclick="toggleExtraImageShema()">Insuline schéma</button>
         </div>
     </div>
 
+    <!-- Row 5: Add drug -->
     <div class="ctrl-row">
-        <input type="text" id="p_name" placeholder="Nom et Prénom" style="flex:2;min-width:150px" oninput="syncPatient()">
-        <input type="text" id="p_box" placeholder="Box" style="width:60px" oninput="syncPatient()">
-        <input type="text" id="p_doc" placeholder="Médecin" style="flex:1;min-width:110px" oninput="syncPatient()">
-        <input type="text" id="p_date" placeholder="Date JJ/MM/AA" style="flex:1;min-width:110px" oninput="syncPatient()">
-    </div>
-
-    <div class="ctrl-row">
-        <input type="text" id="p_jhosp" placeholder="J Hospitalisation" style="width:135px" oninput="syncPatient()">
-        <input type="text" id="p_jint" placeholder="J Intubation" style="width:115px" oninput="syncPatient()">
-        <input type="text" id="p_jtrach" placeholder="J Trachéotomie" style="width:125px" oninput="syncPatient()">
-    </div>
-
-    <div class="ctrl-row">
-        <input type="text" id="p_poids" placeholder="Poids" style="width:70px" oninput="syncPatient()">
-        <input type="text" id="p_pi" placeholder="P. Idéal" style="width:75px" oninput="syncPatient()">
-        <input type="text" id="p_pa" placeholder="P. Ajusté" style="width:80px" oninput="syncPatient()">
-        <input type="text" id="p_taille" placeholder="Taille" style="width:65px" oninput="syncPatient()">
-        <input type="text" id="p_mdrd" placeholder="MDRD" style="width:65px" oninput="syncPatient()">
-        <input type="text" id="p_cock" placeholder="Cockcroft" style="width:80px" oninput="syncPatient()">
-        <button onclick="toggleExtraImage()">Insuline selon Dextro</button>
-         <button onclick="toggleExtraImageShema()">Insuline shema</button>
-
-    </div>
-
-    <div class="ctrl-row">
-        <input type="text" id="name" placeholder="Médicament" style="flex:2;min-width:120px">
-        <input type="number" id="jours" placeholder="Jours" style="width:65px">
-        <input type="text" id="dose" placeholder="Dose" style="flex:1;min-width:80px">
-        <input type="number" id="times" placeholder="Qté" style="width:60px">
-        <input type="text" id="route" placeholder="Voie" style="flex:1;min-width:80px">
-        <input type="text" id="schedule" placeholder="Horaires" style="flex:1.5;min-width:100px">
-        <button class="btn-dark" onclick="addDrug()">+ Ajouter</button>
-        <button onclick="clearAllDrugs()">Effacer tout</button>
-        <button class="btn-dark" onclick="window.print()">🖨 Imprimer</button>
+        <div class="field" style="flex:2;min-width:120px">
+            <label for="name">Médicament</label>
+            <input type="text" id="name">
+        </div>
+        <div class="field" style="width:65px">
+            <label for="jours">Jours</label>
+            <input type="number" id="jours">
+        </div>
+        <div class="field" style="flex:1;min-width:80px">
+            <label for="dose">Dose</label>
+            <input type="text" id="dose">
+        </div>
+        <div class="field" style="width:60px">
+            <label for="times">Qté</label>
+            <input type="number" id="times">
+        </div>
+        <div class="field" style="flex:1;min-width:80px">
+            <label for="route">Voie</label>
+            <input type="text" id="route">
+        </div>
+        <div class="field" style="flex:1.5;min-width:100px">
+            <label for="schedule">Horaires</label>
+            <input type="text" id="schedule">
+        </div>
+        <div style="display:flex;gap:6px;align-self:flex-end">
+            <button class="btn-dark" onclick="addDrug()">+ Ajouter</button>
+            <button onclick="clearAllDrugs()">Effacer tout</button>
+            <button class="btn-dark" onclick="window.print()">🖨 Imprimer</button>
+        </div>
     </div>
 </div>
 
@@ -451,7 +554,7 @@
         <div class="bottom-sections">
             <div>
                 <div id="extraImageContainer">
-                    <img src="data:image/png;base64,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" alt="Prescription Add-on">
+                    <img src="https://i.ibb.co/KzFYWJR3/Screenshot-4.png" alt="Prescription Add-on">
                 </div>
 
                 <table class="soins-table">
