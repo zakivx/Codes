@@ -236,6 +236,29 @@
     align-items: flex-start;
   }
 
+  /* ── MOBILE RESPONSIVE ── */
+  @media (max-width: 640px) {
+    body { padding: 16px 10px; gap: 16px; }
+
+    #form-panel { padding: 20px 16px; }
+
+    .form-grid { grid-template-columns: 1fr; }
+    .form-group.full { grid-column: 1; }
+
+    #btn-generate { font-size: .8rem; padding: 11px; }
+
+    .a4-wrapper { width: 100%; overflow-x: auto; }
+
+    .a4-controls { flex-wrap: wrap; justify-content: center; gap: 10px; }
+
+    /* Scale the A4 page to fit mobile screen */
+    .a4-page {
+      transform-origin: top center;
+      transform: scale(var(--a4-scale, 1));
+      margin-bottom: calc((297mm * var(--a4-scale, 1)) - 297mm);
+    }
+  }
+
   /* ── PRINT ── */
   @media print {
     @page {
@@ -327,7 +350,7 @@ function division(exam, data) {
     <div class="field-row tall"><span class="field-label">Rens. cliniques :</span><span class="field-value">${data.rc}</span></div>
     <div class="field-row" style="min-height:35px;align-items:flex-start;"><span class="field-label">Médecin traitant :</span><span class="field-value"></span></div>
     <div class="field-row"><span class="field-label">Date de résultat :</span><span class="field-value"></span></div>
-    <div class="field-row"><span class="field-label">Opérateur :</span><span class="field-value"></span></div>
+    <div class="field-row" style="min-height:35px;align-items:flex-start;"><span class="field-label">Opérateur :</span><span class="field-value"></span></div>
     <div class="field-row" style="min-height:120px;align-items:flex-start;"><span class="field-label">Résultats :</span><span class="field-value"></span></div>
   </div>`;
 }
@@ -360,6 +383,23 @@ const yyyy = today.getFullYear();
 const mm = String(today.getMonth()+1).padStart(2,'0');
 const dd = String(today.getDate()).padStart(2,'0');
 document.getElementById('f-date').value = `${yyyy}-${mm}-${dd}`;
+
+// Scale A4 page to fit viewport on small screens
+function scaleA4() {
+  const page = document.querySelector('.a4-page');
+  if (!page) return;
+  const a4px = 210 * 3.7795; // 210mm in px
+  const vw = window.innerWidth - 20;
+  const scale = vw < a4px ? (vw / a4px) : 1;
+  document.documentElement.style.setProperty('--a4-scale', scale);
+  page.style.transform = `scale(${scale})`;
+  page.style.transformOrigin = 'top center';
+  page.style.marginBottom = `${(297 * 3.7795 * scale) - (297 * 3.7795)}px`;
+}
+window.addEventListener('resize', scaleA4);
+// Run after generate
+const _origGenerate = generate;
+generate = function() { _origGenerate(); setTimeout(scaleA4, 50); };
 </script>
 </body>
 </html>
