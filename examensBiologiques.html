@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demandes d'Examens Biologiques</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap');
+
+  :root {
+    --ink: #1a1a2e;
+    --ink-light: #3a3a5c;
+    --rule: #b0b8cc;
+    --rule-light: #d8dde8;
+    --accent: #1a4a7a;
+    --paper: #fafbfd;
+    --label-bg: #eef1f7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: #d0d5e0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px;
+    gap: 30px;
+  }
+
+  /* ── FORM PANEL ── */
+  #form-panel {
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.15);
+    padding: 32px 36px;
+    width: 100%;
+    max-width: 640px;
+  }
+
+  #form-panel h2 {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 1.1rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 10px;
+    margin-bottom: 24px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+  }
+
+  input, textarea {
+    border: 1.5px solid var(--rule);
+    border-radius: 3px;
+    padding: 8px 10px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: .9rem;
+    color: var(--ink);
+    background: var(--paper);
+    transition: border-color .2s;
+    outline: none;
+  }
+
+  input:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+
+  textarea { resize: vertical; min-height: 60px; }
+
+  #btn-generate {
+    margin-top: 24px;
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: white;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: .85rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background .2s;
+  }
+
+  #btn-generate:hover { background: #12366b; }
+
+  #btn-print {
+    display: none;
+    padding: 10px 28px;
+    background: #2d6a2d;
+    color: white;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: .82rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background .2s;
+  }
+
+  #btn-print:hover { background: #1f4d1f; }
+
+  /* ── A4 SHEET ── */
+  .a4-wrapper {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .a4-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .a4-page {
+    width: 210mm;
+    height: 297mm;
+    background: white;
+    box-shadow: 0 6px 32px rgba(0,0,0,.2);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid #aaa;
+  }
+
+  /* ── DIVISION ── */
+  .division {
+    border: 1px solid var(--rule);
+    padding: 7mm 6mm 5mm;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .division::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--accent);
+  }
+
+  .div-header {
+    margin-bottom: 4px;
+  }
+
+  .div-service {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 7.5pt;
+    font-weight: 700;
+    letter-spacing: .04em;
+    color: var(--accent);
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  .div-exam {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 9pt;
+    font-weight: 700;
+    color: var(--ink);
+    margin-top: 2px;
+    line-height: 1.2;
+    border-bottom: 1.5px solid var(--ink);
+    padding-bottom: 3px;
+    margin-bottom: 5px;
+  }
+
+  .field-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+    min-height: 16px;
+    border-bottom: .75px solid var(--rule-light);
+    padding: 2px 0;
+  }
+
+  .field-label {
+    font-size: 6.5pt;
+    font-weight: 600;
+    letter-spacing: .03em;
+    color: var(--ink-light);
+    white-space: nowrap;
+    min-width: 90px;
+    flex-shrink: 0;
+  }
+
+  .field-value {
+    font-size: 7pt;
+    color: var(--ink);
+    flex: 1;
+    padding-left: 3px;
+    line-height: 1.4;
+  }
+
+  .field-row.tall {
+    align-items: flex-start;
+    min-height: 28px;
+  }
+
+  .field-row.result-row {
+    min-height: 32px;
+    align-items: flex-start;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    body {
+      background: white;
+      padding: 0;
+    }
+
+    #form-panel, .a4-controls { display: none !important; }
+
+    .a4-wrapper { display: flex !important; }
+
+    .a4-page {
+      box-shadow: none;
+      border: none;
+      width: 210mm;
+      height: 297mm;
+    }
+
+    .division::before { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- FORM -->
+<div id="form-panel">
+  <h2>Bon de Demande d'Examens</h2>
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="f-date">
+    </div>
+    <div class="form-group">
+      <label>Nom et Prénom</label>
+      <input type="text" id="f-nom" placeholder="ex: BENALI Ahmed">
+    </div>
+    <div class="form-group">
+      <label>Âge</label>
+      <input type="text" id="f-age" placeholder="ex: 45 ans">
+    </div>
+    <div class="form-group full">
+      <label>Renseignements cliniques</label>
+      <textarea id="f-rc" placeholder="Motif, antécédents, symptômes..."></textarea>
+    </div>
+  </div>
+  <button id="btn-generate" onclick="generate()">Générer la fiche A4</button>
+</div>
+
+<!-- A4 OUTPUT -->
+<div class="a4-wrapper" id="a4-wrapper">
+  <div class="a4-controls">
+    <button id="btn-print" onclick="window.print()">🖨 Imprimer</button>
+    <button style="padding:10px 20px;border:1.5px solid #666;background:white;border-radius:3px;cursor:pointer;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;" onclick="reset()">← Modifier</button>
+  </div>
+  <div class="a4-page" id="a4-page"></div>
+</div>
+
+<script>
+const EXAMS = [
+  "Groupage",
+  "FNS",
+  "Ionogramme, Urée, Créatinine, Glycémie",
+  "TP — INR",
+  "ProBNP — D-Dimères",
+  "Sérologie VIH, VHB, VHC"
+];
+
+function fmt(dateStr) {
+  if (!dateStr) return '';
+  const [y,m,d] = dateStr.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function division(exam, data) {
+  return `
+  <div class="division">
+    <div class="div-header">
+      <div class="div-service">Service de Réanimation Médicale</div>
+      <div class="div-exam">Examen demandé : ${exam}</div>
+    </div>
+    <div class="field-row"><span class="field-label">Date :</span><span class="field-value">${data.date}</span></div>
+    <div class="field-row"><span class="field-label">Nom et Prénom :</span><span class="field-value">${data.nom}</span></div>
+    <div class="field-row"><span class="field-label">Âge :</span><span class="field-value">${data.age}</span></div>
+    <div class="field-row tall"><span class="field-label">Rens. cliniques :</span><span class="field-value">${data.rc}</span></div>
+    <div class="field-row" style="min-height:35px;align-items:flex-start;"><span class="field-label">Médecin traitant :</span><span class="field-value"></span></div>
+    <div class="field-row"><span class="field-label">Date de résultat :</span><span class="field-value"></span></div>
+    <div class="field-row"><span class="field-label">Opérateur :</span><span class="field-value"></span></div>
+    <div class="field-row" style="min-height:120px;align-items:flex-start;"><span class="field-label">Résultats :</span><span class="field-value"></span></div>
+  </div>`;
+}
+
+function generate() {
+  const data = {
+    date: fmt(document.getElementById('f-date').value),
+    nom:  document.getElementById('f-nom').value || '—',
+    age:  document.getElementById('f-age').value || '—',
+    rc:   document.getElementById('f-rc').value || '—',
+  };
+
+  const page = document.getElementById('a4-page');
+  page.innerHTML = EXAMS.map(e => division(e, data)).join('');
+
+  document.getElementById('form-panel').style.display = 'none';
+  const wrapper = document.getElementById('a4-wrapper');
+  wrapper.style.display = 'flex';
+  document.getElementById('btn-print').style.display = 'inline-block';
+}
+
+function reset() {
+  document.getElementById('form-panel').style.display = 'block';
+  document.getElementById('a4-wrapper').style.display = 'none';
+}
+
+// Set today's date as default
+const today = new Date();
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth()+1).padStart(2,'0');
+const dd = String(today.getDate()).padStart(2,'0');
+document.getElementById('f-date').value = `${yyyy}-${mm}-${dd}`;
+</script>
+</body>
+</html>
