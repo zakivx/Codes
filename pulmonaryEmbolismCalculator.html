@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Pulmonary Embolism (PE) Calculator</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #eff6ff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --success: #15803d;
+            --warning: #b45309;
+            --danger: #b91c1c;
+            --aha-bg: #f8fafc;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.5;
+            color: var(--text);
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        h1 { color: var(--primary); margin: 0 0 8px 0; font-size: 28px; }
+        .subtitle { color: var(--text-muted); margin: 0; font-size: 14px; }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 1100px) {
+            .layout { grid-template-columns: 460px 1fr; }
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .column-heading {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 10px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .checkbox-label input {
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+
+        .scores-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .scores-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .results-column {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .score-card {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 14px;
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .aha-card {
+            border: 2px solid #cbd5e1;
+            background: #fff;
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .score-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .score-name { font-weight: 600; font-size: 14px; color: #334155; }
+        .score-value { font-weight: 700; font-size: 15px; padding: 2px 8px; border-radius: 4px; background: var(--primary-light); color: var(--primary); white-space: nowrap; }
+
+        .score-interpretation {
+            font-size: 13px;
+            font-weight: 500;
+            padding: 6px 10px;
+            border-radius: 4px;
+            margin-top: 6px;
+        }
+
+        .status-low { background-color: #dcfce7; color: var(--success); }
+        .status-mod { background-color: #fef3c7; color: var(--warning); }
+        .status-high { background-color: #fee2e2; color: var(--danger); }
+        
+        .aha-badge {
+            font-size: 18px;
+            font-weight: 800;
+            padding: 6px 14px;
+            border-radius: 6px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Pulmonary Embolism Unified Scoring Tool</h1>
+        <p class="subtitle">Unified Input Processor incorporating AHA/ACC Acute PE Clinical Categories</p>
+    </header>
+
+    <div class="layout">
+        <!-- LEFT: CROSS-MAPPED INPUT PANEL -->
+        <div class="inputs-container" style="display:flex; flex-direction:column; gap:20px;">
+            
+            <!-- Demographics, Vitals & Lab -->
+            <div class="panel">
+                <div class="panel-title">1. Demographics, Vitals & Labs</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="input-group">
+                        <label for="age">Age (Years)</label>
+                        <input type="number" id="age" value="60" min="0" max="120">
+                    </div>
+                    <div class="input-group">
+                        <label for="sex">Biological Sex</label>
+                        <select id="sex">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="hr">Heart Rate (bpm)</label>
+                        <input type="number" id="hr" value="80" min="0" max="250">
+                    </div>
+                    <div class="input-group">
+                        <label for="sbp">Systolic BP (mmHg)</label>
+                        <input type="number" id="sbp" value="120" min="0" max="250">
+                    </div>
+                    <div class="input-group">
+                        <label for="rr">Respiratory Rate (bpm)</label>
+                        <input type="number" id="rr" value="18" min="0" max="60">
+                    </div>
+                    <div class="input-group">
+                        <label for="spo2">Oxygen Saturation (%)</label>
+                        <input type="number" id="spo2" value="97" min="0" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label for="temp">Temperature (°C)</label>
+                        <input type="number" id="temp" value="36.8" step="0.1" min="25" max="45">
+                    </div>
+                    <div class="input-group">
+                        <label for="gcs">Mental Status</label>
+                        <select id="gcs">
+                            <option value="normal">Normal / Alert</option>
+                            <option value="altered">Altered Mental Status</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="grid-column: span 2;">
+                        <label for="ddimer">D-Dimer (ng/mL)</label>
+                        <input type="number" id="ddimer" value="450" min="0" placeholder="e.g. 450">
+                    </div>
+                </div>
+                <div class="checkbox-group" style="margin-top: 10px;">
+                    <label class="checkbox-label" style="background: #eff6ff;">
+                        <input type="checkbox" id="supp_o2">
+                        <span>Requires Supplemental Oxygen (&le;6 L/min nasal cannula)</span>
+                    </label>
+                    <label class="checkbox-label" style="background: #fff3cd;">
+                        <input type="checkbox" id="high_flow_o2">
+                        <span>Requires High-Flow O2 (&gt;6 L/min nasal cannula or NRB mask)</span>
+                    </label>
+                    <label class="checkbox-label" style="background: #fee2e2;">
+                        <input type="checkbox" id="resp_failure">
+                        <span>Hypoxemic Respiratory Failure / Ventilatory Failure (Advanced Support)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- History & Risk Factors -->
+            <div class="panel">
+                <div class="panel-title">2. History & Risk Factors</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-label"><input type="checkbox" id="hx_pe_dvt"><span>Prior DVT or PE</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="cancer"><span>Active Cancer</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="surgery_4w"><span>Surgery/Trauma within 4 weeks requiring Hosp.</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="immob_3d"><span>Immobilization &ge;3 days</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="gen_anes_1m"><span>Gen. Anesthesia or Lower Limb Fx (1 month)</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="estrogen"><span>Oral Estrogen / Contraceptive use</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="lung_disease"><span>Chronic Lung Disease</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="heart_failure"><span>History of Heart Failure</span></label>
+                </div>
+            </div>
+
+            <!-- Clinical Presentation & Diagnostics -->
+            <div class="panel">
+                <div class="panel-title">3. Clinical Presentation & Diagnostics</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-label" style="background: #f0fdf4; border-color: #bbf7d0;"><input type="checkbox" id="asymptomatic_pe"><span><strong>Class A Indicator:</strong> Incidental and Asymptomatic PE</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="subsegmental_only"><span>PE Thrombus is limited to Subsegmental Arteries only</span></label>
+                    <hr style="border: 0; border-top: 1px solid var(--border); margin: 4px 0; width: 100%;">
+                    <label class="checkbox-label"><input type="checkbox" id="dvt_symptoms"><span>Clinical DVT Symptoms (Swelling, Deep Pain)</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="pe_most_likely"><span>PE is More Likely than alternative diagnoses</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="hemoptysis"><span>Hemoptysis (Coughing blood)</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="rv_dysfunction"><span>Right Ventricular (RV) Dysfunction</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="troponin"><span>Elevated Cardiac Troponin</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="bnp"><span>Elevated BNP / NT-proBNP</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="central_thrombus"><span>Central Thrombus Burden (Saddle PE)</span></label>
+                    <hr style="border: 0; border-top: 1px solid var(--border); margin: 4px 0; width: 100%;">
+                    <label class="checkbox-label" style="background: #fff5f5;"><input type="checkbox" id="transient_hypotension"><span><strong>Class D1:</strong> Transient Hypotension (resolves rapidly with fluid/posture)</span></label>
+                    <label class="checkbox-label" style="background: #fff5f5;"><input type="checkbox" id="normotensive_shock"><span><strong>Class D2:</strong> Normotensive Shock (clinical hypoperfusion signs despite normal BP)</span></label>
+                    <label class="checkbox-label" style="background: #fef2f2; border-color: #fecaca;"><input type="checkbox" id="persistent_hypotension"><span><strong>Class E1:</strong> Recurrent/Persistent Hypotension with Cardiogenic Shock</span></label>
+                    <label class="checkbox-label" style="background: #fef2f2; border-color: #fecaca;"><input type="checkbox" id="refractory_shock"><span><strong>Class E2:</strong> Refractory Cardiogenic Shock or Cardiac Arrest</span></label>
+                </div>
+            </div>
+
+            <!-- Hestia Safety Checklist -->
+            <div class="panel">
+                <div class="panel-title">4. Hestia Outpatient Safety Checklist</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-label"><input type="checkbox" id="h_unstable"><span>Hemodynamically unstable</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="h_thrombolysis"><span>Thrombolysis/Embolectomy needed</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="h_bleeding"><span>Active / High risk of bleeding</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="h_o2"><span>Requires &gt;24h O2 to keep SaO2 &gt;90%</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="h_anticoag"><span>PE diagnosed during active anticoagulation</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="h_pain"><span>Severe pain requiring IV meds &gt;24h</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="h_social"><span>Medical/Social reasons for Hosp &gt;24h</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="h_crcl"><span>Creatinine Clearance &lt;30 mL/min</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="h_liver"><span>Severe Liver Impairment</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="h_preg"><span>Patient is Pregnant</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="h_hit"><span>History of HIT</span></label>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: RESULTS PANEL -->
+        <div class="results-container">
+            <div class="panel" style="position: sticky; top: 20px;">
+                
+                <!-- NEW OVERARCHING AHA/ACC CATEGORIES PANEL -->
+                <div class="aha-card" id="aha_container">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <div>
+                            <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Unified Framework Classification</span>
+                            <h2 style="margin: 2px 0 0 0; font-size: 20px; color: #0f172a;">AHA/ACC Acute PE Category</h2>
+                        </div>
+                        <div id="aha_badge" class="aha-badge">Class ---</div>
+                    </div>
+                    <div id="aha_desc" style="font-size: 14px; line-height: 1.4; font-weight: 500;">Evaluating cross-mapped severity models...</div>
+                </div>
+
+                <div class="scores-grid">
+                    
+                    <!-- COLUMN 1: CLINICAL PRETEST PROBABILITY SCORE -->
+                    <div class="results-column">
+                        <div class="column-heading">Clinical Pretest Probability Score</div>
+                        
+                        <!-- Wells -->
+                        <div class="score-card">
+                            <div class="score-header">
+                                <span class="score-name">Wells Score for PE</span>
+                                <span class="score-value" id="v_wells">0</span>
+                            </div>
+                            <div id="i_wells" class="score-interpretation"></div>
+                        </div>
+
+                        <!-- PERC -->
+                        <div class="score-card">
+                            <div class="score-header">
+                                <span class="score-name">PE Rule-Out Criteria (PERC)</span>
+                                <span class="score-value" id="v_perc">0 / 8</span>
+                            </div>
+                            <div id="i_perc" class="score-interpretation"></div>
+                        </div>
+
+                        <!-- Geneva -->
+                        <div class="score-card">
+                            <div class="score-header">
+                                <span class="score-name">Revised Geneva Score</span>
+                                <span class="score-value" id="v_geneva">0</span>
+                            </div>
+                            <div id="i_geneva" class="score-interpretation"></div>
+                        </div>
+
+                        <!-- YEARS Criteria -->
+                        <div class="score-card">
+                            <div class="score-header">
+                                <span class="score-name">YEARS Criteria</span>
+                                <span class="score-value" id="v_years">0 / 3</span>
+                            </div>
+                            <div id="i_years" class="score-interpretation"></div>
+                        </div>
+                    </div>
+
+                    <!-- COLUMN 2: RISK SCORE NAME -->
+                    <div class="results-column">
+                        <div class="column-heading">Risk Score Name</div>
+                        
+                        <!-- PESI -->
+                        <div class="score-card">
+                            <div class="score-header">
+                                <span class="score-name">PESI Score</span>
+                                <span class="score-value" id="v_pesi">0</span>
+                            </div>
+                            <div id="i_pesi" class="score-interpretation"></div>
+                        </div>
+
+                        <!-- sPESI -->
+                        <div class="score-card">
+                            <div class="score-header">
+                                <span class="score-name">sPESI (Simplified PESI)</span>
+                                <span class="score-value" id="v_spesi">0</span>
+                            </div>
+                            <div id="i_spesi" class="score-interpretation"></div>
+                        </div>
+
+                        <!-- Bova -->
+                        <div class="score-card">
+                            <div class="score-header">
+                                <span class="score-name">Bova Score</span>
+                                <span class="score-value" id="v_bova">0</span>
+                            </div>
+                            <div id="i_bova" class="score-interpretation"></div>
+                        </div>
+
+                        <!-- Hestia -->
+                        <div class="score-card">
+                            <div class="score-header">
+                                <span class="score-name">Hestia Criteria</span>
+                                <span class="score-value" id="v_hestia">0 / 11</span>
+                            </div>
+                            <div id="i_hestia" class="score-interpretation"></div>
+                        </div>
+
+                        <!-- CPES -->
+                        <div class="score-card">
+                            <div class="score-header">
+                                <span class="score-name">CPES Score</span>
+                                <span class="score-value" id="v_cpes">0</span>
+                            </div>
+                            <div id="i_cpes" class="score-interpretation"></div>
+                        </div>
+
+                        <!-- Shock Index -->
+                        <div class="score-card">
+                            <div class="score-header">
+                                <span class="score-name">Shock Index</span>
+                                <span class="score-value" id="v_si">0.00</span>
+                            </div>
+                            <div id="i_si" class="score-interpretation"></div>
+                        </div>
+
+                        <!-- NEWS/NEWS2 -->
+                        <div class="score-card">
+                            <div class="score-header">
+                                <span class="score-name">NEWS and NEWS2</span>
+                                <span class="score-value" id="v_news">0</span>
+                            </div>
+                            <div id="i_news" class="score-interpretation"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const inputs = [
+        'age', 'sex', 'hr', 'sbp', 'rr', 'spo2', 'temp', 'gcs', 'supp_o2', 'high_flow_o2', 'resp_failure', 'ddimer',
+        'hx_pe_dvt', 'cancer', 'surgery_4w', 'immob_3d', 'gen_anes_1m', 'estrogen', 'lung_disease', 'heart_failure',
+        'asymptomatic_pe', 'subsegmental_only', 'dvt_symptoms', 'pe_most_likely', 'hemoptysis', 'rv_dysfunction', 'troponin', 'bnp', 'central_thrombus',
+        'transient_hypotension', 'normotensive_shock', 'persistent_hypotension', 'refractory_shock',
+        'h_unstable', 'h_thrombolysis', 'h_bleeding', 'h_o2', 'h_anticoag', 'h_pain', 'h_social', 'h_crcl', 'h_liver', 'h_preg', 'h_hit'
+    ];
+
+    function calculate() {
+        const age = parseInt(document.getElementById('age').value) || 0;
+        const sex = document.getElementById('sex').value;
+        const hr = parseInt(document.getElementById('hr').value) || 0;
+        const sbp = parseInt(document.getElementById('sbp').value) || 0;
+        const rr = parseInt(document.getElementById('rr').value) || 0;
+        const spo2 = parseInt(document.getElementById('spo2').value) || 0;
+        const temp = parseFloat(document.getElementById('temp').value) || 36.5;
+        const ddimer = parseInt(document.getElementById('ddimer').value) || 0;
+        const altered_mental = document.getElementById('gcs').value === 'altered';
+        const supp_o2 = document.getElementById('supp_o2').checked;
+        const high_flow_o2 = document.getElementById('high_flow_o2').checked;
+        const resp_failure = document.getElementById('resp_failure').checked;
+
+        const hx_pe_dvt = document.getElementById('hx_pe_dvt').checked;
+        const cancer = document.getElementById('cancer').checked;
+        const surgery_4w = document.getElementById('surgery_4w').checked;
+        const immob_3d = document.getElementById('immob_3d').checked;
+        const gen_anes_1m = document.getElementById('gen_anes_1m').checked;
+        const estrogen = document.getElementById('estrogen').checked;
+        const lung_disease = document.getElementById('lung_disease').checked;
+        const heart_failure = document.getElementById('heart_failure').checked;
+
+        const asymptomatic_pe = document.getElementById('asymptomatic_pe').checked;
+        const subsegmental_only = document.getElementById('subsegmental_only').checked;
+        const dvt_symptoms = document.getElementById('dvt_symptoms').checked;
+        const pe_most_likely = document.getElementById('pe_most_likely').checked;
+        const hemoptysis = document.getElementById('hemoptysis').checked;
+        const rv_dysfunction = document.getElementById('rv_dysfunction').checked;
+        const troponin = document.getElementById('troponin').checked;
+        const bnp = document.getElementById('bnp').checked;
+        const central_thrombus = document.getElementById('central_thrombus').checked;
+
+        const transient_hypotension = document.getElementById('transient_hypotension').checked;
+        const normotensive_shock = document.getElementById('normotensive_shock').checked;
+        const persistent_hypotension = document.getElementById('persistent_hypotension').checked;
+        const refractory_shock = document.getElementById('refractory_shock').checked;
+
+        const h_unstable = document.getElementById('h_unstable').checked;
+        const h_thrombolysis = document.getElementById('h_thrombolysis').checked;
+        const h_bleeding = document.getElementById('h_bleeding').checked;
+        const h_o2 = document.getElementById('h_o2').checked;
+        const h_anticoag = document.getElementById('h_anticoag').checked;
+        const h_pain = document.getElementById('h_pain').checked;
+        const h_social = document.getElementById('h_social').checked;
+        const h_crcl = document.getElementById('h_crcl').checked;
+        const h_liver = document.getElementById('h_liver').checked;
+        const h_preg = document.getElementById('h_preg').checked;
+        const h_hit = document.getElementById('h_hit').checked;
+
+        // 1. WELLS
+        let wells = 0;
+        if (dvt_symptoms) wells += 3.0;
+        if (pe_most_likely) wells += 3.0;
+        if (hr > 100) wells += 1.5;
+        if (immob_3d || surgery_4w) wells += 1.5;
+        if (hx_pe_dvt) wells += 1.5;
+        if (hemoptysis) wells += 1.0;
+        if (cancer) wells += 1.0;
+        document.getElementById('v_wells').innerText = wells;
+        let i_wells = document.getElementById('i_wells');
+        if (wells < 2.0) { i_wells.className = "score-interpretation status-low"; i_wells.innerText = "Low Risk (Prob. ~1.3% - 3.6%)"; }
+        else if (wells <= 6.0) { i_wells.className = "score-interpretation status-mod"; i_wells.innerText = "Moderate Risk (Prob. ~16.2% - 26.8%)"; }
+        else { i_wells.className = "score-interpretation status-high"; i_wells.innerText = "High Risk (Prob. ~40.6% - 65%)"; }
+
+        // 2. PERC
+        let perc = 0;
+        if (age >= 50) perc++; if (hr >= 100) perc++; if (spo2 < 95) perc++; if (hemoptysis) perc++;
+        if (estrogen) perc++; if (hx_pe_dvt) perc++; if (dvt_symptoms) perc++; if (surgery_4w) perc++;
+        document.getElementById('v_perc').innerText = `${perc} / 8`;
+        let i_perc = document.getElementById('i_perc');
+        if (perc === 0) { i_perc.className = "score-interpretation status-low"; i_perc.innerText = "PERC Negative: If pretest probability is low (<15%), PE is safely ruled out."; }
+        else { i_perc.className = "score-interpretation status-high"; i_perc.innerText = "PERC Positive: Cannot rule out PE via criteria alone."; }
+
+        // 3. GENEVA
+        let geneva = 0;
+        if (age > 65) geneva += 1; if (hx_pe_dvt) geneva += 3; if (gen_anes_1m || surgery_4w) geneva += 2;
+        if (cancer) geneva += 2; if (dvt_symptoms) geneva += 3; if (hemoptysis) geneva += 2;
+        if (hr >= 75 && hr <= 94) geneva += 3; if (hr >= 95) geneva += 5;
+        document.getElementById('v_geneva').innerText = geneva;
+        let i_geneva = document.getElementById('i_geneva');
+        if (geneva <= 3) { i_geneva.className = "score-interpretation status-low"; i_geneva.innerText = "Low Risk (Prob. ~8%)"; }
+        else if (geneva <= 10) { i_geneva.className = "score-interpretation status-mod"; i_geneva.innerText = "Intermediate Risk (Prob. ~28%)"; }
+        else { i_geneva.className = "score-interpretation status-high"; i_geneva.innerText = "High Risk (Prob. ~74%)"; }
+
+        // 4. YEARS CRITERIA
+        let years = 0;
+        if (dvt_symptoms) years++;
+        if (hemoptysis) years++;
+        if (pe_most_likely) years++;
+        document.getElementById('v_years').innerText = `${years} / 3`;
+        let i_years = document.getElementById('i_years');
+        if (years === 0) {
+            if (ddimer < 1000) { i_years.className = "score-interpretation status-low"; i_years.innerText = "0 Criteria & D-Dimer < 1000 ng/mL: PE Ruled Out."; }
+            else { i_years.className = "score-interpretation status-high"; i_years.innerText = "0 Criteria but D-Dimer ≥ 1000 ng/mL: CTA required."; }
+        } else {
+            if (ddimer < 500) { i_years.className = "score-interpretation status-low"; i_years.innerText = "≥1 Criteria but D-Dimer < 500 ng/mL: PE Ruled Out."; }
+            else { i_years.className = "score-interpretation status-high"; i_years.innerText = "≥1 Criteria & D-Dimer ≥ 500 ng/mL: CTA required."; }
+        }
+
+        // 5. PESI
+        let pesi = age;
+        if (sex === 'male') pesi += 10; if (cancer) pesi += 30; if (heart_failure) pesi += 10; if (lung_disease) pesi += 10;
+        if (hr >= 110) pesi += 20; if (sbp < 100) pesi += 30; if (rr >= 30) pesi += 20; if (temp < 36.0) pesi += 20;
+        if (altered_mental) pesi += 60; if (spo2 < 90) pesi += 20;
+        document.getElementById('v_pesi').innerText = pesi;
+        let i_pesi = document.getElementById('i_pesi');
+        if (pesi <= 65) { i_pesi.className = "score-interpretation status-low"; i_pesi.innerText = "Class I (Very Low Risk)"; }
+        else if (pesi <= 85) { i_pesi.className = "score-interpretation status-low"; i_pesi.innerText = "Class II (Low Risk)"; }
+        else if (pesi <= 105) { i_pesi.className = "score-interpretation status-mod"; i_pesi.innerText = "Class III (Moderate Risk)"; }
+        else if (pesi <= 125) { i_pesi.className = "score-interpretation status-high"; i_pesi.innerText = "Class IV (High Risk)"; }
+        else { i_pesi.className = "score-interpretation status-high"; i_pesi.innerText = "Class V (Very High Risk)"; }
+
+        // 6. sPESI
+        let spesi = 0;
+        if (age > 80) spesi++; if (cancer) spesi++; if (heart_failure || lung_disease) spesi++;
+        if (sbp < 100) spesi++; if (hr >= 110) spesi++; if (spo2 < 90) spesi++;
+        document.getElementById('v_spesi').innerText = spesi;
+        let i_spesi = document.getElementById('i_spesi');
+        if (spesi === 0) { i_spesi.className = "score-interpretation status-low"; i_spesi.innerText = "0 Points: Low Risk."; }
+        else { i_spesi.className = "score-interpretation status-high"; i_spesi.innerText = "≥1 Point: High Risk."; }
+
+        // 7. BOVA
+        let bova = 0;
+        if (sbp >= 90 && sbp <= 100) bova += 2; if (troponin) bova += 2; if (rv_dysfunction) bova += 2; if (hr >= 110) bova += 1;
+        document.getElementById('v_bova').innerText = bova;
+        let i_bova = document.getElementById('i_bova');
+        if (bova <= 2) { i_bova.className = "score-interpretation status-low"; i_bova.innerText = "Stage I (Low-Intermediate risk)"; }
+        else if (bova <= 4) { i_bova.className = "score-interpretation status-mod"; i_bova.innerText = "Stage II (Intermediate risk)"; }
+        else { i_bova.className = "score-interpretation status-high"; i_bova.innerText = "Stage III (Intermediate-High risk)"; }
+
+        // 8. HESTIA
+        let hestia = 0;
+        if (h_unstable) hestia++; if (h_thrombolysis) hestia++; if (h_bleeding) hestia++; if (h_o2) hestia++;
+        if (h_anticoag) hestia++; if (h_pain) hestia++; if (h_social) hestia++; if (h_crcl) hestia++;
+        if (h_liver) hestia++; if (h_preg) hestia++; if (h_hit) hestia++;
+        document.getElementById('v_hestia').innerText = `${hestia} / 11`;
+        let i_hestia = document.getElementById('i_hestia');
+        if (hestia === 0) { i_hestia.className = "score-interpretation status-low"; i_hestia.innerText = "All NO: Outpatient care eligible."; }
+        else { i_hestia.className = "score-interpretation status-high"; i_hestia.innerText = "≥1 YES: Inpatient admission recommended."; }
+
+        // 9. CPES
+        let cpes = 0;
+        if (troponin) cpes++; if (bnp) cpes++; if (rv_dysfunction) cpes++; if (central_thrombus) cpes++;
+        if (dvt_symptoms || hx_pe_dvt) cpes++; if (hr >= 100) cpes++;
+        document.getElementById('v_cpes').innerText = cpes;
+        let i_cpes = document.getElementById('i_cpes');
+        if (cpes <= 1) { i_cpes.className = "score-interpretation status-low"; i_cpes.innerText = "Low Score: Favorable short term prognosis."; }
+        else { i_cpes.className = "score-interpretation status-high"; i_cpes.innerText = "Elevated Score: Monitor closely."; }
+
+        // 10. SHOCK INDEX
+        let si = 0; if (sbp > 0) si = hr / sbp;
+        document.getElementById('v_si').innerText = si.toFixed(2);
+        let i_si = document.getElementById('i_si');
+        if (si < 0.7) { i_si.className = "score-interpretation status-low"; i_si.innerText = "Normal (<0.7)"; }
+        else if (si <= 1.0) { i_si.className = "score-interpretation status-mod"; i_si.innerText = "Mild Elevation (0.7 to 1.0)"; }
+        else { i_si.className = "score-interpretation status-high"; i_si.innerText = "Critical Elevation (>1.0)"; }
+
+        // 11. NEWS2
+        let news = 0;
+        if (rr <= 8) news += 3; else if (rr >= 9 && rr <= 11) news += 1; else if (rr >= 21 && rr <= 24) news += 2; else if (rr >= 25) news += 3;
+        if (spo2 <= 91) news += 3; else if (spo2 >= 92 && spo2 <= 93) news += 2; else if (spo2 >= 94 && spo2 <= 95) news += 1;
+        if (supp_o2 || high_flow_o2) news += 2;
+        if (sbp <= 90) news += 3; else if (sbp >= 91 && sbp <= 100) news += 2; else if (sbp >= 101 && sbp <= 110) news += 1; else if (sbp >= 220) news += 3;
+        if (hr <= 40) news += 3; else if (hr >= 41 && hr <= 50) news += 1; else if (hr >= 91 && hr <= 110) news += 1; else if (hr >= 111 && hr <= 130) news += 2; else if (hr >= 131) news += 3;
+        if (temp <= 35.0) news += 3; else if (temp >= 35.1 && temp <= 36.0) news += 1; else if (temp >= 38.1 && temp <= 39.0) news += 1; else if (temp >= 39.1) news += 2;
+        if (altered_mental) news += 3;
+        document.getElementById('v_news').innerText = news;
+        let i_news = document.getElementById('i_news');
+        if (news <= 4) { i_news.className = "score-interpretation status-low"; i_news.innerText = "Low Risk: Ward-level care."; }
+        else if (news <= 6) { i_news.className = "score-interpretation status-mod"; i_news.innerText = "Medium Risk: Urgent assessment."; }
+        else { i_news.className = "score-interpretation status-high"; i_news.innerText = "High Risk: Emergency alert."; }
+
+
+        // ==========================================
+        // 12. AHA/ACC ACUTE PE CLINICAL CATEGORIES
+        // ==========================================
+        let ahaClass = "---";
+        let ahaDesc = "";
+        let classColor = "var(--text-muted)";
+        let bgColor = "#f8fafc";
+
+        // Pre-evaluating clinical scoring cutoffs specified in the criteria
+        const lowSeverityScore = (pesi <= 85 || spesi === 0 || bova <= 4);
+        const elevatedSeverityScore = (pesi > 85 || spesi >= 1 || bova > 4);
+
+        // Biomarker/RV status mapping
+        const hasAbnormalRV = rv_dysfunction;
+        const abnormalBiomarkersCount = (troponin ? 1 : 0) + (bnp ? 1 : 0);
+        const hasAtLeastOneBiomarker = (abnormalBiomarkersCount >= 1);
+
+        if (asymptomatic_pe) {
+            // CLASS A: Subclinical
+            ahaClass = "Class A";
+            ahaDesc = "<strong>Subclinical PE:</strong> Incidental and completely asymptomatic finding.";
+            classColor = "var(--success)"; bgColor = "#f0fdf4";
+        } 
+        else if (refractory_shock) {
+            // CLASS E2
+            let modifier = resp_failure ? " + R" : "";
+            ahaClass = "Class E2" + modifier;
+            ahaDesc = "<strong>Cardiopulmonary Failure:</strong> Refractory cardiogenic shock or imminent/post-cardiac arrest." + (resp_failure ? " <br><small>• Respiratory Modifier active (Hypoxemic/ventilatory failure)</small>" : "");
+            classColor = "var(--danger)"; bgColor = "#fef2f2";
+        } 
+        else if (persistent_hypotension) {
+            // CLASS E1
+            let modifier = resp_failure ? " + R" : "";
+            ahaClass = "Class E1" + modifier;
+            ahaDesc = "<strong>Cardiopulmonary Failure:</strong> Recurrent or persistent systemic hypotension presenting with profound cardiogenic shock." + (resp_failure ? " <br><small>• Respiratory Modifier active (Hypoxemic/ventilatory failure)</small>" : "");
+            classColor = "var(--danger)"; bgColor = "#fef2f2";
+        } 
+        else if (normotensive_shock) {
+            // CLASS D2
+            let modifier = high_flow_o2 ? " + R" : "";
+            ahaClass = "Class D2" + modifier;
+            ahaDesc = "<strong>Incipient Cardiopulmonary Failure:</strong> Normotensive shock (signs of tissue hypoperfusion present despite maintaining an acceptable systemic blood pressure)." + (high_flow_o2 ? " <br><small>• Respiratory Modifier active (&gt;6 L/min O2 or NRB mask required)</small>" : "");
+            classColor = "#7f1d1d"; bgColor = "#fff5f5";
+        } 
+        else if (transient_hypotension) {
+            // CLASS D1
+            let modifier = high_flow_o2 ? " + R" : "";
+            ahaClass = "Class D1" + modifier;
+            ahaDesc = "<strong>Incipient Cardiopulmonary Failure:</strong> Transient hypotension episodes that resolve rapidly with minimal fluid resuscitation or postural optimization." + (high_flow_o2 ? " <br><small>• Respiratory Modifier active (&gt;6 L/min O2 or NRB mask required)</small>" : "");
+            classColor = "#7f1d1d"; bgColor = "#fff5f5";
+        } 
+        else if (elevatedSeverityScore) {
+            // CLASS C: Symptomatic PE with elevated clinical severity score
+            let subClass = "";
+            let subDesc = "";
+            
+            if (hasAbnormalRV && hasAtLeastOneBiomarker) {
+                subClass = "C3";
+                subDesc = "Abnormal RV structure/function <strong>AND</strong> &ge; 1 abnormal cardiac biomarker active.";
+            } else if (hasAbnormalRV || hasAtLeastOneBiomarker) {
+                subClass = "C2";
+                subDesc = "Abnormal RV structure/function <strong>OR</strong> &ge; 1 abnormal cardiac biomarker active.";
+            } else {
+                subClass = "C1";
+                subDesc = "Normal RV profile <strong>AND</strong> completely normal cardiac biomarkers.";
+            }
+
+            // Respiratory Modifier check for Class C: (O2 < 90%, RR >= 30, or needs supp O2)
+            let hasRespModifier = (spo2 < 90 || rr >= 30 || supp_o2 || high_flow_o2 || resp_failure);
+            let modifier = hasRespModifier ? " + R" : "";
+
+            ahaClass = `Class ${subClass}${modifier}`;
+            ahaDesc = `<strong>Symptomatic PE with elevated severity index:</strong> ${subDesc}`;
+            if (hasRespModifier) {
+                ahaDesc += " <br><small>• Respiratory Modifier active (SpO2 &lt; 90%, RR &ge; 30, or supplemental O2 active)</small>";
+            }
+            classColor = "var(--warning)"; bgColor = "#fffbeb";
+        } 
+        else if (lowSeverityScore) {
+            // CLASS B: Symptomatic PE with low clinical severity score
+            let subClass = subsegmental_only ? "B1" : "B2";
+            let subDesc = subsegmental_only ? "Subsegmental architecture (Single/multiple loops)" : "Non-subsegmental main/lobar architecture";
+            
+            ahaClass = `Class ${subClass}`;
+            ahaDesc = `<strong>Symptomatic PE with low severity index:</strong> ${subDesc}. <br><small>(PESI &le; 85, sPESI = 0, or Bova &le; 4 achieved)</small>`;
+            classColor = "var(--primary)"; bgColor = "var(--primary-light)";
+        }
+
+        // Render AHA/ACC block updates
+        const badge = document.getElementById('aha_badge');
+        const descContainer = document.getElementById('aha_desc');
+        const mainContainer = document.getElementById('aha_container');
+
+        badge.innerText = ahaClass;
+        badge.style.color = "#fff";
+        badge.style.backgroundColor = classColor;
+        descContainer.innerHTML = ahaDesc;
+        mainContainer.style.backgroundColor = bgColor;
+        mainContainer.style.borderColor = classColor;
+    }
+
+    inputs.forEach(id => { document.getElementById(id).addEventListener('input', calculate); });
+    calculate();
+</script>
+
+</body>
+</html>  
