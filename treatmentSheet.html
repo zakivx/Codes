@@ -1,443 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Prescription Builder</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<title>Prescription Builder</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; font-size: 13px; background: #ddd; color: #000; }
 
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 13px;
-            background: #ddd;
-            color: #000;
-        }
+/* ─── TAB BAR ─── */
+#tabBar { max-width: 210mm; margin: 14px auto 0; display: flex; }
+.tab-btn { flex:1; padding:9px 14px; font-family:Arial,sans-serif; font-size:12px; font-weight:bold; border:1.5px solid #999; border-bottom:none; background:#ccc; color:#666; cursor:pointer; letter-spacing:0.04em; text-transform:uppercase; border-radius:4px 4px 0 0; }
+.tab-btn:first-child { border-right:none; }
+.tab-btn.active { background:#fff; color:#000; border-color:#999; position:relative; z-index:2; }
+.tab-btn:hover:not(.active) { background:#bbb; }
 
-        /* ─── CONTROLS ─── */
-        #controls {
-            max-width: 210mm;
-            margin: 16px auto;
-            background: #fff;
-            border: 1px solid #999;
-            border-radius: 4px;
-            padding: 14px 16px;
-        }
+/* ─── CONTROLS ─── */
+#controls { max-width:210mm; margin:0 auto 16px; background:#fff; border:1px solid #999; border-radius:0 0 4px 4px; padding:14px 16px; }
+.ctrl-row { display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end; padding:8px 0; border-bottom:1px solid #ddd; }
+.ctrl-row:last-child { border-bottom:none; }
+.ctrl-tab1,.ctrl-tab2 { display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end; padding:8px 0; border-bottom:1px solid #ddd; }
+.ctrl-section-label { width:100%; font-size:10px; font-weight:bold; text-transform:uppercase; letter-spacing:0.1em; color:#555; padding-bottom:4px; border-bottom:1px solid #eee; margin-bottom:2px; }
+.field { display:flex; flex-direction:column; gap:3px; }
+label { font-size:11px; font-weight:bold; display:block; }
+input,select { font-family:Arial,sans-serif; font-size:12px; padding:5px 7px; border:1px solid #aaa; border-radius:3px; background:#fff; color:#000; }
+input:focus,select:focus { outline:2px solid #333; }
+.small-input { width:54px; font-size:11px; padding:4px 6px; }
+button { font-family:Arial,sans-serif; font-size:12px; font-weight:bold; padding:6px 12px; border:1.5px solid #333; border-radius:3px; background:#fff; color:#000; cursor:pointer; }
+button:hover { background:#eee; }
+.btn-dark { background:#222; color:#fff; border-color:#222; }
+.btn-dark:hover { background:#444; }
 
-        .ctrl-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: flex-end;
-            padding: 8px 0;
-            border-bottom: 1px solid #ddd;
-        }
-        .ctrl-row:last-child { border-bottom: none; }
+/* ─── INSULIN GRID ─── */
+.insulin-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; border:1px solid #ccc; border-radius:3px; padding:10px; background:#fafafa; }
+.insulin-grid strong { font-size:11px; display:block; margin-bottom:6px; }
+.ins-row { display:flex; gap:5px; margin-bottom:4px; align-items:center; font-size:11px; }
+.ins-row .field { flex-direction:column; gap:2px; }
+.ins-row .field label { font-size:9px; color:#555; }
 
-        .ctrl-section-label {
-            width: 100%;
-            font-size: 10px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #555;
-            padding-bottom: 4px;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 2px;
-        }
+/* ─── NUTRITION INPUT ─── */
+.nutr-input-block { border:1px solid #ccc; border-radius:3px; padding:10px; background:#fafafa; margin-bottom:8px; width:100%; }
+.nutr-input-block h4 { font-size:11px; font-weight:bold; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; color:#333; }
+.nutr-row { display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; margin-bottom:6px; }
+.nutr-row .field select { min-width:200px; }
+.nutr-row .field input { width:100px; }
 
-        .field {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
+/* ─── PHASE SELECTOR ─── */
+.phase-block { background:#f0f4ff; border:1px solid #c0cef0; border-radius:4px; padding:10px 12px; width:100%; }
+.phase-block h4 { font-size:11px; font-weight:bold; text-transform:uppercase; letter-spacing:0.08em; color:#334; margin-bottom:8px; }
+.phase-options { display:flex; gap:8px; flex-wrap:wrap; }
+.phase-opt { display:flex; align-items:center; gap:5px; font-size:11px; cursor:pointer; padding:5px 10px; border:1.5px solid #bbc; border-radius:3px; background:#fff; }
+.phase-opt:hover { background:#e8edff; }
+.phase-opt input[type=radio] { margin:0; }
+.phase-opt.selected { border-color:#334; background:#334; color:#fff; }
 
-        label { font-size: 11px; font-weight: bold; display: block; }
+/* ─── RISK FACTORS NOTE ─── */
+.risk-note { background:#fffbea; border:1px solid #e0c840; border-radius:4px; padding:10px 12px; width:100%; margin-top:4px; font-size:10.5px; line-height:1.55; color:#333; }
+.risk-note strong { display:block; font-size:11px; margin-bottom:6px; color:#000; }
+.risk-note .risk-section { margin-bottom:6px; }
+.risk-note .risk-section b { display:block; margin-bottom:2px; }
+.risk-note ul { padding-left:14px; }
+.risk-note li { margin-bottom:2px; }
 
-        input, select {
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-            padding: 5px 7px;
-            border: 1px solid #aaa;
-            border-radius: 3px;
-            background: #fff;
-            color: #000;
-        }
-        input:focus, select:focus { outline: 2px solid #333; }
+/* ─── PRINT PAGES ─── */
+.print-page { width:210mm; min-height:297mm; background:#fff; margin:0 auto 24px; box-shadow:0 2px 12px rgba(0,0,0,0.2); display:flex; flex-direction:column; }
+.print-page.hidden-tab { display:none; }
+.page-header { padding:14px 15mm 10px; text-align:center; margin-top:30px; }
+.page-header h2 { font-size:14px; font-weight:bold; text-transform:uppercase; letter-spacing:0.05em; }
+.page-header h3 { font-size:12px; font-weight:normal; margin-top:3px; }
+.page-title { margin-top:8px; font-size:18px; font-weight:bold; letter-spacing:0.15em; text-transform:uppercase; border:2px solid #000; display:inline-block; padding:3px 18px; }
+.table-area { flex:1; padding:30px 9mm 9mm; }
 
-        .small-input { width: 54px; font-size: 11px; padding: 4px 6px; }
+/* ─── PATIENT INFO ─── */
+.patient-grid { display:grid; grid-template-columns:2.5fr 0.7fr 1.5fr 1.3fr; border:1px solid #000; margin-bottom:4px; }
+.patient-cell { padding:5px 7px; border-right:1px solid #000; font-size:12px; }
+.patient-cell:last-child { border-right:none; }
+.patient-cell .lbl { font-size:9px; font-weight:bold; text-transform:uppercase; letter-spacing:0.08em; display:block; color:#555; margin-bottom:1px; }
+.days-row { display:grid; grid-template-columns:1fr 1fr 1fr; border:1px solid #000; border-top:none; margin-bottom:4px; }
+.day-cell { padding:4px 7px; border-right:1px solid #000; font-size:11px; }
+.day-cell:last-child { border-right:none; }
+.day-cell .lbl { font-size:9px; font-weight:bold; text-transform:uppercase; color:#555; }
+.metrics-row { display:grid; grid-template-columns:repeat(6,1fr); border:1px solid #000; border-top:none; margin-bottom:16px; }
+.metric-cell { padding:4px 6px; border-right:1px solid #000; font-size:11px; }
+.metric-cell:last-child { border-right:none; }
+.metric-cell .lbl { font-size:8.5px; font-weight:bold; text-transform:uppercase; color:#555; display:block; }
 
-        button {
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-            font-weight: bold;
-            padding: 6px 12px;
-            border: 1.5px solid #333;
-            border-radius: 3px;
-            background: #fff;
-            color: #000;
-            cursor: pointer;
-        }
-        button:hover { background: #eee; }
-        .btn-dark { background: #222; color: #fff; border-color: #222; }
-        .btn-dark:hover { background: #444; }
+/* ─── TABLES ─── */
+.rn { font-size:10px; color:#888; margin-right:5px; }
+.actions-cell { white-space:nowrap; text-align:center; width:100px; border-color:#ddd !important; }
+.actions-cell button { padding:2px 6px; font-size:10px; margin:1px; border-radius:2px; }
 
-        .insulin-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            padding: 10px;
-            background: #fafafa;
-        }
-        .insulin-grid strong { font-size: 11px; display: block; margin-bottom: 6px; letter-spacing: 0.05em; }
-        .ins-row { display: flex; gap: 5px; margin-bottom: 4px; align-items: center; font-size: 11px; }
-        .ins-row .field { flex-direction: column; gap: 2px; }
-        .ins-row .field label { font-size: 9px; color: #555; }
+#drugTable { width:100%; border-collapse:collapse; margin-bottom:12px; }
+#drugTable th { background:#000; color:#fff; padding:6px 8px; font-size:10.5px; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; text-align:left; border:1px solid #000; }
+#drugTable td { padding:6px 8px; font-size:12px; border:1px solid #999; vertical-align:middle; }
+#drugTable tbody tr:nth-child(even) td { background:#f5f5f5; }
 
-        /* ─── PRINT PAGE ─── */
-        #printPage {
-            width: 210mm;
-            min-height: 297mm;
-            background: #fff;
-            margin: 0 auto 24px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-            display: flex;
-            flex-direction: column;
-        }
+#perfTable { width:100%; border-collapse:collapse; margin-bottom:12px; }
+#perfTable th { background:#333; color:#fff; padding:5px 8px; font-size:10.5px; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; text-align:left; border:1px solid #333; }
+#perfTable td { padding:5px 8px; font-size:12px; border:1px solid #999; vertical-align:middle; }
+#perfTable tbody tr:nth-child(even) td { background:#f5f5f5; }
 
-        /* ─── HEADER ─── */
-        .page-header {
-            padding: 14px 15mm 10px;
-            text-align: center;
-            margin-top: 30px;
-        }
-        .page-header h2 {
-            font-size: 14px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .page-header h3 {
-            font-size: 12px;
-            font-weight: normal;
-            margin-top: 3px;
-        }
-        .page-title {
-            margin-top: 8px;
-            font-size: 20px;
-            font-weight: bold;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            border: 2px solid #000;
-            display: inline-block;
-            padding: 3px 18px;
-        }
+#drogTable { width:100%; border-collapse:collapse; margin-bottom:12px; }
+#drogTable th { background:#555; color:#fff; padding:5px 8px; font-size:10.5px; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; text-align:left; border:1px solid #555; }
+#drogTable td { padding:5px 8px; font-size:12px; border:1px solid #999; vertical-align:middle; }
+#drogTable tbody tr:nth-child(even) td { background:#f5f5f5; }
 
-        /* ─── TABLE AREA ─── */
-        #tableArea { flex: 1; padding: 30px 9mm 9mm; }
+/* ─── NUTRITION TABLE ─── */
+#nutritionSection { margin-bottom:14px; }
+#nutrTable { width:100%; border-collapse:collapse; margin-bottom:4px; font-size:10.5px; }
+#nutrTable th { padding:4px 5px; font-size:9px; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; text-align:center; border:1px solid #aaa; background:#eee; }
+#nutrTable th:first-child { text-align:left; }
+#nutrTable td { padding:4px 5px; border:1px solid #ccc; text-align:center; font-size:10.5px; vertical-align:middle; }
+#nutrTable td:first-child { text-align:left; font-weight:bold; }
+#nutrTable .row-enteral td { background:#eaf3fb; }
+#nutrTable .row-parenteral td { background:#f3eefb; }
+#nutrTable .row-total td { background:#f0f0f0; font-weight:bold; border-top:2px solid #000; }
+#nutrTable .row-total td:first-child { background:#000; color:#fff; }
+#nutrTable .row-cible td { background:#e8f5e9; font-size:10px; border-top:1px dashed #5a5; }
+#nutrTable .row-cible td:first-child { background:#2e7d32; color:#fff; font-weight:bold; }
+#nutrTable .row-subtitle td { font-size:9px; font-weight:bold; text-transform:uppercase; letter-spacing:0.07em; color:#fff; padding:3px 5px; }
+#nutrTable .row-subtitle.ent td { background:#2a6496; }
+#nutrTable .row-subtitle.par td { background:#5a3e7a; }
 
-        /* Patient info */
-        .patient-grid {
-            display: grid;
-            grid-template-columns: 2.5fr 0.7fr 1.5fr 1.3fr;
-            gap: 0;
-            border: 1px solid #000;
-            margin-bottom: 4px;
-        }
-        .patient-cell {
-            padding: 5px 7px;
-            border-right: 1px solid #000;
-            font-size: 12px;
-        }
-        .patient-cell:last-child { border-right: none; }
-        .patient-cell .lbl { font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; display: block; color: #555; margin-bottom: 1px; }
+/* ─── BOTTOM SECTIONS ─── */
+.bottom-sections { display:grid; grid-template-columns:1fr 1.5fr; gap:12px; margin-top:6px; }
+.soins-table { width:100%; border-collapse:collapse; font-size:11px; }
+.soins-table th { background:#000; color:#fff; padding:5px 7px; font-size:10px; font-weight:bold; text-transform:uppercase; letter-spacing:0.07em; border:1px solid #000; text-align:left; }
+.soins-table td { padding:4px 7px; border:1px solid #999; vertical-align:top; font-size:11px; }
+.soins-table td:last-child { font-size:10px; color:#444; }
+.insulin-display { margin-top:8px; }
+.insulin-display-title { font-size:10px; font-weight:bold; text-transform:uppercase; letter-spacing:0.08em; background:#000; color:#fff; padding:4px 8px; }
+.insulin-table { width:100%; border-collapse:collapse; font-size:11px; }
+.insulin-table td { padding:4px 7px; border:1px solid #999; text-align:center; }
+.gray { background:#eee; font-weight:bold; font-size:10px; text-transform:uppercase; }
+.dots { color:#aaa; }
+.checklist-wrap { display:flex; gap:10px; }
+.checklist-group { flex:1; border:1px solid #999; }
+.checklist-group h4 { font-size:10px; font-weight:bold; text-transform:uppercase; letter-spacing:0.08em; background:#000; color:#fff; padding:4px 8px; }
+.checklist-body { padding:6px 8px; }
+.checklist-item { display:flex; align-items:center; gap:6px; margin-bottom:4px; font-size:11px; }
+.checklist-item input[type="checkbox"] { width:12px; height:12px; margin:0; padding:0; border:none; }
+#extraImageContainer { display:none; text-align:center; margin-bottom:8px; }
+#extraImageContainer img { width:300px; }
 
-        .days-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 0;
-            border: 1px solid #000;
-            border-top: none;
-            margin-bottom: 4px;
-        }
-        .day-cell {
-            padding: 4px 7px;
-            border-right: 1px solid #000;
-            font-size: 11px;
-        }
-        .day-cell:last-child { border-right: none; }
-        .day-cell .lbl { font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; color: #555; }
+/* ─── DIALOGS ─── */
+dialog { border:2px solid #000; border-radius:4px; padding:0; width:440px; font-family:Arial,sans-serif; }
+dialog::backdrop { background:rgba(0,0,0,0.5); }
+.modal-head { background:#000; color:#fff; padding:10px 14px; font-size:13px; font-weight:bold; }
+.modal-body { padding:14px; }
+.modal-field { margin-bottom:10px; }
+.modal-field label { font-size:11px; font-weight:bold; display:block; margin-bottom:3px; }
+.modal-field input,.modal-field select { width:100%; }
+.modal-foot { display:flex; justify-content:flex-end; gap:8px; padding:10px 14px; border-top:1px solid #ccc; }
 
-        .metrics-row {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 0;
-            border: 1px solid #000;
-            border-top: none;
-            margin-bottom: 16px;
-        }
-        .metric-cell {
-            padding: 4px 6px;
-            border-right: 1px solid #000;
-            font-size: 11px;
-        }
-        .metric-cell:last-child { border-right: none; }
-        .metric-cell .lbl { font-size: 8.5px; font-weight: bold; text-transform: uppercase; color: #555; display: block; }
-
-        /* ─── SECTION TITLES ─── */
-        .section-title {
-            font-size: 10px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            background: #000;
-            color: #fff;
-            padding: 4px 8px;
-            margin-bottom: 0;
-        }
-
-        /* ─── DRUG TABLE ─── */
-        #drugTable {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 12px;
-        }
-        #drugTable th {
-            background: #000;
-            color: #fff;
-            padding: 6px 8px;
-            font-size: 10.5px;
-            font-weight: bold;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            text-align: left;
-            border: 1px solid #000;
-        }
-        #drugTable td {
-            padding: 6px 8px;
-            font-size: 12px;
-            border: 1px solid #999;
-            vertical-align: middle;
-        }
-        #drugTable tbody tr:nth-child(even) td { background: #f5f5f5; }
-
-        /* ─── PERFUSION TABLE ─── */
-        #perfTable {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 12px;
-        }
-        #perfTable th {
-            background: #333;
-            color: #fff;
-            padding: 5px 8px;
-            font-size: 10.5px;
-            font-weight: bold;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            text-align: left;
-            border: 1px solid #333;
-        }
-        #perfTable td {
-            padding: 5px 8px;
-            font-size: 12px;
-            border: 1px solid #999;
-            vertical-align: middle;
-        }
-        #perfTable tbody tr:nth-child(even) td { background: #f5f5f5; }
-
-        /* ─── DROGUES TABLE ─── */
-        #drogTable {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 12px;
-        }
-        #drogTable th {
-            background: #555;
-            color: #fff;
-            padding: 5px 8px;
-            font-size: 10.5px;
-            font-weight: bold;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            text-align: left;
-            border: 1px solid #555;
-        }
-        #drogTable td {
-            padding: 5px 8px;
-            font-size: 12px;
-            border: 1px solid #999;
-            vertical-align: middle;
-        }
-        #drogTable tbody tr:nth-child(even) td { background: #f5f5f5; }
-
-        /* row number */
-        .rn { font-size: 10px; color: #888; margin-right: 5px; }
-
-        .actions-cell { white-space: nowrap; text-align: center; width: 120px; border-color: #ddd !important; }
-        .actions-cell button {
-            padding: 2px 7px;
-            font-size: 10px;
-            margin: 1px;
-            border-radius: 2px;
-        }
-
-        /* ─── BOTTOM ─── */
-        .bottom-sections {
-            display: grid;
-            grid-template-columns: 1fr 1.5fr;
-            gap: 12px;
-            margin-top: 6px;
-        }
-
-        /* Soins */
-        .soins-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 11px;
-        }
-        .soins-table th {
-            background: #000;
-            color: #fff;
-            padding: 5px 7px;
-            font-size: 10px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
-            border: 1px solid #000;
-            text-align: left;
-        }
-        .soins-table td {
-            padding: 4px 7px;
-            border: 1px solid #999;
-            vertical-align: top;
-            font-size: 11px;
-        }
-        .soins-table td:last-child { font-size: 10px; color: #444; }
-
-        /* Insulin display */
-        .insulin-display {
-            margin-top: 8px;
-        }
-        .insulin-display-title {
-            font-size: 10px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            background: #000;
-            color: #fff;
-            padding: 4px 8px;
-        }
-        .insulin-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 11px;
-        }
-        .insulin-table td {
-            padding: 4px 7px;
-            border: 1px solid #999;
-            text-align: center;
-        }
-        .gray {
-            background: #eee;
-            font-weight: bold;
-            font-size: 10px;
-            text-transform: uppercase;
-        }
-        .dots { color: #aaa; }
-
-        /* Checklist */
-        .checklist-wrap {
-            display: flex;
-            gap: 10px;
-        }
-        .checklist-group {
-            flex: 1;
-            border: 1px solid #999;
-        }
-        .checklist-group h4 {
-            font-size: 10px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            background: #000;
-            color: #fff;
-            padding: 4px 8px;
-        }
-        .checklist-body { padding: 6px 8px; }
-        .checklist-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 4px;
-            font-size: 11px;
-        }
-        .checklist-item input[type="checkbox"] { width: 12px; height: 12px; margin: 0; padding: 0; border: none; }
-
-        /* Extra image */
-        #extraImageContainer { display: none; text-align: center; margin-bottom: 8px; }
-        #extraImageContainer img { width: 300px; }
-
-        /* Dialog */
-        dialog {
-            border: 2px solid #000;
-            border-radius: 4px;
-            padding: 0;
-            width: 420px;
-            font-family: Arial, sans-serif;
-        }
-        dialog::backdrop { background: rgba(0,0,0,0.5); }
-        .modal-head {
-            background: #000;
-            color: #fff;
-            padding: 10px 14px;
-            font-size: 13px;
-            font-weight: bold;
-        }
-        .modal-body { padding: 14px; }
-        .modal-field { margin-bottom: 10px; }
-        .modal-field label { font-size: 11px; font-weight: bold; display: block; margin-bottom: 3px; }
-        .modal-field input { width: 100%; }
-        .modal-foot {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            padding: 10px 14px;
-            border-top: 1px solid #ccc;
-        }
-
-        /* ─── PRINT ─── */
-        @media print {
-            #controls, .actions-cell { display: none !important; }
-            body { background: none; margin: 0; }
-            #printPage { width: 210mm; margin: 0; box-shadow: none; }
-
-            /* Page 1: no top margin. Pages 2+: 15mm top margin */
-            @page        { size: A4; margin: 0; }
-            @page :first { margin-top: 0mm; }
-            @page :left  { margin-top: 15mm; }
-            @page :right { margin-top: 15mm; }
-
-            /* Keep bottom-sections whole — if it doesn't fit, push it entirely to next page */
-            .bottom-sections {
-                page-break-inside: avoid;
-                break-inside: avoid;
-            }
-
-            /* Hide tables that have no data rows */
-            #drugTable.empty-table,
-            #perfTable.empty-table,
-            #drogTable.empty-table { display: none !important; }
-        }
-    </style>
+/* ─── PRINT ─── */
+@media print {
+    #tabBar,#controls,.actions-cell { display:none !important; }
+    body { background:none; margin:0; }
+    @page { size:A4; margin:0; }
+    @page :first { margin-top:0mm; }
+    @page :left { margin-top:15mm; }
+    @page :right { margin-top:15mm; }
+    .print-page.hidden-tab { display:none !important; }
+    .print-page { width:210mm; margin:0; box-shadow:none; min-height:0; }
+    .bottom-sections { page-break-inside:avoid; break-inside:avoid; }
+    #drugTable.empty-table,#perfTable.empty-table,#drogTable.empty-table { display:none !important; }
+    #nutritionSection { page-break-inside:avoid; }
+}
+</style>
 </head>
 <body>
 
-<!-- CONTROLS -->
+<div id="tabBar">
+    <button class="tab-btn active" id="tab1Btn" onclick="switchTab(1)">💊 Feuille de Traitements</button>
+    <button class="tab-btn" id="tab2Btn" onclick="switchTab(2)">💧 Nutrition et Perfusion</button>
+</div>
+
 <div id="controls">
 
-    <!-- Row 1: Box selector -->
+    <!-- Box selector -->
     <div class="ctrl-row">
         <div class="field">
             <label for="boxSelect">Boîte de stockage</label>
@@ -449,108 +189,51 @@
         </div>
     </div>
 
-    <!-- Row 2: Patient identity -->
+    <!-- Patient identity -->
     <div class="ctrl-row">
-        <div class="field" style="flex:2;min-width:150px">
-            <label for="p_name">Nom et Prénom</label>
-            <input type="text" id="p_name" oninput="syncPatient()">
-        </div>
-        <div class="field" style="width:60px">
-            <label for="p_box">Box</label>
-            <input type="text" id="p_box" oninput="syncPatient()">
-        </div>
-        <div class="field" style="flex:1;min-width:110px">
-            <label for="p_doc">Médecin</label>
-            <input type="text" id="p_doc" oninput="syncPatient()">
-        </div>
-        <div class="field" style="flex:1;min-width:110px">
-            <label for="p_date">Date (JJ/MM/AA)</label>
-            <input type="text" id="p_date" oninput="syncPatient()">
-        </div>
+        <div class="field" style="flex:2;min-width:150px"><label for="p_name">Nom et Prénom</label><input type="text" id="p_name" oninput="syncPatient()"></div>
+        <div class="field" style="width:60px"><label for="p_box">Box</label><input type="text" id="p_box" oninput="syncPatient()"></div>
+        <div class="field" style="flex:1;min-width:110px"><label for="p_doc">Médecin</label><input type="text" id="p_doc" oninput="syncPatient()"></div>
+        <div class="field" style="flex:1;min-width:110px"><label for="p_date">Date (JJ/MM/AA)</label><input type="text" id="p_date" oninput="syncPatient()"></div>
     </div>
 
-    <!-- Row 3: Hospitalisation days -->
+    <!-- Dates → auto J calculation -->
     <div class="ctrl-row">
-        <div class="field" style="width:135px">
-            <label for="p_jhosp">J Hospitalisation</label>
-            <input type="text" id="p_jhosp" oninput="syncPatient()">
-        </div>
-        <div class="field" style="width:115px">
-            <label for="p_jint">J Intubation</label>
-            <input type="text" id="p_jint" oninput="syncPatient()">
-        </div>
-        <div class="field" style="width:125px">
-            <label for="p_jtrach">J Trachéotomie</label>
-            <input type="text" id="p_jtrach" oninput="syncPatient()">
-        </div>
+        <div class="field" style="width:165px"><label for="p_date_hosp">Date Hospitalisation</label><input type="date" id="p_date_hosp" oninput="calcDays()"></div>
+        <div class="field" style="width:155px"><label for="p_date_int">Date Intubation</label><input type="date" id="p_date_int" oninput="calcDays()"></div>
+        <div class="field" style="width:165px"><label for="p_date_trach">Date Trachéotomie</label><input type="date" id="p_date_trach" oninput="calcDays()"></div>
     </div>
 
-    <!-- Row 4: Metrics -->
+    <!-- Metrics -->
     <div class="ctrl-row">
-        <div class="field" style="width:70px">
-            <label for="p_poids">Poids</label>
-            <input type="text" id="p_poids" oninput="syncPatient()">
-        </div>
-        <div class="field" style="width:75px">
-            <label for="p_pi">P. Idéal</label>
-            <input type="text" id="p_pi" oninput="syncPatient()">
-        </div>
-        <div class="field" style="width:80px">
-            <label for="p_pa">P. Ajusté</label>
-            <input type="text" id="p_pa" oninput="syncPatient()">
-        </div>
-        <div class="field" style="width:65px">
-            <label for="p_taille">Taille</label>
-            <input type="text" id="p_taille" oninput="syncPatient()">
-        </div>
-        <div class="field" style="width:65px">
-            <label for="p_mdrd">MDRD</label>
-            <input type="text" id="p_mdrd" oninput="syncPatient()">
-        </div>
-        <div class="field" style="width:80px">
-            <label for="p_cock">Cockcroft</label>
-            <input type="text" id="p_cock" oninput="syncPatient()">
-        </div>
+        <div class="field" style="width:70px"><label for="p_poids">Poids (kg)</label><input type="number" step="0.1" id="p_poids" oninput="syncPatient();autoCalcWeights();updateTargets()"></div>
+        <div class="field" style="width:65px"><label for="p_taille">Taille (cm)</label><input type="number" step="1" id="p_taille" oninput="syncPatient();autoCalcWeights();updateTargets()"></div>
+        <div class="field" style="width:55px"><label for="p_age">Âge</label><input type="number" id="p_age" oninput="updateTargets()"></div>
+        <div class="field" style="width:75px"><label>P. Idéal</label><input type="text" id="p_pi" readonly style="background:#f0f0f0;color:#555;"></div>
+        <div class="field" style="width:80px"><label>P. Ajusté</label><input type="text" id="p_pa" readonly style="background:#f0f0f0;color:#555;"></div>
+        <div class="field" style="width:65px"><label for="p_mdrd">MDRD</label><input type="text" id="p_mdrd" oninput="syncPatient()"></div>
+        <div class="field" style="width:80px"><label for="p_cock">Cockcroft</label><input type="text" id="p_cock" oninput="syncPatient()"></div>
     </div>
 
-    <!-- Row 4b: Insulin grid + toggle buttons -->
-    <div class="ctrl-row" style="align-items:flex-start">
+    <!-- TAB 1: Insulin -->
+    <div class="ctrl-tab1" id="ctrlInsulin" style="align-items:flex-start">
         <div class="insulin-grid">
             <div>
                 <strong>ACTRAPID</strong>
-                <div class="ins-row">
-                    <div class="field"><label>Heure</label><input type="text" id="act_h1" class="small-input" oninput="syncInsulin()"></div>
-                    <span style="align-self:flex-end;padding-bottom:5px">→</span>
-                    <div class="field"><label>UI</label><input type="text" id="act_u1" class="small-input" oninput="syncInsulin()"></div>
-                </div>
-                <div class="ins-row">
-                    <div class="field"><label>Heure</label><input type="text" id="act_h2" class="small-input" oninput="syncInsulin()"></div>
-                    <span style="align-self:flex-end;padding-bottom:5px">→</span>
-                    <div class="field"><label>UI</label><input type="text" id="act_u2" class="small-input" oninput="syncInsulin()"></div>
-                </div>
-                <div class="ins-row">
-                    <div class="field"><label>Heure</label><input type="text" id="act_h3" class="small-input" oninput="syncInsulin()"></div>
-                    <span style="align-self:flex-end;padding-bottom:5px">→</span>
-                    <div class="field"><label>UI</label><input type="text" id="act_u3" class="small-input" oninput="syncInsulin()"></div>
-                </div>
-                <div class="ins-row">
-                    <div class="field"><label>Heure</label><input type="text" id="act_h4" class="small-input" oninput="syncInsulin()"></div>
-                    <span style="align-self:flex-end;padding-bottom:5px">→</span>
-                    <div class="field"><label>UI</label><input type="text" id="act_u4" class="small-input" oninput="syncInsulin()"></div>
-                </div>
+                <div class="ins-row"><div class="field"><label>Heure</label><input type="text" id="act_h1" class="small-input" oninput="syncInsulin()"></div><span style="align-self:flex-end;padding-bottom:5px">→</span><div class="field"><label>UI</label><input type="text" id="act_u1" class="small-input" oninput="syncInsulin()"></div></div>
+                <div class="ins-row"><div class="field"><label>Heure</label><input type="text" id="act_h2" class="small-input" oninput="syncInsulin()"></div><span style="align-self:flex-end;padding-bottom:5px">→</span><div class="field"><label>UI</label><input type="text" id="act_u2" class="small-input" oninput="syncInsulin()"></div></div>
+                <div class="ins-row"><div class="field"><label>Heure</label><input type="text" id="act_h3" class="small-input" oninput="syncInsulin()"></div><span style="align-self:flex-end;padding-bottom:5px">→</span><div class="field"><label>UI</label><input type="text" id="act_u3" class="small-input" oninput="syncInsulin()"></div></div>
+                <div class="ins-row"><div class="field"><label>Heure</label><input type="text" id="act_h4" class="small-input" oninput="syncInsulin()"></div><span style="align-self:flex-end;padding-bottom:5px">→</span><div class="field"><label>UI</label><input type="text" id="act_u4" class="small-input" oninput="syncInsulin()"></div></div>
             </div>
             <div>
                 <strong>NPH</strong>
-                <div class="ins-row">
-                    <div class="field"><label>Heure</label><input type="text" id="nph_h1" class="small-input" oninput="syncInsulin()"></div>
-                    <span style="align-self:flex-end;padding-bottom:5px">→</span>
-                    <div class="field"><label>UI</label><input type="text" id="nph_u1" class="small-input" oninput="syncInsulin()"></div>
-                </div>
-                <div class="ins-row">
-                    <div class="field"><label>Heure</label><input type="text" id="nph_h2" class="small-input" oninput="syncInsulin()"></div>
-                    <span style="align-self:flex-end;padding-bottom:5px">→</span>
-                    <div class="field"><label>UI</label><input type="text" id="nph_u2" class="small-input" oninput="syncInsulin()"></div>
-                </div>
+                <div class="ins-row"><div class="field"><label>Heure</label><input type="text" id="nph_h1" class="small-input" oninput="syncInsulin()"></div><span style="align-self:flex-end;padding-bottom:5px">→</span><div class="field"><label>UI</label><input type="text" id="nph_u1" class="small-input" oninput="syncInsulin()"></div></div>
+                <div class="ins-row"><div class="field"><label>Heure</label><input type="text" id="nph_h2" class="small-input" oninput="syncInsulin()"></div><span style="align-self:flex-end;padding-bottom:5px">→</span><div class="field"><label>UI</label><input type="text" id="nph_u2" class="small-input" oninput="syncInsulin()"></div></div>
+            </div>
+            <div>
+                <strong>Insuline Lente</strong>
+                <div class="ins-row"><div class="field"><label>Heure</label><input type="text" id="len_h1" class="small-input" oninput="syncInsulin()"></div><span style="align-self:flex-end;padding-bottom:5px">→</span><div class="field"><label>UI</label><input type="text" id="len_u1" class="small-input" oninput="syncInsulin()"></div></div>
+                <div class="ins-row"><div class="field"><label>Heure</label><input type="text" id="len_h2" class="small-input" oninput="syncInsulin()"></div><span style="align-self:flex-end;padding-bottom:5px">→</span><div class="field"><label>UI</label><input type="text" id="len_u2" class="small-input" oninput="syncInsulin()"></div></div>
             </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:4px;">
@@ -559,33 +242,16 @@
         </div>
     </div>
 
-    <!-- Row 5: Add drug -->
-    <div class="ctrl-row">
+    <!-- TAB 1: Drug input -->
+    <div class="ctrl-tab1" id="ctrlDrug">
         <div style="width:100%" class="ctrl-section-label">💊 Médicaments</div>
-        <div class="field" style="flex:2;min-width:120px">
-            <label for="name">Médicament</label>
-            <input type="text" id="name">
-        </div>
-        <div class="field" style="width:65px">
-            <label for="jours">Jours</label>
-            <input type="number" id="jours">
-        </div>
-        <div class="field" style="flex:1;min-width:80px">
-            <label for="dose">Dose</label>
-            <input type="text" id="dose">
-        </div>
-        <div class="field" style="width:60px">
-            <label for="times">Qté</label>
-            <input type="number" id="times">
-        </div>
-        <div class="field" style="flex:1;min-width:80px">
-            <label for="route">Voie</label>
-            <input type="text" id="route">
-        </div>
-        <div class="field" style="flex:1.5;min-width:100px">
-            <label for="schedule">Horaires</label>
-            <input type="text" id="schedule">
-        </div>
+        <div class="field" style="flex:2;min-width:120px"><label for="name">Médicament</label><input type="text" id="name"></div>
+        <div class="field" style="width:65px"><label for="jours">Jours</label><input type="number" id="jours"></div>
+        <div class="field" style="flex:1;min-width:80px"><label for="dose">Dose</label><input type="text" id="dose"></div>
+        <div class="field" style="width:60px"><label for="times">Qté</label><input type="number" id="times"></div>
+        <div class="field" style="flex:1;min-width:80px"><label for="route">Voie</label><input type="text" id="route"></div>
+        <div class="field" style="flex:1;min-width:80px"><label for="dilution">Dilution</label><input type="text" id="dilution" placeholder="ex: 100mL NaCl"></div>
+        <div class="field" style="flex:1.5;min-width:100px"><label for="schedule">Horaires</label><input type="text" id="schedule"></div>
         <div style="display:flex;gap:6px;align-self:flex-end">
             <button class="btn-dark" onclick="addDrug()">+ Ajouter</button>
             <button onclick="clearAllDrugs()">Effacer tout</button>
@@ -593,127 +259,133 @@
         </div>
     </div>
 
-    <!-- Row 6: Add perfusion -->
-    <div class="ctrl-row">
+    <!-- TAB 2: Phase selector -->
+    <div class="ctrl-tab2" id="ctrlPhase" style="flex-direction:column">
+        <div style="width:100%" class="ctrl-section-label">🎯 Phase Clinique &amp; Objectifs Nutritionnels</div>
+        <div class="phase-block">
+            <h4>Choisir la phase</h4>
+            <div class="phase-options">
+                <label class="phase-opt" id="phaseOpt1"><input type="radio" name="phase" value="1" onchange="selectPhase(1)"> Phase aiguë (J1–J2) — 15 kcal/kg/j · Prot 1,2 g/kg/j</label>
+                <label class="phase-opt" id="phaseOpt2"><input type="radio" name="phase" value="2" onchange="selectPhase(2)"> Rétablissement (J3–J7) — 25 kcal/kg/j · Prot 1,2 g/kg/j</label>
+                <label class="phase-opt" id="phaseOpt3"><input type="radio" name="phase" value="3" onchange="selectPhase(3)"> Rétablissement (&gt; J7) — 30 kcal/kg/j · Prot 2 g/kg/j</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: Enteral Nutrition -->
+    <div class="ctrl-tab2" id="ctrlEnteral">
+        <div style="width:100%" class="ctrl-section-label">🥤 Nutrition Entérale</div>
+        <div class="nutr-input-block">
+            <div class="nutr-row">
+                <div class="field"><label for="ent_product">Produit entéral</label><select id="ent_product"></select></div>
+                <div class="field"><label for="ent_qty">Quantité</label><input type="number" id="ent_qty" placeholder="ex: 1000" style="width:110px"></div>
+                <div class="field"><label for="ent_dil">Dilution (mL eau)</label><input type="number" id="ent_dil" placeholder="ex: 200" style="width:110px"></div>
+                <div style="align-self:flex-end"><button class="btn-dark" onclick="addNutrItem('enteral')">+ Ajouter</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: Parenteral Nutrition -->
+    <div class="ctrl-tab2" id="ctrlParenteral">
+        <div style="width:100%" class="ctrl-section-label">💉 Nutrition Parentérale</div>
+        <div class="nutr-input-block">
+            <div class="nutr-row">
+                <div class="field"><label for="par_product">Produit parentéral</label><select id="par_product"></select></div>
+                <div class="field"><label for="par_qty">Quantité</label><input type="number" id="par_qty" placeholder="ex: 1000" style="width:110px"></div>
+                <div class="field"><label for="par_dil">Dilution (mL)</label><input type="number" id="par_dil" placeholder="ex: 0" style="width:110px"></div>
+                <div style="align-self:flex-end"><button class="btn-dark" onclick="addNutrItem('parenteral')">+ Ajouter</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: Perfusion -->
+    <div class="ctrl-tab2" id="ctrlPerf">
         <div style="width:100%" class="ctrl-section-label">💧 Perfusions</div>
-        <div class="field" style="flex:2;min-width:130px">
-            <label for="perf_name">Perfusion</label>
-            <input type="text" id="perf_name" placeholder="ex: NaCl 0.9%, G5%...">
-        </div>
-        <div class="field" style="flex:1;min-width:90px">
-            <label for="perf_qte">Quantité</label>
-            <input type="text" id="perf_qte" placeholder="ex: 500 mL">
-        </div>
-        <div class="field" style="flex:1;min-width:90px">
-            <label for="perf_debit">Débit</label>
-            <input type="text" id="perf_debit" placeholder="ex: 42 mL/h">
-        </div>
+        <div class="field" style="flex:2;min-width:130px"><label for="perf_name">Perfusion</label><input type="text" id="perf_name" placeholder="ex: NaCl 0.9%"></div>
+        <div class="field" style="flex:1;min-width:80px"><label for="perf_qte">Quantité</label><input type="text" id="perf_qte" placeholder="ex: 500 mL"></div>
+        <div class="field" style="flex:1;min-width:80px"><label for="perf_debit">Débit</label><input type="text" id="perf_debit" placeholder="ex: 42 mL/h"></div>
         <div style="display:flex;gap:6px;align-self:flex-end">
             <button class="btn-dark" onclick="addPerf()">+ Ajouter</button>
             <button onclick="clearAllPerfs()">Effacer tout</button>
         </div>
     </div>
 
-    <!-- Row 7: Add drogue seringue -->
-    <div class="ctrl-row">
+    <!-- TAB 2: Drogue SAP -->
+    <div class="ctrl-tab2" id="ctrlDrog">
         <div style="width:100%" class="ctrl-section-label">💉 Drogues (Seringues Auto-Pousseuses)</div>
-        <div class="field" style="flex:1.5;min-width:110px">
-            <label for="drog_name">Drogue</label>
-            <input type="text" id="drog_name" placeholder="ex: Noradrénaline">
-        </div>
-        <div class="field" style="flex:2;min-width:130px">
-            <label for="drog_prep">Préparation</label>
-            <input type="text" id="drog_prep" placeholder="ex: 4 mg dans 50 mL NaCl">
-        </div>
-        <div class="field" style="flex:1;min-width:80px">
-            <label for="drog_debit">Débit</label>
-            <input type="text" id="drog_debit" placeholder="ex: 5 mL/h">
-        </div>
-        <div class="field" style="flex:1.5;min-width:110px">
-            <label for="drog_obj">Objectif</label>
-            <input type="text" id="drog_obj" placeholder="ex: PAM > 65 mmHg">
-        </div>
+        <div class="field" style="flex:1.5;min-width:110px"><label for="drog_name">Drogue</label><input type="text" id="drog_name" placeholder="ex: Noradrénaline"></div>
+        <div class="field" style="flex:2;min-width:130px"><label for="drog_prep">Préparation</label><input type="text" id="drog_prep" placeholder="ex: 4 mg dans 50 mL NaCl"></div>
+        <div class="field" style="flex:1;min-width:80px"><label for="drog_debit">Débit</label><input type="text" id="drog_debit" placeholder="ex: 5 mL/h"></div>
+        <div class="field" style="flex:1;min-width:80px"><label for="drog_dil">Dilution</label><input type="text" id="drog_dil" placeholder="ex: 50 mL NaCl"></div>
+        <div class="field" style="flex:1.5;min-width:110px"><label for="drog_obj">Objectif</label><input type="text" id="drog_obj" placeholder="ex: PAM > 65 mmHg"></div>
         <div style="display:flex;gap:6px;align-self:flex-end">
             <button class="btn-dark" onclick="addDrog()">+ Ajouter</button>
             <button onclick="clearAllDrogs()">Effacer tout</button>
+            <button class="btn-dark" onclick="window.print()">🖨 Imprimer</button>
         </div>
     </div>
 
-</div>
+    <!-- TAB 2: Risk factors note -->
+    <div class="ctrl-tab2" id="ctrlRisk" style="flex-direction:column">
+        <div class="risk-note">
+            <strong>⚠️ Facteurs de risque de syndrome de renutrition inappropriée</strong>
+            <div class="risk-section">
+                <b>▪ 1 critère majeur</b>
+                <ul>
+                    <li>IMC &lt; 16 kg/m²</li>
+                    <li>Perte de poids involontaire &gt; 15 % au cours des 3 à 6 derniers mois</li>
+                    <li>Forte réduction ou absence de l'apport nutritionnel depuis plus de 10 jours</li>
+                    <li>Faible concentration sérique de magnésium, phosphate ou potassium avant le début de la renutrition</li>
+                </ul>
+            </div>
+            <div class="risk-section">
+                <b>▪ 2 critères mineurs</b>
+                <ul>
+                    <li>IMC &lt; 18,5 kg/m²</li>
+                    <li>Perte de poids involontaire &gt; 10 % au cours des 3 à 6 derniers mois</li>
+                    <li>Forte réduction ou absence de l'apport nutritionnel depuis plus de 5 jours</li>
+                    <li>Alcoolisme chronique ou utilisation des médicaments suivants : insuline, agents chimiothérapeutiques, antiacides ou diurétiques</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
-<!-- PRINT PAGE -->
-<div id="printPage">
+</div><!-- /controls -->
 
+
+<!-- ═══════════ PAGE 1 ═══════════ -->
+<div id="page1" class="print-page">
     <div class="page-header">
         <h2>Centre Hospitalier Universitaire Dr Ben Badis — Constantine</h2>
         <h3>Service de Réanimation Médicale</h3>
         <div class="page-title">Feuille de Traitements</div>
     </div>
-
-    <div id="tableArea">
-
+    <div class="table-area">
         <div class="patient-grid">
-            <div class="patient-cell"><span class="lbl">Nom &amp; Prénom</span><span id="out_name"></span></div>
-            <div class="patient-cell"><span class="lbl">Box</span><span id="out_box"></span></div>
-            <div class="patient-cell"><span class="lbl">Médecin</span><span id="out_doc"></span></div>
-            <div class="patient-cell"><span class="lbl">Date</span><span id="out_date"></span></div>
+            <div class="patient-cell"><span class="lbl">Nom &amp; Prénom</span><span class="out_name"></span></div>
+            <div class="patient-cell"><span class="lbl">Box</span><span class="out_box"></span></div>
+            <div class="patient-cell"><span class="lbl">Médecin</span><span class="out_doc"></span></div>
+            <div class="patient-cell"><span class="lbl">Date</span><span class="out_date"></span></div>
         </div>
-
         <div class="days-row">
-            <div class="day-cell"><span class="lbl">J Hosp</span><span id="out_jhosp"></span></div>
-            <div class="day-cell"><span class="lbl">J Intub</span><span id="out_jint"></span></div>
-            <div class="day-cell"><span class="lbl">J Trach</span><span id="out_jtrach"></span></div>
+            <div class="day-cell"><span class="lbl">J Hosp</span><span class="out_jhosp"></span></div>
+            <div class="day-cell"><span class="lbl">J Intub</span><span class="out_jint"></span></div>
+            <div class="day-cell"><span class="lbl">J Trach</span><span class="out_jtrach"></span></div>
         </div>
-
         <div class="metrics-row">
-            <div class="metric-cell"><span class="lbl">Poids</span><span id="out_poids"></span></div>
-            <div class="metric-cell"><span class="lbl">P. Idéal</span><span id="out_pi"></span></div>
-            <div class="metric-cell"><span class="lbl">P. Ajusté</span><span id="out_pa"></span></div>
-            <div class="metric-cell"><span class="lbl">Taille</span><span id="out_taille"></span></div>
-            <div class="metric-cell"><span class="lbl">MDRD</span><span id="out_mdrd"></span></div>
-            <div class="metric-cell"><span class="lbl">Cockcroft</span><span id="out_cock"></span></div>
+            <div class="metric-cell"><span class="lbl">Poids</span><span class="out_poids"></span></div>
+            <div class="metric-cell"><span class="lbl">P. Idéal</span><span class="out_pi"></span></div>
+            <div class="metric-cell"><span class="lbl">P. Ajusté</span><span class="out_pa"></span></div>
+            <div class="metric-cell"><span class="lbl">Taille</span><span class="out_taille"></span></div>
+            <div class="metric-cell"><span class="lbl">MDRD</span><span class="out_mdrd"></span></div>
+            <div class="metric-cell"><span class="lbl">Cockcroft</span><span class="out_cock"></span></div>
         </div>
 
-        <!-- MÉDICAMENTS -->
         <table id="drugTable">
-            <thead>
-                <tr>
-                    <th>Médicament</th>
-                    <th>J</th>
-                    <th>Dose</th>
-                    <th>Prises</th>
-                    <th>Voie</th>
-                    <th>Horaires</th>
-                    <th class="actions-cell">Actions</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
-        <!-- PERFUSIONS -->
-        <table id="perfTable">
-            <thead>
-                <tr>
-                    <th>Perfusion</th>
-                    <th>Quantité</th>
-                    <th>Débit</th>
-                    <th class="actions-cell">Actions</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
-        <!-- DROGUES SAP -->
-        <table id="drogTable">
-            <thead>
-                <tr>
-                    <th>Drogue</th>
-                    <th>Préparation</th>
-                    <th>Débit</th>
-                    <th>Objectif</th>
-                    <th class="actions-cell">Actions</th>
-                </tr>
-            </thead>
+            <thead><tr>
+                <th>Médicament</th><th>J</th><th>Dose</th><th>Prises</th><th>Voie</th><th>Dilution</th><th>Horaires</th>
+                <th class="actions-cell">Actions</th>
+            </tr></thead>
             <tbody></tbody>
         </table>
 
@@ -722,39 +394,22 @@
                 <div id="extraImageContainer">
                     <img src="https://i.ibb.co/KzFYWJR3/Screenshot-4.png" alt="Prescription Add-on">
                 </div>
-
                 <table class="soins-table">
                     <thead><tr><th>Soins</th><th>Produit</th><th>Horaires</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td><input type="checkbox"> Yeux</td>
-                            <td><input type="checkbox"> SSI 0.9%<br><input type="checkbox"> Occlusion</td>
-                            <td>8, 12, 16, 20, 00, 04</td>
-                        </tr>
-                        <tr>
-                            <td><input type="checkbox"> Bouche</td>
-                            <td><input type="checkbox"> SB 1.4%<br><input type="checkbox"> Fungisone<br><input type="checkbox"> Xylocaïne</td>
-                            <td>8, 12, 16, 20, 00, 04</td>
-                        </tr>
-                        <tr>
-                            <td><input type="checkbox"> Cutané</td>
-                            <td><input type="checkbox"> Dexeryl</td>
-                            <td>8, 20</td>
-                        </tr>
-                        <tr>
-                            <td><input type="checkbox"> Escarres</td>
-                            <td colspan="2">Voir la feuille dédiée</td>
-                        </tr>
+                        <tr><td><input type="checkbox"> Yeux</td><td><input type="checkbox"> SSI 0.9%<br><input type="checkbox"> Occlusion</td><td>8, 12, 16, 20, 00, 04</td></tr>
+                        <tr><td><input type="checkbox"> Bouche</td><td><input type="checkbox"> SB 1.4%<br><input type="checkbox"> Fungisone<br><input type="checkbox"> Xylocaïne</td><td>8, 12, 16, 20, 00, 04</td></tr>
+                        <tr><td><input type="checkbox"> Cutané</td><td><input type="checkbox"> Dexeryl</td><td>8, 20</td></tr>
+                        <tr><td><input type="checkbox"> Escarres</td><td colspan="2">Voir la feuille dédiée</td></tr>
                     </tbody>
                 </table>
-
                 <div class="insulin-display" id="shema">
                     <div class="insulin-display-title">Insuline</div>
                     <table class="insulin-table">
                         <tr>
-                            <td class="gray" rowspan="4" style="width:55px">Actrapid</td>
+                            <td class="gray" rowspan="4" style="width:50px">Actrapid</td>
                             <td class="dots" id="o_act_h1">.... h</td><td id="o_act_u1">UI</td>
-                            <td class="gray" style="width:35px">NPH</td>
+                            <td class="gray" style="width:30px">NPH</td>
                             <td class="dots" id="o_nph_h1">.... h</td><td id="o_nph_u1">UI</td>
                         </tr>
                         <tr>
@@ -762,18 +417,12 @@
                             <td class="gray"></td>
                             <td class="dots" id="o_nph_h2">.... h</td><td id="o_nph_u2">UI</td>
                         </tr>
-                        <tr>
-                            <td class="dots" id="o_act_h3">.... h</td><td id="o_act_u3">UI</td>
-                            <td></td><td></td><td></td>
-                        </tr>
-                        <tr>
-                            <td class="dots" id="o_act_h4">.... h</td><td id="o_act_u4">UI</td>
-                            <td></td><td></td><td></td>
-                        </tr>
+                        <tr><td class="dots" id="o_act_h3">.... h</td><td id="o_act_u3">UI</td><td class="gray" style="width:35px">Lente</td><td class="dots" id="o_len_h1">.... h</td><td id="o_len_u1">UI</td></tr>
+                        <tr><td class="dots" id="o_act_h4">.... h</td><td id="o_act_u4">UI</td><td class="gray"></td>
+                            <td class="dots" id="o_len_h2">.... h</td><td id="o_len_u2">UI</td></tr>
                     </table>
                 </div>
             </div>
-
             <div class="checklist-wrap">
                 <div class="checklist-group">
                     <h4>Intéractions</h4>
@@ -798,11 +447,73 @@
                 </div>
             </div>
         </div>
-
     </div>
-</div>
+</div><!-- /page1 -->
 
-<!-- EDIT DRUG DIALOG -->
+
+<!-- ═══════════ PAGE 2 ═══════════ -->
+<div id="page2" class="print-page hidden-tab">
+    <div class="page-header">
+        <h2>Centre Hospitalier Universitaire Dr Ben Badis — Constantine</h2>
+        <h3>Service de Réanimation Médicale</h3>
+        <div class="page-title">Nutrition et Perfusion</div>
+    </div>
+    <div class="table-area">
+        <div class="patient-grid">
+            <div class="patient-cell"><span class="lbl">Nom &amp; Prénom</span><span class="out_name"></span></div>
+            <div class="patient-cell"><span class="lbl">Box</span><span class="out_box"></span></div>
+            <div class="patient-cell"><span class="lbl">Médecin</span><span class="out_doc"></span></div>
+            <div class="patient-cell"><span class="lbl">Date</span><span class="out_date"></span></div>
+        </div>
+        <div class="days-row">
+            <div class="day-cell"><span class="lbl">J Hosp</span><span class="out_jhosp"></span></div>
+            <div class="day-cell"><span class="lbl">J Intub</span><span class="out_jint"></span></div>
+            <div class="day-cell"><span class="lbl">J Trach</span><span class="out_jtrach"></span></div>
+        </div>
+        <div class="metrics-row">
+            <div class="metric-cell"><span class="lbl">Poids</span><span class="out_poids"></span></div>
+            <div class="metric-cell"><span class="lbl">P. Idéal</span><span class="out_pi"></span></div>
+            <div class="metric-cell"><span class="lbl">P. Ajusté</span><span class="out_pa"></span></div>
+            <div class="metric-cell"><span class="lbl">Taille</span><span class="out_taille"></span></div>
+            <div class="metric-cell"><span class="lbl">MDRD</span><span class="out_mdrd"></span></div>
+            <div class="metric-cell"><span class="lbl">Cockcroft</span><span class="out_cock"></span></div>
+        </div>
+
+        <div id="nutritionSection">
+            <table id="nutrTable">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;min-width:150px">Produit</th>
+                        <th>Qté</th>
+                        <th>Dilution</th>
+                        <th>Kcal</th>
+                        <th>Prot (g)</th>
+                        <th>Lipid (g)</th>
+                        <th>Na⁺ (mmol)</th>
+                        <th>K⁺ (mmol)</th>
+                        <th>Ca²⁺ (mmol)</th>
+                        <th>Mg²⁺ (mmol)</th>
+                        <th>Eau (mL)</th>
+                    </tr>
+                </thead>
+                <tbody id="nutrTbody"></tbody>
+            </table>
+        </div>
+
+        <table id="perfTable">
+            <thead><tr><th>Perfusion</th><th>Quantité</th><th>Débit</th><th class="actions-cell">Actions</th></tr></thead>
+            <tbody></tbody>
+        </table>
+
+        <table id="drogTable">
+            <thead><tr><th>Drogue</th><th>Préparation</th><th>Dilution</th><th>Débit</th><th>Objectif</th><th class="actions-cell">Actions</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div><!-- /page2 -->
+
+
+<!-- ─── DIALOGS ─── -->
 <dialog id="editDialog">
     <div class="modal-head">Modifier le médicament</div>
     <div class="modal-body">
@@ -811,6 +522,7 @@
         <div class="modal-field"><label>Dose</label><input type="text" id="edit_dose"></div>
         <div class="modal-field"><label>Prises</label><input type="number" id="edit_times"></div>
         <div class="modal-field"><label>Voie</label><input type="text" id="edit_route"></div>
+        <div class="modal-field"><label>Dilution</label><input type="text" id="edit_dilution"></div>
         <div class="modal-field"><label>Horaires</label><input type="text" id="edit_schedule"></div>
     </div>
     <div class="modal-foot">
@@ -819,7 +531,6 @@
     </div>
 </dialog>
 
-<!-- EDIT PERFUSION DIALOG -->
 <dialog id="editPerfDialog">
     <div class="modal-head">Modifier la perfusion</div>
     <div class="modal-body">
@@ -833,12 +544,12 @@
     </div>
 </dialog>
 
-<!-- EDIT DROGUE DIALOG -->
 <dialog id="editDrogDialog">
     <div class="modal-head">Modifier la drogue SAP</div>
     <div class="modal-body">
         <div class="modal-field"><label>Drogue</label><input type="text" id="editd_name"></div>
         <div class="modal-field"><label>Préparation</label><input type="text" id="editd_prep"></div>
+        <div class="modal-field"><label>Dilution</label><input type="text" id="editd_dil"></div>
         <div class="modal-field"><label>Débit</label><input type="text" id="editd_debit"></div>
         <div class="modal-field"><label>Objectif</label><input type="text" id="editd_obj"></div>
     </div>
@@ -848,65 +559,458 @@
     </div>
 </dialog>
 
+<dialog id="editNutrDialog">
+    <div class="modal-head">Modifier le produit nutritionnel</div>
+    <div class="modal-body">
+        <div class="modal-field"><label>Catégorie</label><select id="editn_cat"><option value="enteral">Entérale</option><option value="parenteral">Parentérale</option></select></div>
+        <div class="modal-field"><label>Produit</label><select id="editn_product"></select></div>
+        <div class="modal-field"><label>Quantité</label><input type="number" id="editn_qty"></div>
+        <div class="modal-field"><label>Dilution (mL eau)</label><input type="number" id="editn_dil"></div>
+    </div>
+    <div class="modal-foot">
+        <button onclick="document.getElementById('editNutrDialog').close()">Annuler</button>
+        <button class="btn-dark" onclick="saveNutrEdit()">Enregistrer</button>
+    </div>
+</dialog>
+
 <script>
+/* ══════════════════════════════════════════════
+   PRODUCT DATABASE
+══════════════════════════════════════════════ */
+const products = {
+    parenteral: {
+        "Oliclinomel N4-550":   { kcal:610,  protein:22, glucose:80,  lipids:20, liquid:true, base:1000 },
+        "Oliclinomel N4-550E":  { kcal:610,  protein:22, glucose:80,  lipids:20, liquid:true, base:1000, na:21,  k:16,   mg:2.2, ca:2 },
+        "Oliclinomel N7-1000":  { kcal:1200, protein:40, glucose:160, lipids:40, liquid:true, base:1000 },
+        "Oliclinomel N7-1000E": { kcal:1200, protein:40, glucose:160, lipids:40, liquid:true, base:1000, na:32,  k:24,   mg:2.2, ca:2 },
+        "Glucose 5%":           { kcal:100,  protein:0,  glucose:25,  lipids:0,  liquid:true, base:500 },
+        "Glucose 10%":          { kcal:200,  protein:0,  glucose:50,  lipids:0,  liquid:true, base:500 },
+        "Natripack 10%":        { kcal:0,    protein:0,  liquid:false, isPack:true, base:1, na:17,  k:0,    mg:0,   ca:0 },
+        "Kalipack 10%":         { kcal:0,    protein:0,  liquid:false, isPack:true, base:1, na:0,   k:13.4, mg:0,   ca:0 },
+        "Calcipack 10%":        { kcal:0,    protein:0,  liquid:false, isPack:true, base:1, na:0,   k:0,    mg:0,   ca:6.8 },
+        "Magnipack 15%":        { kcal:0,    protein:0,  liquid:false, isPack:true, base:1, na:0,   k:0,    mg:4,   ca:0 }
+    },
+    enteral: {
+        "Nutrison Standard 1L": { kcal:1000, protein:40,  glucose:1.2,  lipids:39,   liquid:true,  base:1000, na:39.1, k:38.4, mg:8.6,  ca:20 },
+        "Fortimax En Poudre 200Ml": { kcal:303, protein:20, liquid:true, base:200 },
+        "Fortimel 125Ml":       { kcal:306,  protein:18,  glucose:0.11, lipids:12,   liquid:true,  base:125,  na:1.9,  k:3.12, mg:2.75, ca:10.9 },
+        "Protifar 2.2g/2.5g":   { kcal:3.68, protein:0.872, lipids:0.016, liquid:false, isPack:false, base:1, na:0.0435, k:0.0358, mg:0.0082, ca:0.337 },
+        "Kaligon 15%":          { kcal:0,    protein:0,   liquid:true,  base:1,      k:0.64 }
+    }
+};
+
+function unitLabel(p) {
+    if (p.liquid) return 'mL';
+    if (p.isPack === false) return 'g';
+    return 'amp';
+}
+
+function calcNutrients(pName, cat, qty, dil) {
+    const p = products[cat][pName];
+    if (!p) return null;
+    const ratio = qty / p.base;
+    const dilWater = parseFloat(dil) || 0;
+    return {
+        name: pName, cat, qty, dil: dilWater,
+        unit: unitLabel(p),
+        kcal:    (p.kcal    || 0) * ratio,
+        protein: (p.protein || 0) * ratio,
+        lipids:  (p.lipids  || 0) * ratio,
+        na:      (p.na      || 0) * ratio,
+        k:       (p.k       || 0) * ratio,
+        ca:      (p.ca      || 0) * ratio,
+        mg:      (p.mg      || 0) * ratio,
+        water:   (p.liquid ? qty : 0) + dilWater
+    };
+}
+
+function fmt(v) {
+    if (v === undefined || v === null || v === 0) return '—';
+    const r = Math.round(v * 100) / 100;
+    return r % 1 === 0 ? r.toString() : r.toFixed(2);
+}
+
+/* ══════════════════════════════════════════════
+   NUTRITION STATE
+══════════════════════════════════════════════ */
+let nutrItems = [];
+let currentPhase = null;
+let editNutrIdx = null;
+
+function selectPhase(n) {
+    currentPhase = n;
+    document.querySelectorAll('.phase-opt').forEach((el, i) => {
+        el.classList.toggle('selected', i + 1 === n);
+    });
+    renderNutrTable();
+}
+
+function addNutrItem(cat) {
+    const selId = cat === 'enteral' ? 'ent_product' : 'par_product';
+    const qtyId = cat === 'enteral' ? 'ent_qty'     : 'par_qty';
+    const dilId = cat === 'enteral' ? 'ent_dil'     : 'par_dil';
+    const pName = document.getElementById(selId).value;
+    const qty   = parseFloat(document.getElementById(qtyId).value);
+    const dil   = parseFloat(document.getElementById(dilId).value) || 0;
+    if (!pName) return alert('Choisissez un produit.');
+    if (!qty || qty <= 0) return alert('Entrez une quantité valide.');
+    nutrItems.push({ pName, cat, qty, dil });
+    document.getElementById(qtyId).value = '';
+    document.getElementById(dilId).value = '';
+    renderNutrTable();
+}
+
+function removeNutrItem(idx) { nutrItems.splice(idx, 1); renderNutrTable(); }
+
+function openEditNutr(idx) {
+    editNutrIdx = idx;
+    const item = nutrItems[idx];
+    const catSel = document.getElementById('editn_cat');
+    catSel.value = item.cat;
+    populateEditNutrProducts(item.cat, item.pName);
+    document.getElementById('editn_qty').value = item.qty;
+    document.getElementById('editn_dil').value = item.dil || '';
+    document.getElementById('editNutrDialog').showModal();
+}
+
+function populateEditNutrProducts(cat, selectedName) {
+    const sel = document.getElementById('editn_product');
+    sel.innerHTML = '';
+    Object.keys(products[cat]).forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name; opt.textContent = name;
+        if (name === selectedName) opt.selected = true;
+        sel.appendChild(opt);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('editn_cat').addEventListener('change', function() {
+        populateEditNutrProducts(this.value, null);
+    });
+});
+
+function saveNutrEdit() {
+    const cat   = document.getElementById('editn_cat').value;
+    const pName = document.getElementById('editn_product').value;
+    const qty   = parseFloat(document.getElementById('editn_qty').value);
+    const dil   = parseFloat(document.getElementById('editn_dil').value) || 0;
+    if (!qty || qty <= 0) return alert('Quantité invalide.');
+    nutrItems[editNutrIdx] = { pName, cat, qty, dil };
+    document.getElementById('editNutrDialog').close();
+    renderNutrTable();
+}
+
+/* ── Weight calculation per clinical rules ── */
+function getCalcWeight() {
+    const poids  = parseFloat(document.getElementById('p_poids').value);
+    const tailleRaw = parseFloat(document.getElementById('p_taille').value);
+    const age    = parseFloat(document.getElementById('p_age').value);
+    if (!poids || !tailleRaw || tailleRaw <= 0) return null;
+    const taille = tailleRaw > 3 ? tailleRaw / 100 : tailleRaw; // convert cm to m
+    const imc    = poids / (taille * taille);
+    const pi     = 25 * taille * taille;       // Poids idéal (IMC 25)
+    const pa     = pi + 0.25 * (poids - pi);   // Poids ajusté
+
+    const senior = age >= 75;
+    let w;
+    if (!senior) {
+        if      (imc < 18.5)  w = 18.5 * taille * taille;
+        else if (imc < 25)    w = poids;
+        else if (imc < 30)    w = pi;
+        else                   w = pa;
+    } else {
+        if      (imc < 23)    w = 23 * taille * taille;
+        else if (imc < 28)    w = poids;
+        else if (imc < 33)    w = pi;
+        else                   w = pa;
+    }
+    return Math.round(w * 10) / 10;
+}
+
+function getPhaseTargets(w) {
+    if (!w || !currentPhase) return null;
+    const phases = [
+        { kcal: 15, prot: 1.2 },
+        { kcal: 25, prot: 1.2 },
+        { kcal: 30, prot: 2.0 }
+    ];
+    const ph = phases[currentPhase - 1];
+    return {
+        kcal:    [ph.kcal * w,      ph.kcal * w],
+        protein: [ph.prot * w,      ph.prot * w],
+        lipids:  [1.0 * w,          1.5 * w],
+        water:   [25 * w,           30 * w],
+        na:      [1.0 * w,          1.5 * w],
+        k:       [1.0 * w,          1.0 * w],
+        glucose: [1.0 * w,          1.5 * w]
+    };
+}
+
+function fmtRange(arr) {
+    if (!arr) return '—';
+    if (arr[0] === arr[1]) return fmt(arr[0]);
+    return fmt(arr[0]) + ' – ' + fmt(arr[1]);
+}
+
+function renderNutrTable() {
+    const tbody = document.getElementById('nutrTbody');
+    tbody.innerHTML = '';
+
+    if (nutrItems.length === 0 && !currentPhase) {
+        const tr = tbody.insertRow();
+        const td = tr.insertCell();
+        td.colSpan = 12;
+        td.style.cssText = 'text-align:center;color:#aaa;padding:12px;font-size:11px;';
+        td.textContent = 'Aucun produit nutritionnel ajouté.';
+        return;
+    }
+
+    const totals = { kcal:0, protein:0, lipids:0, na:0, k:0, ca:0, mg:0, water:0 };
+    const byGroup = { enteral: [], parenteral: [] };
+
+    nutrItems.forEach((item, idx) => {
+        const n = calcNutrients(item.pName, item.cat, item.qty, item.dil || 0);
+        if (n) byGroup[item.cat].push({ n, idx });
+    });
+
+    function insertGroupRows(cat, label, cls) {
+        if (byGroup[cat].length === 0) return;
+        const hdr = tbody.insertRow();
+        hdr.className = 'row-subtitle ' + (cat === 'enteral' ? 'ent' : 'par');
+        const htd = hdr.insertCell(); htd.colSpan = 12; htd.textContent = label;
+
+        byGroup[cat].forEach(({ n, idx }) => {
+            const tr = tbody.insertRow();
+            tr.className = cls;
+            const vals = [n.name, n.qty + ' ' + n.unit, n.dil ? n.dil + ' mL' : '—',
+                fmt(n.kcal), fmt(n.protein), fmt(n.lipids),
+                fmt(n.na), fmt(n.k), fmt(n.ca), fmt(n.mg), fmt(n.water)];
+            vals.forEach((v, i) => {
+                const td = tr.insertCell(); td.textContent = v;
+            });
+            const atd = tr.insertCell();
+            atd.className = 'actions-cell';
+            atd.innerHTML = `<button onclick="openEditNutr(${idx})">Edit</button> <button onclick="removeNutrItem(${idx})">✕</button>`;
+            // totals
+            totals.kcal    += n.kcal;
+            totals.protein += n.protein;
+            totals.lipids  += n.lipids;
+            totals.na      += n.na;
+            totals.k       += n.k;
+            totals.ca      += n.ca;
+            totals.mg      += n.mg;
+            totals.water   += n.water;
+        });
+    }
+
+    insertGroupRows('enteral',    '🥤 Nutrition Entérale',    'row-enteral');
+    insertGroupRows('parenteral', '💉 Nutrition Parentérale', 'row-parenteral');
+
+    // Add dilution water from SAP drugs, perfusions, and médicaments (drug table)
+    let dilWaterDrugs = 0;
+    document.querySelectorAll('#drogTable tbody tr').forEach(r => {
+        const dil = r.dataset.dil || '';
+        const m = dil.match(/([0-9.]+)/);
+        if (m) dilWaterDrugs += parseFloat(m[1]);
+    });
+    document.querySelectorAll('#perfTable tbody tr').forEach(r => {
+        const qte = r.dataset.qte || '';
+        const m = qte.match(/([0-9.]+)/);
+        if (m) dilWaterDrugs += parseFloat(m[1]);
+    });
+    let dilWaterMeds = 0;
+    document.querySelectorAll('#drugTable tbody tr').forEach(r => {
+        const dil = r.dataset.dilution || '';
+        const m = dil.match(/([0-9.]+)/);
+        if (m) dilWaterMeds += parseFloat(m[1]);
+    });
+
+    if (nutrItems.length > 0 || dilWaterDrugs > 0 || dilWaterMeds > 0) {
+        // Dilution médicaments row
+        if (dilWaterMeds > 0) {
+            const mtr = tbody.insertRow();
+            mtr.className = 'row-enteral';
+            const mvals = ['Dilutions Médicaments', '', fmt(dilWaterMeds) + ' mL', '—','—','—','—','—','—','—', fmt(dilWaterMeds), ''];
+            mvals.forEach(v => { const td = mtr.insertCell(); td.textContent = v; });
+            totals.water += dilWaterMeds;
+        }
+        // Dilution/perf water row
+        if (dilWaterDrugs > 0) {
+            const dtr = tbody.insertRow();
+            dtr.className = 'row-enteral';
+            const dvals = ['Dilutions SAP + Perfusions', '', fmt(dilWaterDrugs) + ' mL', '—','—','—','—','—','—','—', fmt(dilWaterDrugs), ''];
+            dvals.forEach(v => { const td = dtr.insertCell(); td.textContent = v; });
+            totals.water += dilWaterDrugs;
+        }
+        // Total row
+        const tr = tbody.insertRow();
+        tr.className = 'row-total';
+        ['TOTAL','','',fmt(totals.kcal),fmt(totals.protein),fmt(totals.lipids),
+         fmt(totals.na),fmt(totals.k),fmt(totals.ca),fmt(totals.mg),fmt(totals.water),'']
+        .forEach(v => { const td = tr.insertCell(); td.textContent = v; });
+    }
+
+    // Cible row
+    const w = getCalcWeight();
+    const targets = getPhaseTargets(w);
+    if (targets) {
+        const phaseLabels = ['Phase aiguë (J1–J2)','Rétablissement (J3–J7)','Rétablissement (>J7)'];
+        const cr = tbody.insertRow();
+        cr.className = 'row-cible';
+        const cells = [
+            'Cible (' + phaseLabels[currentPhase - 1] + (w ? ', ' + w + ' kg' : '') + ')',
+            '', '',
+            fmtRange(targets.kcal),
+            fmtRange(targets.protein),
+            fmtRange(targets.lipids),
+            fmtRange(targets.na),
+            fmtRange(targets.k),
+            '—',
+            '—',
+            fmtRange(targets.water),
+            ''
+        ];
+        cells.forEach((v, i) => {
+            const td = cr.insertCell(); td.textContent = v;
+            if (i === 0) td.colSpan = 1;
+        });
+    }
+}
+
+
+/* ── Auto-calculate Poids Idéal and Poids Ajusté ── */
+function autoCalcWeights() {
+    const poids    = parseFloat(document.getElementById('p_poids').value);
+    const tailleRaw = parseFloat(document.getElementById('p_taille').value);
+    if (!tailleRaw || tailleRaw <= 0) return;
+    const taille   = tailleRaw > 3 ? tailleRaw / 100 : tailleRaw;
+    const pi       = 25 * taille * taille;
+    const piRound  = Math.round(pi * 10) / 10;
+    document.getElementById('p_pi').value = piRound + ' kg';
+    document.querySelectorAll('.out_pi').forEach(el => el.textContent = piRound + ' kg');
+    if (poids) {
+        const pa = pi + 0.25 * (poids - pi);
+        const paRound = Math.round(pa * 10) / 10;
+        document.getElementById('p_pa').value = paRound + ' kg';
+        document.querySelectorAll('.out_pa').forEach(el => el.textContent = paRound + ' kg');
+    }
+}
+
+function updateTargets() { renderNutrTable(); }
+
+/* ══════════════════════════════════════════════
+   POPULATE SELECTS
+══════════════════════════════════════════════ */
+function populateProductSelects() {
+    ['ent_product','par_product'].forEach((selId, idx) => {
+        const cat = idx === 0 ? 'enteral' : 'parenteral';
+        const sel = document.getElementById(selId);
+        sel.innerHTML = '';
+        Object.keys(products[cat]).forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name; opt.textContent = name;
+            sel.appendChild(opt);
+        });
+    });
+}
+
+/* ══════════════════════════════════════════════
+   DAY CALCULATION
+══════════════════════════════════════════════ */
+function calcDays() {
+    const today = new Date(); today.setHours(0,0,0,0);
+    function d(id) {
+        const v = document.getElementById(id).value;
+        if (!v) return null;
+        const dt = new Date(v); dt.setHours(0,0,0,0);
+        const diff = Math.floor((today - dt) / 86400000) + 1;
+        return diff > 0 ? 'J' + diff : null;
+    }
+    const jh = d('p_date_hosp'), ji = d('p_date_int'), jt = d('p_date_trach');
+    document.querySelectorAll('.out_jhosp').forEach(el => el.textContent  = jh || '');
+    document.querySelectorAll('.out_jint').forEach(el => el.textContent   = ji || '');
+    document.querySelectorAll('.out_jtrach').forEach(el => el.textContent = jt || '');
+}
+
+/* ══════════════════════════════════════════════
+   BOX SELECT
+══════════════════════════════════════════════ */
 let currentRow = null;
 let storageBoxes = {};
 
 const boxSelect = document.getElementById('boxSelect');
 for (let i = 1; i <= 18; i++) {
     const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = 'Box ' + i;
+    opt.value = i; opt.textContent = 'Box ' + i;
     boxSelect.appendChild(opt);
 }
 
+/* ══════════════════════════════════════════════
+   TAB SWITCHING
+══════════════════════════════════════════════ */
+function switchTab(n) {
+    document.getElementById('tab1Btn').classList.toggle('active', n === 1);
+    document.getElementById('tab2Btn').classList.toggle('active', n === 2);
+    document.querySelectorAll('.ctrl-tab1').forEach(el => el.style.display = n === 1 ? 'flex' : 'none');
+    document.querySelectorAll('.ctrl-tab2').forEach(el => el.style.display = n === 2 ? 'flex' : 'none');
+    document.getElementById('page1').classList.toggle('hidden-tab', n !== 1);
+    document.getElementById('page2').classList.toggle('hidden-tab', n !== 2);
+}
+
+/* ══════════════════════════════════════════════
+   SYNC PATIENT
+══════════════════════════════════════════════ */
 function syncPatient() {
-    const fields = ['name','box','doc','date','jhosp','jint','jtrach','poids','pi','pa','taille','mdrd','cock'];
-    fields.forEach(f => {
-        const el = document.getElementById("out_" + f);
-        if (el) el.textContent = document.getElementById("p_" + f).value;
+    ['name','box','doc','date','poids','pi','pa','taille','mdrd','cock'].forEach(f => {
+        const val = document.getElementById("p_" + f).value;
+        document.querySelectorAll(".out_" + f).forEach(el => el.textContent = val);
     });
 }
 
-function toggleExtraImage(forceState = null) {
+/* ══════════════════════════════════════════════
+   INSULIN
+══════════════════════════════════════════════ */
+function toggleExtraImage(s = null) {
     const c = document.getElementById("extraImageContainer");
-    c.style.display = forceState !== null ? (forceState ? "block" : "none") : (c.style.display === "block" ? "none" : "block");
+    c.style.display = s !== null ? (s ? "block" : "none") : (c.style.display === "block" ? "none" : "block");
 }
-function toggleExtraImageShema(forceState = null) {
+function toggleExtraImageShema(s = null) {
     const c = document.getElementById("shema");
-    c.style.display = forceState !== null ? (forceState ? "block" : "none") : (c.style.display === "block" ? "none" : "block");
+    c.style.display = s !== null ? (s ? "block" : "none") : (c.style.display === "block" ? "none" : "block");
 }
-  
-function syncInsulin() { 
-    ['act_h1','act_u1','act_h2','act_u2','act_h3','act_u3','act_h4','act_u4','nph_h1','nph_u1','nph_h2','nph_u2'].forEach(id => {
-        const val = document.getElementById(id).value;
+function syncInsulin() {
+    ['act_h1','act_u1','act_h2','act_u2','act_h3','act_u3','act_h4','act_u4',
+     'nph_h1','nph_u1','nph_h2','nph_u2',
+     'len_h1','len_u1','len_h2','len_u2'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const val = el.value;
         const t = document.getElementById("o_" + id);
         if (!t) return;
         t.textContent = id.includes('_h') ? (val ? val + " h" : ".... h") : (val ? val + " UI" : "UI");
     });
 }
 
-/* ─── MÉDICAMENTS ─── */
+/* ══════════════════════════════════════════════
+   MÉDICAMENTS
+══════════════════════════════════════════════ */
 function addDrug(data = null) {
-    const fields = ["name","jours","dose","times","route","schedule"];
+    const fields = ["name","jours","dose","times","route","dilution","schedule"];
     const values = data || fields.map(id => document.getElementById(id).value);
     if (!values[0]) return data ? null : alert("Nom du médicament requis.");
-    const tbody = document.querySelector("#drugTable tbody");
-    const row = tbody.insertRow();
-    [row.dataset.name, row.dataset.jours, row.dataset.dose, row.dataset.times, row.dataset.route, row.dataset.schedule] = values;
+    const row = document.querySelector("#drugTable tbody").insertRow();
+    [row.dataset.name,row.dataset.jours,row.dataset.dose,row.dataset.times,
+     row.dataset.route,row.dataset.dilution,row.dataset.schedule] = values;
     renderDrugRow(row);
     if (!data) fields.forEach(id => document.getElementById(id).value = "");
 }
-
 function renderDrugRow(row) {
     const n = row.rowIndex;
-    row.innerHTML = `
-        <td><span class="rn">${n}.</span>${row.dataset.name}</td>
-        <td style="text-align:center">${row.dataset.jours || '—'}</td>
-        <td>${row.dataset.dose}</td>
-        <td>${row.dataset.times}</td>
-        <td>${row.dataset.route}</td>
-        <td>${row.dataset.schedule}</td>
+    row.innerHTML = `<td><span class="rn">${n}.</span>${row.dataset.name}</td>
+        <td style="text-align:center">${row.dataset.jours||'—'}</td>
+        <td>${row.dataset.dose}</td><td>${row.dataset.times}</td>
+        <td>${row.dataset.route}</td><td>${row.dataset.dilution||'—'}</td><td>${row.dataset.schedule}</td>
         <td class="actions-cell">
             <button onclick="moveDrugRow(this,-1)">↑</button>
             <button onclick="moveDrugRow(this,1)">↓</button>
@@ -914,56 +1018,45 @@ function renderDrugRow(row) {
             <button onclick="this.closest('tr').remove();refreshDrugNums()">✕</button>
         </td>`;
 }
-
 function refreshDrugNums() {
-    document.querySelectorAll("#drugTable tbody tr").forEach((row, i) => {
-        const s = row.querySelector('.rn');
-        if (s) s.textContent = (i + 1) + '.';
-    });
+    document.querySelectorAll("#drugTable tbody tr").forEach((r,i)=>{ const s=r.querySelector('.rn'); if(s) s.textContent=(i+1)+'.'; });
 }
-
-function moveDrugRow(btn, dir) {
-    const row = btn.closest("tr");
-    if (dir === -1 && row.previousElementSibling) row.parentNode.insertBefore(row, row.previousElementSibling);
-    else if (dir === 1 && row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling, row);
+function moveDrugRow(btn,dir) {
+    const row=btn.closest("tr");
+    if(dir===-1&&row.previousElementSibling) row.parentNode.insertBefore(row,row.previousElementSibling);
+    else if(dir===1&&row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling,row);
     refreshDrugNums();
 }
-
 function openEditDrug(btn) {
-    currentRow = btn.closest("tr");
-    currentRow._editType = 'drug';
-    ["name","jours","dose","times","route","schedule"].forEach(f => document.getElementById("edit_" + f).value = currentRow.dataset[f] || '');
+    currentRow=btn.closest("tr");
+    ["name","jours","dose","times","route","dilution","schedule"].forEach(f=>document.getElementById("edit_"+f).value=currentRow.dataset[f]||'');
     document.getElementById("editDialog").showModal();
 }
-
 function saveEdit() {
-    ["name","jours","dose","times","route","schedule"].forEach(f => currentRow.dataset[f] = document.getElementById("edit_" + f).value);
+    ["name","jours","dose","times","route","dilution","schedule"].forEach(f=>currentRow.dataset[f]=document.getElementById("edit_"+f).value);
     renderDrugRow(currentRow);
     document.getElementById("editDialog").close();
 }
-
 function clearAllDrugs() {
-    if (confirm("Supprimer tous les médicaments ?")) document.querySelector("#drugTable tbody").innerHTML = "";
+    if(confirm("Supprimer tous les médicaments ?")) document.querySelector("#drugTable tbody").innerHTML="";
 }
 
-/* ─── PERFUSIONS ─── */
+/* ══════════════════════════════════════════════
+   PERFUSIONS
+══════════════════════════════════════════════ */
 function addPerf(data = null) {
     const fields = ["perf_name","perf_qte","perf_debit"];
-    const values = data || fields.map(id => document.getElementById(id).value);
-    if (!values[0]) return data ? null : alert("Nom de la perfusion requis.");
-    const tbody = document.querySelector("#perfTable tbody");
-    const row = tbody.insertRow();
-    [row.dataset.name, row.dataset.qte, row.dataset.debit] = values;
+    const values = data || fields.map(id=>document.getElementById(id).value);
+    if(!values[0]) return data ? null : alert("Nom de la perfusion requis.");
+    const row = document.querySelector("#perfTable tbody").insertRow();
+    [row.dataset.name,row.dataset.qte,row.dataset.debit] = values;
     renderPerfRow(row);
-    if (!data) fields.forEach(id => document.getElementById(id).value = "");
+    if(!data) fields.forEach(id=>document.getElementById(id).value="");
 }
-
 function renderPerfRow(row) {
-    const n = row.rowIndex;
-    row.innerHTML = `
-        <td><span class="rn">${n}.</span>${row.dataset.name}</td>
-        <td>${row.dataset.qte}</td>
-        <td>${row.dataset.debit}</td>
+    const n=row.rowIndex;
+    row.innerHTML=`<td><span class="rn">${n}.</span>${row.dataset.name}</td>
+        <td>${row.dataset.qte}</td><td>${row.dataset.debit}</td>
         <td class="actions-cell">
             <button onclick="movePerfRow(this,-1)">↑</button>
             <button onclick="movePerfRow(this,1)">↓</button>
@@ -971,60 +1064,50 @@ function renderPerfRow(row) {
             <button onclick="this.closest('tr').remove();refreshPerfNums()">✕</button>
         </td>`;
 }
-
 function refreshPerfNums() {
-    document.querySelectorAll("#perfTable tbody tr").forEach((row, i) => {
-        const s = row.querySelector('.rn');
-        if (s) s.textContent = (i + 1) + '.';
-    });
+    document.querySelectorAll("#perfTable tbody tr").forEach((r,i)=>{ const s=r.querySelector('.rn'); if(s) s.textContent=(i+1)+'.'; });
 }
-
-function movePerfRow(btn, dir) {
-    const row = btn.closest("tr");
-    if (dir === -1 && row.previousElementSibling) row.parentNode.insertBefore(row, row.previousElementSibling);
-    else if (dir === 1 && row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling, row);
+function movePerfRow(btn,dir) {
+    const row=btn.closest("tr");
+    if(dir===-1&&row.previousElementSibling) row.parentNode.insertBefore(row,row.previousElementSibling);
+    else if(dir===1&&row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling,row);
     refreshPerfNums();
 }
-
 function openEditPerf(btn) {
-    currentRow = btn.closest("tr");
-    document.getElementById("editp_name").value = currentRow.dataset.name || '';
-    document.getElementById("editp_qte").value = currentRow.dataset.qte || '';
-    document.getElementById("editp_debit").value = currentRow.dataset.debit || '';
+    currentRow=btn.closest("tr");
+    document.getElementById("editp_name").value=currentRow.dataset.name||'';
+    document.getElementById("editp_qte").value=currentRow.dataset.qte||'';
+    document.getElementById("editp_debit").value=currentRow.dataset.debit||'';
     document.getElementById("editPerfDialog").showModal();
 }
-
 function savePerfEdit() {
-    currentRow.dataset.name = document.getElementById("editp_name").value;
-    currentRow.dataset.qte = document.getElementById("editp_qte").value;
-    currentRow.dataset.debit = document.getElementById("editp_debit").value;
+    currentRow.dataset.name=document.getElementById("editp_name").value;
+    currentRow.dataset.qte=document.getElementById("editp_qte").value;
+    currentRow.dataset.debit=document.getElementById("editp_debit").value;
     renderPerfRow(currentRow);
     document.getElementById("editPerfDialog").close();
 }
-
 function clearAllPerfs() {
-    if (confirm("Supprimer toutes les perfusions ?")) document.querySelector("#perfTable tbody").innerHTML = "";
+    if(confirm("Supprimer toutes les perfusions ?")) document.querySelector("#perfTable tbody").innerHTML="";
 }
 
-/* ─── DROGUES SAP ─── */
+/* ══════════════════════════════════════════════
+   DROGUES SAP
+══════════════════════════════════════════════ */
 function addDrog(data = null) {
-    const fields = ["drog_name","drog_prep","drog_debit","drog_obj"];
-    const values = data || fields.map(id => document.getElementById(id).value);
-    if (!values[0]) return data ? null : alert("Nom de la drogue requis.");
-    const tbody = document.querySelector("#drogTable tbody");
-    const row = tbody.insertRow();
-    [row.dataset.name, row.dataset.prep, row.dataset.debit, row.dataset.obj] = values;
+    const fields = ["drog_name","drog_prep","drog_dil","drog_debit","drog_obj"];
+    const values = data || fields.map(id=>document.getElementById(id).value);
+    if(!values[0]) return data ? null : alert("Nom de la drogue requis.");
+    const row = document.querySelector("#drogTable tbody").insertRow();
+    [row.dataset.name,row.dataset.prep,row.dataset.dil,row.dataset.debit,row.dataset.obj] = values;
     renderDrogRow(row);
-    if (!data) fields.forEach(id => document.getElementById(id).value = "");
+    if(!data) fields.forEach(id=>document.getElementById(id).value="");
 }
-
 function renderDrogRow(row) {
-    const n = row.rowIndex;
-    row.innerHTML = `
-        <td><span class="rn">${n}.</span>${row.dataset.name}</td>
-        <td>${row.dataset.prep}</td>
-        <td>${row.dataset.debit}</td>
-        <td>${row.dataset.obj}</td>
+    const n=row.rowIndex;
+    row.innerHTML=`<td><span class="rn">${n}.</span>${row.dataset.name}</td>
+        <td>${row.dataset.prep}</td><td>${row.dataset.dil||'—'}</td>
+        <td>${row.dataset.debit}</td><td>${row.dataset.obj}</td>
         <td class="actions-cell">
             <button onclick="moveDrogRow(this,-1)">↑</button>
             <button onclick="moveDrogRow(this,1)">↓</button>
@@ -1032,63 +1115,67 @@ function renderDrogRow(row) {
             <button onclick="this.closest('tr').remove();refreshDrogNums()">✕</button>
         </td>`;
 }
-
 function refreshDrogNums() {
-    document.querySelectorAll("#drogTable tbody tr").forEach((row, i) => {
-        const s = row.querySelector('.rn');
-        if (s) s.textContent = (i + 1) + '.';
-    });
+    document.querySelectorAll("#drogTable tbody tr").forEach((r,i)=>{ const s=r.querySelector('.rn'); if(s) s.textContent=(i+1)+'.'; });
 }
-
-function moveDrogRow(btn, dir) {
-    const row = btn.closest("tr");
-    if (dir === -1 && row.previousElementSibling) row.parentNode.insertBefore(row, row.previousElementSibling);
-    else if (dir === 1 && row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling, row);
+function moveDrogRow(btn,dir) {
+    const row=btn.closest("tr");
+    if(dir===-1&&row.previousElementSibling) row.parentNode.insertBefore(row,row.previousElementSibling);
+    else if(dir===1&&row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling,row);
     refreshDrogNums();
 }
-
 function openEditDrog(btn) {
-    currentRow = btn.closest("tr");
-    document.getElementById("editd_name").value = currentRow.dataset.name || '';
-    document.getElementById("editd_prep").value = currentRow.dataset.prep || '';
-    document.getElementById("editd_debit").value = currentRow.dataset.debit || '';
-    document.getElementById("editd_obj").value = currentRow.dataset.obj || '';
+    currentRow=btn.closest("tr");
+    document.getElementById("editd_name").value=currentRow.dataset.name||'';
+    document.getElementById("editd_prep").value=currentRow.dataset.prep||'';
+    document.getElementById("editd_dil").value=currentRow.dataset.dil||'';
+    document.getElementById("editd_debit").value=currentRow.dataset.debit||'';
+    document.getElementById("editd_obj").value=currentRow.dataset.obj||'';
     document.getElementById("editDrogDialog").showModal();
 }
-
 function saveDrogEdit() {
-    currentRow.dataset.name = document.getElementById("editd_name").value;
-    currentRow.dataset.prep = document.getElementById("editd_prep").value;
-    currentRow.dataset.debit = document.getElementById("editd_debit").value;
-    currentRow.dataset.obj = document.getElementById("editd_obj").value;
+    currentRow.dataset.name=document.getElementById("editd_name").value;
+    currentRow.dataset.prep=document.getElementById("editd_prep").value;
+    currentRow.dataset.dil=document.getElementById("editd_dil").value;
+    currentRow.dataset.debit=document.getElementById("editd_debit").value;
+    currentRow.dataset.obj=document.getElementById("editd_obj").value;
     renderDrogRow(currentRow);
     document.getElementById("editDrogDialog").close();
 }
-
 function clearAllDrogs() {
-    if (confirm("Supprimer toutes les drogues SAP ?")) document.querySelector("#drogTable tbody").innerHTML = "";
+    if(confirm("Supprimer toutes les drogues SAP ?")) document.querySelector("#drogTable tbody").innerHTML="";
 }
 
-/* ─── SAVE / LOAD ─── */
+/* ══════════════════════════════════════════════
+   SAVE / LOAD
+══════════════════════════════════════════════ */
 function saveToBox() {
     const n = boxSelect.value;
     const ins = {};
-    ['act_h1','act_u1','act_h2','act_u2','act_h3','act_u3','act_h4','act_u4','nph_h1','nph_u1','nph_h2','nph_u2']
-        .forEach(id => ins[id] = document.getElementById(id).value);
+    ['act_h1','act_u1','act_h2','act_u2','act_h3','act_u3','act_h4','act_u4',
+     'nph_h1','nph_u1','nph_h2','nph_u2','len_h1','len_u1','len_h2','len_u2']
+        .forEach(id => { const el = document.getElementById(id); if (el) ins[id] = el.value; });
     const pat = {};
-    ['name','box','doc','date','jhosp','jint','jtrach','poids','pi','pa','taille','mdrd','cock']
+    ['name','box','doc','date','poids','taille','pi','pa','mdrd','cock']
         .forEach(f => pat[f] = document.getElementById("p_" + f).value);
+    pat.age        = document.getElementById('p_age').value;
+    pat.date_hosp  = document.getElementById('p_date_hosp').value;
+    pat.date_int   = document.getElementById('p_date_int').value;
+    pat.date_trach = document.getElementById('p_date_trach').value;
+
     storageBoxes[n] = {
         patient: pat,
-        drugs: Array.from(document.querySelectorAll("#drugTable tbody tr")).map(r =>
-            [r.dataset.name, r.dataset.jours, r.dataset.dose, r.dataset.times, r.dataset.route, r.dataset.schedule]),
-        perfs: Array.from(document.querySelectorAll("#perfTable tbody tr")).map(r =>
-            [r.dataset.name, r.dataset.qte, r.dataset.debit]),
-        drogs: Array.from(document.querySelectorAll("#drogTable tbody tr")).map(r =>
-            [r.dataset.name, r.dataset.prep, r.dataset.debit, r.dataset.obj]),
-        checks: Array.from(document.querySelectorAll('#printPage input[type="checkbox"]')).map(c => c.checked),
+        drugs:  Array.from(document.querySelectorAll("#drugTable tbody tr")).map(r=>
+            [r.dataset.name,r.dataset.jours,r.dataset.dose,r.dataset.times,r.dataset.route,r.dataset.dilution,r.dataset.schedule]),
+        perfs:  Array.from(document.querySelectorAll("#perfTable tbody tr")).map(r=>
+            [r.dataset.name,r.dataset.qte,r.dataset.debit]),
+        drogs:  Array.from(document.querySelectorAll("#drogTable tbody tr")).map(r=>
+            [r.dataset.name,r.dataset.prep,r.dataset.dil,r.dataset.debit,r.dataset.obj]),
+        checks: Array.from(document.querySelectorAll('#page1 input[type="checkbox"]')).map(c=>c.checked),
         insulin: ins,
-        showExtraImage: document.getElementById("extraImageContainer").style.display === "block"
+        showExtraImage: document.getElementById("extraImageContainer").style.display=== "block",
+        nutrItems,
+        currentPhase
     };
     localStorage.setItem('prescriptionStorage', JSON.stringify(storageBoxes));
     alert("Sauvegardé — Box " + n);
@@ -1097,36 +1184,52 @@ function saveToBox() {
 function loadFromBox() {
     const data = (JSON.parse(localStorage.getItem('prescriptionStorage')) || {})[boxSelect.value];
     if (!data) return alert("Box vide !");
-    Object.keys(data.patient).forEach(k => { const el = document.getElementById("p_" + k); if (el) el.value = data.patient[k]; });
-    syncPatient();
+
+    Object.keys(data.patient).forEach(k => {
+        if (['date_hosp','date_int','date_trach','age'].includes(k)) return;
+        const el = document.getElementById("p_" + k); if (el) el.value = data.patient[k];
+    });
+    if (data.patient.date_hosp)  document.getElementById('p_date_hosp').value  = data.patient.date_hosp;
+    if (data.patient.date_int)   document.getElementById('p_date_int').value   = data.patient.date_int;
+    if (data.patient.date_trach) document.getElementById('p_date_trach').value = data.patient.date_trach;
+    if (data.patient.age)        document.getElementById('p_age').value        = data.patient.age;
+    syncPatient(); calcDays();
+
     document.querySelector("#drugTable tbody").innerHTML = "";
     data.drugs.forEach(d => addDrug(d));
     document.querySelector("#perfTable tbody").innerHTML = "";
     if (data.perfs) data.perfs.forEach(d => addPerf(d));
     document.querySelector("#drogTable tbody").innerHTML = "";
     if (data.drogs) data.drogs.forEach(d => addDrog(d));
-    const cks = document.querySelectorAll('#printPage input[type="checkbox"]');
+    const cks = document.querySelectorAll('#page1 input[type="checkbox"]');
     if (data.checks) data.checks.forEach((v, i) => { if (cks[i]) cks[i].checked = v; });
     if (data.insulin) Object.keys(data.insulin).forEach(id => { const el = document.getElementById(id); if (el) el.value = data.insulin[id]; });
     syncInsulin();
     toggleExtraImage(data.showExtraImage);
+    nutrItems = data.nutrItems || [];
+    if (data.currentPhase) selectPhase(data.currentPhase);
+    else renderNutrTable();
 }
 
-window.onload = () => { const s = localStorage.getItem('prescriptionStorage'); if (s) storageBoxes = JSON.parse(s); };
-
-/* ─── Hide empty tables before printing ─── */
+/* ─── PRINT ─── */
 window.addEventListener('beforeprint', () => {
-    ['drugTable', 'perfTable', 'drogTable'].forEach(id => {
+    ['drugTable','perfTable','drogTable'].forEach(id => {
         const tbl = document.getElementById(id);
-        const isEmpty = tbl.querySelector('tbody').rows.length === 0;
-        tbl.classList.toggle('empty-table', isEmpty);
+        tbl.classList.toggle('empty-table', tbl.querySelector('tbody').rows.length === 0);
     });
 });
 window.addEventListener('afterprint', () => {
-    ['drugTable', 'perfTable', 'drogTable'].forEach(id => {
-        document.getElementById(id).classList.remove('empty-table');
-    });
+    ['drugTable','perfTable','drogTable'].forEach(id => document.getElementById(id).classList.remove('empty-table'));
 });
+
+/* ─── INIT ─── */
+window.onload = () => {
+    const s = localStorage.getItem('prescriptionStorage');
+    if (s) storageBoxes = JSON.parse(s);
+    populateProductSelects();
+    renderNutrTable();
+    switchTab(1);
+};
 </script>
 </body>
 </html>
