@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive IV Compatibility Analyzer</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --border-color: #dcdde1;
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            
+            /* 6-Category Status Colors */
+            --color-comp: #2acc7f;
+            --color-not-comp: #e74c3c;
+            --color-equal: #f1c40f;
+            --color-favors-comp: #3498db;
+            --color-favors-incomp: #e67e22;
+            --color-uncertain: #95a5a6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        h2, h3 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 10px;
+            color: #1a252f;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        select {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            background-color: #fff;
+        }
+
+        button {
+            padding: 12px 24px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .chips-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .chip {
+            background-color: #e1e8ed;
+            padding: 8px 14px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .chip .remove-btn {
+            color: #e74c3c;
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            background: none;
+            padding: 0;
+            font-size: 1.1rem;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .results-table th, .results-table td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+        }
+
+        .results-table th {
+            background-color: #f8f9fa;
+        }
+
+        /* Status Badges Styling */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .badge-compatible   { background-color: rgba(42, 204, 127, 0.15); color: #1e8251; border: 1px solid var(--color-comp); }
+        .badge-not-comp    { background-color: rgba(230, 76, 60, 0.15); color: #c0392b; border: 1px solid var(--color-not-comp); }
+        .badge-equal       { background-color: rgba(241, 196, 15, 0.15); color: #9a7d0a; border: 1px solid var(--color-equal); }
+        .badge-more-comp   { background-color: rgba(52, 152, 219, 0.15); color: #21618c; border: 1px solid var(--color-favors-comp); }
+        .badge-less-comp   { background-color: rgba(230, 126, 34, 0.15); color: #a04000; border: 1px solid var(--color-favors-incomp); }
+        .badge-uncertain   { background-color: rgba(149, 165, 166, 0.15); color: #5f6a6a; border: 1px solid var(--color-uncertain); }
+
+        .empty-state {
+            color: #7f8c8d;
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .legend { grid-template-columns: 1fr; }
+        }
+
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>Multi-Drug IV Compatibility Analyzer</h2>
+        <p style="font-size: 0.9rem; color: #7f8c8d; margin-top: -10px; margin-bottom: 20px;">
+            Select and add all medications and carrier fluids running on the patient's line to analyze active intersection compatibilities.
+        </p>
+        
+        <div class="input-group">
+            <select id="drugSelect">
+                <option value="">-- Select Medication or Fluid to add --</option>
+            </select>
+            <button id="addDrugBtn">Add to Regimen</button>
+        </div>
+
+        <div class="drugs-list-container">
+            <label style="font-weight: bold; font-size: 0.9rem;">Current Patient Evaluation List:</label>
+            <div id="chipsWrapper" class="chips-wrapper">
+                <div class="empty-state" id="emptyRegimenText">No items added yet. Choose items from the dropdown to run cross-matching.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Compatibility Evaluation Matrix</h3>
+        <div id="tableContainer">
+            <div class="empty-state">Add at least two items to generate compatibility reporting matrices.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Category Interpretation Legend</h3>
+        <div class="legend">
+            <div class="legend-item"><span class="dot" style="background-color: var(--color-comp);"></span> <span><strong>compatible</strong>: Admixture or Y-site administration is documented as physically/chemically stable.</span></div>
+            <div class="legend-item"><span class="dot" style="background-color: var(--color-not-comp);"></span> <span><strong>not compatible</strong>: Immediate precipitation, degradation, or hazard. Do not mix.</span></div>
+            <div class="legend-item"><span class="dot" style="background-color: var(--color-equal);"></span> <span><strong>compatible studies = incompatible studies</strong>: Conflicting data; balancing scientific evidence splits cleanly.</span></div>
+            <div class="legend-item"><span class="dot" style="background-color: var(--color-favors-comp);"></span> <span><strong>compatible studies &gt; incompatible studies</strong>: Conflicting data found, but weight of literature favors compatibility.</span></div>
+            <div class="legend-item"><span class="dot" style="background-color: var(--color-favors-incomp);"></span> <span><strong>compatible studies &lt; incompatible studies</strong>: Conflicting data found, but weight of literature warns of incompatibility.</span></div>
+            <div class="legend-item"><span class="dot" style="background-color: var(--color-uncertain);"></span> <span><strong>uncertain</strong>: No robust comparative mapping available. Treat as incompatible until validated.</span></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Comprehensive list of all 55 items provided, retaining exact case structure
+const itemsList = [
+    "Albumin Human", "Amikacin Sulfate", "Amiodarone Hydrochloride", "Amoxicillin Sodium", 
+    "Amoxicillin Sodium/Clavulanate Potassium", "Amphotericin B", "Azithromycin", "Bactrim IV", 
+    "Calcium Chloride", "Calcium Gluconate", "Cefepime Hydrochloride", "Cefepime Hydrochloride/Enmetazobactam", 
+    "Cefotaxime Sodium", "cefTAZidime", "cefTRIAXone sodium", "Ciprofloxacin", "clonazePAM", 
+    "Colistimethate Sodium", "diazePAM", "EPINEPHrine", "fentaNYL citrate", "Furosemide", 
+    "Gentamicin Sulfate", "Haloperidol Lactate", "Heparin Sodium", "Hydrocortisone", 
+    "Imipenem/Cilastatin Sodium", "Ketamine Hydrochloride", "levoFLOXacin", "Magnesium Sulfate", 
+    "methylPREDNISolone acetate", "methylPREDNISolone sodium succinate", "metroNIDAZOLE", 
+    "Midazolam Hydrochloride", "Morphine Hydrochloride", "Norepinephrine Bitartrate", 
+    "Norepinephrine Hydrochloride", "Omeprazole", "Phenytoin Sodium", "Piperacillin Sodium/Tazobactam Sodium", 
+    "Potassium Chloride", "Rocuronium Bromide", "Sodium Bicarbonate", "SODIUM CHLORIDE", 
+    "Sufenta", "Thiopental Sodium", "Tigecycline", "Vancocin HCl", "Vitamin K", 
+    "Dextrose 10%", "Dextrose 15% in water", "Dextrose 30% in water", "Dextrose 5% in Water", 
+    "Ringer's lactated", "Sodium chloride 0.9%"
+].sort();
+
+// Compatibility Database dictionary mapping values exactly via "SortedItemA+SortedItemB" keys.
+// Use categories: "COMP", "NOT_COMP", "EQUAL", "MORE_COMP", "LESS_COMP", "UNCERTAIN"
+const compatibilityDatabase = {
+    "Albumin Human+fentaNYL citrate": { cat: "COMP", note: "" },
+    "Albumin Human+Hydrocortisone": { cat: "COMP", note: "" },
+    "Albumin Human+Ketamine Hydrochloride": { cat: "COMP", note: "" },
+    "Albumin Human+Morphine Hydrochloride": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Amiodarone Hydrochloride": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Calcium Chloride": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Calcium Gluconate": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Cefepime Hydrochloride": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Cefotaxime Sodium": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+cefTAZidime": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+cefTRIAXone sodium": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+EPINEPHrine": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+fentaNYL citrate": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Furosemide": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Gentamicin Sulfate": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Imipenem/Cilastatin Sodium": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Ketamine Hydrochloride": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+levoFLOXacin": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Magnesium Sulfate": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+methylPREDNISolone sodium succinate": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Midazolam Hydrochloride": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Phytonadione": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Piperacillin Sodium/Tazobactam Sodium": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Potassium Chloride": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Tigecycline": { cat: "COMP", note: "" },
+    "Amikacin Sulfate+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "Amiodarone Hydrochloride+Calcium Chloride": { cat: "COMP", note: "" },
+    "Amiodarone Hydrochloride+Cefepime Hydrochloride": { cat: "COMP", note: "" },
+    "Amiodarone Hydrochloride+Ciprofloxacin": { cat: "COMP", note: "" },
+    "Amiodarone Hydrochloride+EPINEPHrine": { cat: "COMP", note: "" },
+    "Amiodarone Hydrochloride+fentaNYL citrate": { cat: "COMP", note: "" },
+    "Amiodarone Hydrochloride+Gentamicin Sulfate": { cat: "COMP", note: "" },
+    "Amiodarone Hydrochloride+Ketamine Hydrochloride": { cat: "COMP", note: "" },
+    "Amiodarone Hydrochloride+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "Amiodarone Hydrochloride+Midazolam Hydrochloride": { cat: "COMP", note: "" },
+    "Amiodarone Hydrochloride+Morphine Hydrochloride": { cat: "COMP", note: "" },
+    "Amiodarone Hydrochloride+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "Amiodarone Hydrochloride+Potassium Chloride": { cat: "COMP", note: "" },
+    "Amiodarone Hydrochloride+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "Amiodarone Hydrochloride+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Amiodarone Hydrochloride+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "Amoxicillin Sodium/Clavulanate Potassium+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "Azithromycin+Calcium Chloride": { cat: "COMP", note: "" },
+    "Azithromycin+Calcium Gluconate": { cat: "COMP", note: "" },
+    "Azithromycin+Cefepime Hydrochloride": { cat: "COMP", note: "" },
+    "Azithromycin+EPINEPHrine": { cat: "COMP", note: "" },
+    "Azithromycin+Haloperidol Lactate": { cat: "COMP", note: "" },
+    "Azithromycin+Heparin Sodium": { cat: "COMP", note: "" },
+    "Azithromycin+Magnesium Sulfate": { cat: "COMP", note: "" },
+    "Azithromycin+methylPREDNISolone sodium succinate": { cat: "COMP", note: "" },
+    "Azithromycin+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "Azithromycin+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "Azithromycin+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "Azithromycin+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Azithromycin+Sulfamethoxazole/Trimethoprim": { cat: "COMP", note: "" },
+    "Azithromycin+Tigecycline": { cat: "COMP", note: "" },
+    "Azithromycin+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+"Calcium Chloride+Calcium Gluconate": { cat: "COMP", note: "" },
+    "Calcium Chloride+Cefotaxime Sodium": { cat: "COMP", note: "" },
+    "Calcium Chloride+Colistimethate Sodium": { cat: "COMP", note: "" },
+    "Calcium Chloride+EPINEPHrine": { cat: "COMP", note: "" },
+    "Calcium Chloride+fentaNYL citrate": { cat: "COMP", note: "" },
+    "Calcium Chloride+Furosemide": { cat: "COMP", note: "" },
+    "Calcium Chloride+Gentamicin Sulfate": { cat: "COMP", note: "" },
+    "Calcium Chloride+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "Calcium Chloride+Midazolam Hydrochloride": { cat: "COMP", note: "" },
+    "Calcium Chloride+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "Calcium Chloride+Phytonadione": { cat: "COMP", note: "" },
+    "Calcium Chloride+Piperacillin Sodium/Tazobactam Sodium": { cat: "COMP", note: "" },
+    "Calcium Chloride+Potassium Chloride": { cat: "COMP", note: "" },
+    "Calcium Chloride+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "Calcium Chloride+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Calcium Chloride+Tigecycline": { cat: "COMP", note: "" },
+    "Calcium Chloride+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Cefepime Hydrochloride": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Cefotaxime Sodium": { cat: "COMP", note: "" },
+    "Calcium Gluconate+cefTAZidime": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Ciprofloxacin": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Colistimethate Sodium": { cat: "COMP", note: "" },
+    "Calcium Gluconate+EPINEPHrine": { cat: "COMP", note: "" },
+    "Calcium Gluconate+fentaNYL citrate": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Furosemide": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Gentamicin Sulfate": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Heparin Sodium": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Ketamine Hydrochloride": { cat: "COMP", note: "" },
+    "Calcium Gluconate+levoFLOXacin": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Magnesium Sulfate": { cat: "COMP", note: "" },
+    "Calcium Gluconate+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Midazolam Hydrochloride": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Morphine Hydrochloride": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Phytonadione": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Piperacillin Sodium/Tazobactam Sodium": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Potassium Chloride": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "Calcium Gluconate+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Tigecycline": { cat: "COMP", note: "" },
+    "Calcium Gluconate+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "Cefepime Hydrochloride+fentaNYL citrate": { cat: "COMP", note: "" },
+    "Cefepime Hydrochloride+Furosemide": { cat: "COMP", note: "" },
+    "Cefepime Hydrochloride+Gentamicin Sulfate": { cat: "COMP", note: "" },
+    "Cefepime Hydrochloride+Hydrocortisone": { cat: "COMP", note: "" },
+    "Cefepime Hydrochloride+Imipenem/Cilastatin Sodium": { cat: "COMP", note: "" },
+    "Cefepime Hydrochloride+Ketamine Hydrochloride": { cat: "COMP", note: "" },
+    "Cefepime Hydrochloride+levoFLOXacin": { cat: "COMP", note: "" },
+    "Cefepime Hydrochloride+methylPREDNISolone sodium succinate": { cat: "COMP", note: "" },
+    "Cefepime Hydrochloride+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "Cefepime Hydrochloride+Morphine Hydrochloride": { cat: "COMP", note: "" },
+    "Cefepime Hydrochloride+Piperacillin Sodium/Tazobactam Sodium": { cat: "COMP", note: "" },
+    "Cefepime Hydrochloride+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "Cefepime Hydrochloride+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "Cefepime Hydrochloride+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Cefepime Hydrochloride+Sulfamethoxazole/Trimethoprim": { cat: "COMP", note: "" },
+    "Cefepime Hydrochloride+Tigecycline": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+cefTRIAXone sodium": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+EPINEPHrine": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+fentaNYL citrate": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+Furosemide": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+Gentamicin Sulfate": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+Heparin Sodium": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+Imipenem/Cilastatin Sodium": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+Ketamine Hydrochloride": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+Magnesium Sulfate": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+Morphine Hydrochloride": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+Phytonadione": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+Potassium Chloride": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Cefotaxime Sodium+Tigecycline": { cat: "COMP", note: "" },
+"cefTAZidime+cefTRIAXone sodium": { cat: "COMP", note: "" },
+    "cefTAZidime+Ciprofloxacin": { cat: "COMP", note: "" },
+    "cefTAZidime+Colistimethate Sodium": { cat: "COMP", note: "" },
+    "cefTAZidime+EPINEPHrine": { cat: "COMP", note: "" },
+    "cefTAZidime+fentaNYL citrate": { cat: "COMP", note: "" },
+    "cefTAZidime+Furosemide": { cat: "COMP", note: "" },
+    "cefTAZidime+Gentamicin Sulfate": { cat: "COMP", note: "" },
+    "cefTAZidime+Heparin Sodium": { cat: "COMP", note: "" },
+    "cefTAZidime+Imipenem/Cilastatin Sodium": { cat: "COMP", note: "" },
+    "cefTAZidime+Ketamine Hydrochloride": { cat: "COMP", note: "" },
+    "cefTAZidime+levoFLOXacin": { cat: "COMP", note: "" },
+    "cefTAZidime+Magnesium Sulfate": { cat: "COMP", note: "" },
+    "cefTAZidime+methylPREDNISolone sodium succinate": { cat: "COMP", note: "" },
+    "cefTAZidime+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "cefTAZidime+Morphine Hydrochloride": { cat: "COMP", note: "" },
+    "cefTAZidime+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "cefTAZidime+Phytonadione": { cat: "COMP", note: "" },
+    "cefTAZidime+Potassium Chloride": { cat: "COMP", note: "" },
+    "cefTAZidime+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "cefTAZidime+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "cefTAZidime+SUFentanil citrate": { cat: "COMP", note: "" },
+    "cefTAZidime+Tigecycline": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+EPINEPHrine": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+fentaNYL citrate": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+Furosemide": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+Gentamicin Sulfate": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+Heparin Sodium": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+levoFLOXacin": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+methylPREDNISolone sodium succinate": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+Midazolam Hydrochloride": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+Morphine Hydrochloride": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+Norepinephrine": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+Phytonadione": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+Potassium Chloride": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+SUFentanil citrate": { cat: "COMP", note: "" },
+    "cefTRIAXone sodium+Tigecycline": { cat: "COMP", note: "" },
+    "Ciprofloxacin+Gentamicin Sulfate": { cat: "COMP", note: "" },
+    "Ciprofloxacin+Hydrocortisone": { cat: "COMP", note: "" },
+    "Ciprofloxacin+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "Ciprofloxacin+Midazolam Hydrochloride": { cat: "COMP", note: "" },
+    "Ciprofloxacin+Potassium Chloride": { cat: "COMP", note: "" },
+    "Ciprofloxacin+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "Ciprofloxacin+SODIUM CHLORIDE": { cat: "COMP", note: "" },
+    "Ciprofloxacin+Tigecycline": { cat: "COMP", note: "" },
+    "Ciprofloxacin+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "Colistimethate Sodium+EPINEPHrine": { cat: "COMP", note: "" },
+    "Colistimethate Sodium+Furosemide": { cat: "COMP", note: "" },
+    "Colistimethate Sodium+Gentamicin Sulfate": { cat: "COMP", note: "" },
+    "Colistimethate Sodium+Heparin Sodium": { cat: "COMP", note: "" },
+    "Colistimethate Sodium+Imipenem/Cilastatin Sodium": { cat: "COMP", note: "" },
+    "Colistimethate Sodium+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "Colistimethate Sodium+Piperacillin Sodium/Tazobactam Sodium": { cat: "COMP", note: "" },
+    "Colistimethate Sodium+Potassium Chloride": { cat: "COMP", note: "" },
+    "Colistimethate Sodium+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "diazePAM+Morphine Hydrochloride": { cat: "COMP", note: "" },
+    "diazePAM+Piperacillin Sodium/Tazobactam Sodium": { cat: "COMP", note: "" },
+    "EPINEPHrine+fentaNYL citrate": { cat: "COMP", note: "" },
+    "EPINEPHrine+Furosemide": { cat: "COMP", note: "" },
+    "EPINEPHrine+Gentamicin Sulfate": { cat: "COMP", note: "" },
+    "EPINEPHrine+Heparin Sodium": { cat: "COMP", note: "" },
+    "EPINEPHrine+Hydrocortisone": { cat: "COMP", note: "" },
+    "EPINEPHrine+Imipenem/Cilastatin Sodium": { cat: "COMP", note: "" },
+    "EPINEPHrine+Ketamine Hydrochloride": { cat: "COMP", note: "" },
+    "EPINEPHrine+levoFLOXacin": { cat: "COMP", note: "" },
+    "EPINEPHrine+Magnesium Sulfate": { cat: "COMP", note: "" },
+    "EPINEPHrine+methylPREDNISolone sodium succinate": { cat: "COMP", note: "" },
+    "EPINEPHrine+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "EPINEPHrine+Midazolam Hydrochloride": { cat: "COMP", note: "" },
+    "EPINEPHrine+Morphine Hydrochloride": { cat: "COMP", note: "" },
+    "EPINEPHrine+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "EPINEPHrine+Phytonadione": { cat: "COMP", note: "" },
+    "EPINEPHrine+Piperacillin Sodium/Tazobactam Sodium": { cat: "COMP", note: "" },
+    "EPINEPHrine+Potassium Chloride": { cat: "COMP", note: "" },
+    "EPINEPHrine+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "EPINEPHrine+SUFentanil citrate": { cat: "COMP", note: "" },
+    "EPINEPHrine+Tigecycline": { cat: "COMP", note: "" },
+    "EPINEPHrine+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "fentaNYL citrate+Furosemide": { cat: "COMP", note: "" },
+    "fentaNYL citrate+Gentamicin Sulfate": { cat: "COMP", note: "" },
+    "fentaNYL citrate+Heparin Sodium": { cat: "COMP", note: "" },
+    "fentaNYL citrate+Imipenem/Cilastatin Sodium": { cat: "COMP", note: "" },
+    "fentaNYL citrate+levoFLOXacin": { cat: "COMP", note: "" },
+    "fentaNYL citrate+Magnesium Sulfate": { cat: "COMP", note: "" },
+    "fentaNYL citrate+methylPREDNISolone sodium succinate": { cat: "COMP", note: "" },
+    "fentaNYL citrate+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "fentaNYL citrate+Midazolam Hydrochloride": { cat: "COMP", note: "" },
+    "fentaNYL citrate+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "fentaNYL citrate+Omeprazole": { cat: "COMP", note: "" },
+    "fentaNYL citrate+Phytonadione": { cat: "COMP", note: "" },
+    "fentaNYL citrate+Potassium Chloride": { cat: "COMP", note: "" },
+    "fentaNYL citrate+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "fentaNYL citrate+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "fentaNYL citrate+SUFentanil citrate": { cat: "COMP", note: "" },
+    "fentaNYL citrate+Thiopental Sodium": { cat: "COMP", note: "" },
+    "fentaNYL citrate+Tigecycline": { cat: "COMP", note: "" },
+    "fentaNYL citrate+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+"Furosemide+Heparin Sodium": { cat: "COMP", note: "" },
+    "Furosemide+Imipenem/Cilastatin Sodium": { cat: "COMP", note: "" },
+    "Furosemide+methylPREDNISolone sodium succinate": { cat: "COMP", note: "" },
+    "Furosemide+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "Furosemide+Phytonadione": { cat: "COMP", note: "" },
+    "Furosemide+Piperacillin Sodium/Tazobactam Sodium": { cat: "COMP", note: "" },
+    "Furosemide+Potassium Chloride": { cat: "COMP", note: "" },
+    "Furosemide+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "Furosemide+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Furosemide+Tigecycline": { cat: "COMP", note: "" },
+    "Gentamicin Sulfate+Imipenem/Cilastatin Sodium": { cat: "COMP", note: "" },
+    "Gentamicin Sulfate+Ketamine Hydrochloride": { cat: "COMP", note: "" },
+    "Gentamicin Sulfate+levoFLOXacin": { cat: "COMP", note: "" },
+    "Gentamicin Sulfate+Magnesium Sulfate": { cat: "COMP", note: "" },
+    "Gentamicin Sulfate+methylPREDNISolone sodium succinate": { cat: "COMP", note: "" },
+    "Gentamicin Sulfate+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "Gentamicin Sulfate+Midazolam Hydrochloride": { cat: "COMP", note: "" },
+    "Gentamicin Sulfate+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "Gentamicin Sulfate+Phytonadione": { cat: "COMP", note: "" },
+    "Gentamicin Sulfate+Potassium Chloride": { cat: "COMP", note: "" },
+    "Gentamicin Sulfate+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "Gentamicin Sulfate+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "Gentamicin Sulfate+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Gentamicin Sulfate+Tigecycline": { cat: "COMP", note: "" },
+    "Gentamicin Sulfate+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "Haloperidol Lactate+Ketamine Hydrochloride": { cat: "COMP", note: "" },
+    "Haloperidol Lactate+levoFLOXacin": { cat: "COMP", note: "" },
+    "Haloperidol Lactate+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "Haloperidol Lactate+Morphine Hydrochloride": { cat: "COMP", note: "" },
+    "Haloperidol Lactate+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "Haloperidol Lactate+Tigecycline": { cat: "COMP", note: "" },
+    "Heparin Sodium+Imipenem/Cilastatin Sodium": { cat: "COMP", note: "" },
+    "Heparin Sodium+Magnesium Sulfate": { cat: "COMP", note: "" },
+    "Heparin Sodium+methylPREDNISolone sodium succinate": { cat: "COMP", note: "" },
+    "Heparin Sodium+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "Heparin Sodium+Midazolam Hydrochloride": { cat: "COMP", note: "" },
+    "Heparin Sodium+Morphine Hydrochloride": { cat: "COMP", note: "" },
+    "Heparin Sodium+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "Heparin Sodium+Phytonadione": { cat: "COMP", note: "" },
+    "Heparin Sodium+Piperacillin Sodium/Tazobactam Sodium": { cat: "COMP", note: "" },
+    "Heparin Sodium+Potassium Chloride": { cat: "COMP", note: "" },
+    "Heparin Sodium+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "Heparin Sodium+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "Heparin Sodium+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Heparin Sodium+Thiopental Sodium": { cat: "COMP", note: "" },
+    "Heparin Sodium+Tigecycline": { cat: "COMP", note: "" },
+    "Hydrocortisone+levoFLOXacin": { cat: "COMP", note: "" },
+    "Hydrocortisone+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "Imipenem/Cilastatin Sodium+levoFLOXacin": { cat: "COMP", note: "" },
+    "Imipenem/Cilastatin Sodium+Magnesium Sulfate": { cat: "COMP", note: "" },
+    "Imipenem/Cilastatin Sodium+methylPREDNISolone sodium succinate": { cat: "COMP", note: "" },
+    "Imipenem/Cilastatin Sodium+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "Imipenem/Cilastatin Sodium+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "Imipenem/Cilastatin Sodium+Phytonadione": { cat: "COMP", note: "" },
+    "Imipenem/Cilastatin Sodium+Potassium Chloride": { cat: "COMP", note: "" },
+    "Imipenem/Cilastatin Sodium+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "Imipenem/Cilastatin Sodium+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Imipenem/Cilastatin Sodium+Tigecycline": { cat: "COMP", note: "" },
+    "Ketamine Hydrochloride+Magnesium Sulfate": { cat: "COMP", note: "" },
+    "Ketamine Hydrochloride+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "Ketamine Hydrochloride+Midazolam Hydrochloride": { cat: "COMP", note: "" },
+    "Ketamine Hydrochloride+Morphine Hydrochloride": { cat: "COMP", note: "" },
+    "Ketamine Hydrochloride+Norepinephrine": { cat: "COMP", note: "" },
+    "Ketamine Hydrochloride+Piperacillin Sodium/Tazobactam Sodium": { cat: "COMP", note: "" },
+    "Ketamine Hydrochloride+Potassium Chloride": { cat: "COMP", note: "" },
+    "Ketamine Hydrochloride+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Ketamine Hydrochloride+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "levoFLOXacin+methylPREDNISolone sodium succinate": { cat: "COMP", note: "" },
+    "levoFLOXacin+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "levoFLOXacin+Midazolam Hydrochloride": { cat: "COMP", note: "" },
+    "levoFLOXacin+Morphine Hydrochloride": { cat: "COMP", note: "" },
+    "levoFLOXacin+Potassium Chloride": { cat: "COMP", note: "" },
+    "levoFLOXacin+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "levoFLOXacin+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "levoFLOXacin+SUFentanil citrate": { cat: "COMP", note: "" },
+    "levoFLOXacin+Sulfamethoxazole/Trimethoprim": { cat: "COMP", note: "" },
+    "levoFLOXacin+Tigecycline": { cat: "COMP", note: "" },
+    "levoFLOXacin+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "Magnesium Sulfate+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "Magnesium Sulfate+Midazolam Hydrochloride": { cat: "COMP", note: "" },
+    "Magnesium Sulfate+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "Magnesium Sulfate+Piperacillin Sodium/Tazobactam Sodium": { cat: "COMP", note: "" },
+    "Magnesium Sulfate+Potassium Chloride": { cat: "COMP", note: "" },
+    "Magnesium Sulfate+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "Magnesium Sulfate+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "Magnesium Sulfate+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Magnesium Sulfate+Tigecycline": { cat: "COMP", note: "" },
+    "Magnesium Sulfate+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+"methylPREDNISolone sodium succinate+metroNIDAZOLE": { cat: "COMP", note: "" },
+    "methylPREDNISolone sodium succinate+Morphine Hydrochloride": { cat: "COMP", note: "" },
+    "methylPREDNISolone sodium succinate+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "methylPREDNISolone sodium succinate+Piperacillin Sodium/Tazobactam Sodium": { cat: "COMP", note: "" },
+    "methylPREDNISolone sodium succinate+Potassium Chloride": { cat: "COMP", note: "" },
+    "methylPREDNISolone sodium succinate+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "methylPREDNISolone sodium succinate+SUFentanil citrate": { cat: "COMP", note: "" },
+    "metroNIDAZOLE+Midazolam Hydrochloride": { cat: "COMP", note: "" },
+    "metroNIDAZOLE+Morphine Hydrochloride": { cat: "COMP", note: "" },
+    "metroNIDAZOLE+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "metroNIDAZOLE+Piperacillin Sodium/Tazobactam Sodium": { cat: "COMP", note: "" },
+    "metroNIDAZOLE+Potassium Chloride": { cat: "COMP", note: "" },
+    "metroNIDAZOLE+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "metroNIDAZOLE+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "metroNIDAZOLE+SUFentanil citrate": { cat: "COMP", note: "" },
+    "metroNIDAZOLE+Sulfamethoxazole/Trimethoprim": { cat: "COMP", note: "" },
+    "metroNIDAZOLE+Thiopental Sodium": { cat: "COMP", note: "" },
+    "metroNIDAZOLE+Tigecycline": { cat: "COMP", note: "" },
+    "metroNIDAZOLE+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "Midazolam Hydrochloride+Morphine Hydrochloride": { cat: "COMP", note: "" },
+    "Midazolam Hydrochloride+Norepinephrine": { cat: "COMP", note: "" },
+    "Midazolam Hydrochloride+Phytonadione": { cat: "COMP", note: "" },
+    "Midazolam Hydrochloride+Potassium Chloride": { cat: "COMP", note: "" },
+    "Midazolam Hydrochloride+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "Midazolam Hydrochloride+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Midazolam Hydrochloride+Tigecycline": { cat: "COMP", note: "" },
+    "Midazolam Hydrochloride+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "Morphine Hydrochloride+Norepinephrine Bitartrate": { cat: "COMP", note: "" },
+    "Morphine Hydrochloride+Piperacillin Sodium/Tazobactam Sodium": { cat: "COMP", note: "" },
+    "Morphine Hydrochloride+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "Morphine Hydrochloride+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "Norepinephrine Bitartrate+Phytonadione": { cat: "COMP", note: "" },
+    "Norepinephrine Bitartrate+Piperacillin Sodium/Tazobactam Sodium": { cat: "COMP", note: "" },
+    "Norepinephrine Bitartrate+Potassium Chloride": { cat: "COMP", note: "" },
+    "Norepinephrine Bitartrate+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Norepinephrine Bitartrate+Tigecycline": { cat: "COMP", note: "" },
+    "Norepinephrine Bitartrate+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "Phytonadione+Potassium Chloride": { cat: "COMP", note: "" },
+    "Phytonadione+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "Phytonadione+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Phytonadione+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "Piperacillin Sodium/Tazobactam Sodium+Potassium Chloride": { cat: "COMP", note: "" },
+    "Piperacillin Sodium/Tazobactam Sodium+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "Piperacillin Sodium/Tazobactam Sodium+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Piperacillin Sodium/Tazobactam Sodium+Sulfamethoxazole/Trimethoprim": { cat: "COMP", note: "" },
+    "Piperacillin Sodium/Tazobactam Sodium+Tigecycline": { cat: "COMP", note: "" },
+    "Potassium Chloride+Rocuronium Bromide": { cat: "COMP", note: "" },
+    "Potassium Chloride+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "Potassium Chloride+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Potassium Chloride+Tigecycline": { cat: "COMP", note: "" },
+    "Potassium Chloride+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "Rocuronium Bromide+Sodium Bicarbonate": { cat: "COMP", note: "" },
+    "Rocuronium Bromide+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Rocuronium Bromide+Tigecycline": { cat: "COMP", note: "" },
+    "Sodium Bicarbonate+SUFentanil citrate": { cat: "COMP", note: "" },
+    "Sodium Bicarbonate+Tigecycline": { cat: "COMP", note: "" },
+    "Sodium Bicarbonate+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "SUFentanil citrate+Tigecycline": { cat: "COMP", note: "" },
+    "SUFentanil citrate+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+    "Sulfamethoxazole/Trimethoprim+Tigecycline": { cat: "COMP", note: "" },
+    "Thiopental Sodium+Tigecycline": { cat: "COMP", note: "" },
+    "Tigecycline+Vancomycin Hydrochloride": { cat: "COMP", note: "" },
+"Albumin Human+Midazolam Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "Albumin Human+Vancomycin Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "Amikacin Sulfate+Amphotericin B": { cat: "NOT_COMP", note: "" },
+    "Amikacin Sulfate+diazePAM": { cat: "NOT_COMP", note: "" },
+    "Amikacin Sulfate+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Amikacin Sulfate+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Amiodarone Hydrochloride+Amoxicillin Sodium/Clavulanate Potassium": { cat: "NOT_COMP", note: "" },
+    "Amiodarone Hydrochloride+Azithromycin": { cat: "NOT_COMP", note: "" },
+    "Amiodarone Hydrochloride+Cefotaxime Sodium": { cat: "NOT_COMP", note: "" },
+    "Amiodarone Hydrochloride+cefTAZidime": { cat: "NOT_COMP", note: "" },
+    "Amiodarone Hydrochloride+diazePAM": { cat: "NOT_COMP", note: "" },
+    "Amiodarone Hydrochloride+Heparin Sodium": { cat: "NOT_COMP", note: "" },
+    "Amiodarone Hydrochloride+Imipenem/Cilastatin Sodium": { cat: "NOT_COMP", note: "" },
+    "Amiodarone Hydrochloride+levoFLOXacin": { cat: "NOT_COMP", note: "" },
+    "Amiodarone Hydrochloride+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Amiodarone Hydrochloride+Piperacillin Sodium/Tazobactam Sodium": { cat: "NOT_COMP", note: "" },
+    "Amiodarone Hydrochloride+Sodium Bicarbonate": { cat: "NOT_COMP", note: "" },
+    "Amiodarone Hydrochloride+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Amiodarone Hydrochloride+Thiopental Sodium": { cat: "NOT_COMP", note: "" },
+    "Amiodarone Hydrochloride+Tigecycline": { cat: "NOT_COMP", note: "" },
+    "Amoxicillin Sodium+Ketamine Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "Amoxicillin Sodium+Midazolam Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "Amoxicillin Sodium+Rocuronium Bromide": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+Azithromycin": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+Calcium Chloride": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+Calcium Gluconate": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+Cefepime Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+diazePAM": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+EPINEPHrine": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+Gentamicin Sulfate": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+Haloperidol Lactate": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+levoFLOXacin": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+methylPREDNISolone sodium succinate": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+metroNIDAZOLE": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+Midazolam Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+Norepinephrine Bitartrate": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+Piperacillin Sodium/Tazobactam Sodium": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+Potassium Chloride": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+Rocuronium Bromide": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+Sodium Bicarbonate": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+Tigecycline": { cat: "NOT_COMP", note: "" },
+    "Amphotericin B+Vancomycin Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "Azithromycin+diazePAM": { cat: "NOT_COMP", note: "" },
+    "Azithromycin+Midazolam Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "Azithromycin+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Azithromycin+Thiopental Sodium": { cat: "NOT_COMP", note: "" },
+    "Calcium Chloride+cefTAZidime": { cat: "NOT_COMP", note: "" },
+    "Calcium Chloride+cefTRIAXone sodium": { cat: "NOT_COMP", note: "" },
+    "Calcium Chloride+diazePAM": { cat: "NOT_COMP", note: "" },
+    "Calcium Chloride+Haloperidol Lactate": { cat: "NOT_COMP", note: "" },
+    "Calcium Chloride+Magnesium Sulfate": { cat: "NOT_COMP", note: "" },
+    "Calcium Chloride+methylPREDNISolone sodium succinate": { cat: "NOT_COMP", note: "" },
+    "Calcium Chloride+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Calcium Chloride+Sodium Bicarbonate": { cat: "NOT_COMP", note: "" },
+    "Calcium Chloride+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Calcium Gluconate+cefTRIAXone sodium": { cat: "NOT_COMP", note: "" },
+    "Calcium Gluconate+diazePAM": { cat: "NOT_COMP", note: "" },
+    "Calcium Gluconate+methylPREDNISolone sodium succinate": { cat: "NOT_COMP", note: "" },
+    "Calcium Gluconate+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Calcium Gluconate+Sodium Bicarbonate": { cat: "NOT_COMP", note: "" },
+    "Calcium Gluconate+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Cefepime Hydrochloride+Ciprofloxacin": { cat: "NOT_COMP", note: "" },
+    "Cefepime Hydrochloride+diazePAM": { cat: "NOT_COMP", note: "" },
+    "Cefepime Hydrochloride+Haloperidol Lactate": { cat: "NOT_COMP", note: "" },
+    "Cefepime Hydrochloride+Magnesium Sulfate": { cat: "NOT_COMP", note: "" },
+    "Cefepime Hydrochloride+Midazolam Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "Cefepime Hydrochloride+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Cefotaxime Sodium+cefTAZidime": { cat: "NOT_COMP", note: "" },
+    "Cefotaxime Sodium+diazePAM": { cat: "NOT_COMP", note: "" },
+    "Cefotaxime Sodium+Haloperidol Lactate": { cat: "NOT_COMP", note: "" },
+    "Cefotaxime Sodium+methylPREDNISolone sodium succinate": { cat: "NOT_COMP", note: "" },
+    "Cefotaxime Sodium+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Cefotaxime Sodium+Sodium Bicarbonate": { cat: "NOT_COMP", note: "" },
+    "Cefotaxime Sodium+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "cefTAZidime+diazePAM": { cat: "NOT_COMP", note: "" },
+    "cefTAZidime+Haloperidol Lactate": { cat: "NOT_COMP", note: "" },
+    "cefTAZidime+Midazolam Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "cefTAZidime+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "cefTAZidime+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "cefTRIAXone sodium+diazePAM": { cat: "NOT_COMP", note: "" },
+    "cefTRIAXone sodium+Haloperidol Lactate": { cat: "NOT_COMP", note: "" },
+    "cefTRIAXone sodium+Imipenem/Cilastatin Sodium": { cat: "NOT_COMP", note: "" },
+    "cefTRIAXone sodium+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "cefTRIAXone sodium+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Ciprofloxacin+Furosemide": { cat: "NOT_COMP", note: "" },
+    "Ciprofloxacin+Heparin Sodium": { cat: "NOT_COMP", note: "" },
+    "Ciprofloxacin+Magnesium Sulfate": { cat: "NOT_COMP", note: "" },
+    "Ciprofloxacin+methylPREDNISolone sodium succinate": { cat: "NOT_COMP", note: "" },
+    "Ciprofloxacin+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Ciprofloxacin+Piperacillin Sodium/Tazobactam Sodium": { cat: "NOT_COMP", note: "" },
+"diazePAM+EPINEPHrine": { cat: "NOT_COMP", note: "" },
+    "diazePAM+Furosemide": { cat: "NOT_COMP", note: "" },
+    "diazePAM+Gentamicin Sulfate": { cat: "NOT_COMP", note: "" },
+    "diazePAM+Haloperidol Lactate": { cat: "NOT_COMP", note: "" },
+    "diazePAM+Heparin Sodium": { cat: "NOT_COMP", note: "" },
+    "diazePAM+Imipenem/Cilastatin Sodium": { cat: "NOT_COMP", note: "" },
+    "diazePAM+levoFLOXacin": { cat: "NOT_COMP", note: "" },
+    "diazePAM+Magnesium Sulfate": { cat: "NOT_COMP", note: "" },
+    "diazePAM+methylPREDNISolone sodium succinate": { cat: "NOT_COMP", note: "" },
+    "diazePAM+metroNIDAZOLE": { cat: "NOT_COMP", note: "" },
+    "diazePAM+Midazolam Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "diazePAM+Norepinephrine Bitartrate": { cat: "NOT_COMP", note: "" },
+    "diazePAM+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "diazePAM+Phytonadione": { cat: "NOT_COMP", note: "" },
+    "diazePAM+Potassium Chloride": { cat: "NOT_COMP", note: "" },
+    "diazePAM+Rocuronium Bromide": { cat: "NOT_COMP", note: "" },
+    "diazePAM+Sodium Bicarbonate": { cat: "NOT_COMP", note: "" },
+    "diazePAM+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "diazePAM+Tigecycline": { cat: "NOT_COMP", note: "" },
+    "diazePAM+Vancomycin Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "EPINEPHrine+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "EPINEPHrine+Sodium Bicarbonate": { cat: "NOT_COMP", note: "" },
+    "EPINEPHrine+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "EPINEPHrine+Thiopental Sodium": { cat: "NOT_COMP", note: "" },
+    "fentaNYL citrate+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "fentaNYL citrate+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Furosemide+Haloperidol Lactate": { cat: "NOT_COMP", note: "" },
+    "Furosemide+Ketamine Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "Furosemide+levoFLOXacin": { cat: "NOT_COMP", note: "" },
+    "Furosemide+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Furosemide+Rocuronium Bromide": { cat: "NOT_COMP", note: "" },
+    "Furosemide+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Furosemide+Vancomycin Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "Gentamicin Sulfate+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Gentamicin Sulfate+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Haloperidol Lactate+Heparin Sodium": { cat: "NOT_COMP", note: "" },
+    "Haloperidol Lactate+Imipenem/Cilastatin Sodium": { cat: "NOT_COMP", note: "" },
+    "Haloperidol Lactate+Magnesium Sulfate": { cat: "NOT_COMP", note: "" },
+    "Haloperidol Lactate+methylPREDNISolone sodium succinate": { cat: "NOT_COMP", note: "" },
+    "Haloperidol Lactate+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Haloperidol Lactate+Sodium Bicarbonate": { cat: "NOT_COMP", note: "" },
+    "Haloperidol Lactate+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Heparin Sodium+Ketamine Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "Heparin Sodium+levoFLOXacin": { cat: "NOT_COMP", note: "" },
+    "Heparin Sodium+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Imipenem/Cilastatin Sodium+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Imipenem/Cilastatin Sodium+Sodium Bicarbonate": { cat: "NOT_COMP", note: "" },
+    "Imipenem/Cilastatin Sodium+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Ketamine Hydrochloride+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Ketamine Hydrochloride+Rocuronium Bromide": { cat: "NOT_COMP", note: "" },
+    "Ketamine Hydrochloride+Sodium Bicarbonate": { cat: "NOT_COMP", note: "" },
+    "Ketamine Hydrochloride+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "levoFLOXacin+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "levoFLOXacin+Piperacillin Sodium/Tazobactam Sodium": { cat: "NOT_COMP", note: "" },
+    "levoFLOXacin+Thiopental Sodium": { cat: "NOT_COMP", note: "" },
+    "Magnesium Sulfate+methylPREDNISolone sodium succinate": { cat: "NOT_COMP", note: "" },
+    "Magnesium Sulfate+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Magnesium Sulfate+Phytonadione": { cat: "NOT_COMP", note: "" },
+    "methylPREDNISolone sodium succinate+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "methylPREDNISolone sodium succinate+Rocuronium Bromide": { cat: "NOT_COMP", note: "" },
+    "methylPREDNISolone sodium succinate+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "methylPREDNISolone sodium succinate+Vancomycin Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "metroNIDAZOLE+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Midazolam Hydrochloride+Omeprazole": { cat: "NOT_COMP", note: "" },
+    "Midazolam Hydrochloride+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Midazolam Hydrochloride+Sodium Bicarbonate": { cat: "NOT_COMP", note: "" },
+    "Midazolam Hydrochloride+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Midazolam Hydrochloride+Thiopental Sodium": { cat: "NOT_COMP", note: "" },
+    "Morphine Hydrochloride+Omeprazole": { cat: "NOT_COMP", note: "" },
+    "Norepinephrine Bitartrate+Phenytoin Sodium": { cat: "NOT_COMP", note: "" },
+    "Norepinephrine Bitartrate+Sodium Bicarbonate": { cat: "NOT_COMP", note: "" },
+    "Norepinephrine Bitartrate+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Norepinephrine Bitartrate+Thiopental Sodium": { cat: "NOT_COMP", note: "" },
+    "Omeprazole+Tigecycline": { cat: "NOT_COMP", note: "" },
+    "Omeprazole+Vancomycin Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "Phenytoin Sodium+Phytonadione": { cat: "NOT_COMP", note: "" },
+    "Phenytoin Sodium+Piperacillin Sodium/Tazobactam Sodium": { cat: "NOT_COMP", note: "" },
+    "Phenytoin Sodium+Potassium Chloride": { cat: "NOT_COMP", note: "" },
+    "Phenytoin Sodium+Rocuronium Bromide": { cat: "NOT_COMP", note: "" },
+    "Phenytoin Sodium+Sodium Bicarbonate": { cat: "NOT_COMP", note: "" },
+    "Phenytoin Sodium+SUFentanil citrate": { cat: "NOT_COMP", note: "" },
+    "Phenytoin Sodium+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Phenytoin Sodium+Tigecycline": { cat: "NOT_COMP", note: "" },
+    "Phenytoin Sodium+Vancomycin Hydrochloride": { cat: "NOT_COMP", note: "" },
+    "Phytonadione+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Piperacillin Sodium/Tazobactam Sodium+Rocuronium Bromide": { cat: "NOT_COMP", note: "" },
+    "Piperacillin Sodium/Tazobactam Sodium+Thiopental Sodium": { cat: "NOT_COMP", note: "" },
+    "Potassium Chloride+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Rocuronium Bromide+Thiopental Sodium": { cat: "NOT_COMP", note: "" },
+    "Sodium Bicarbonate+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "Sodium Bicarbonate+Thiopental Sodium": { cat: "NOT_COMP", note: "" },
+    "SUFentanil citrate+Sulfamethoxazole/Trimethoprim": { cat: "NOT_COMP", note: "" },
+    "SUFentanil citrate+Thiopental Sodium": { cat: "NOT_COMP", note: "" },
+    "Sulfamethoxazole/Trimethoprim+Vancomycin Hydrochloride": { cat: "NOT_COMP", note: "" },
+"Amikacin Sulfate+Azithromycin": { cat: "EQUAL", note: "" },
+    "Amiodarone Hydrochloride+Amphotericin B": { cat: "EQUAL", note: "" },
+    "Amiodarone Hydrochloride+Calcium Gluconate": { cat: "EQUAL", note: "" },
+    "Amiodarone Hydrochloride+cefTRIAXone sodium": { cat: "EQUAL", note: "" },
+    "Amiodarone Hydrochloride+Magnesium Sulfate": { cat: "EQUAL", note: "" },
+    "Amiodarone Hydrochloride+methylPREDNISolone sodium succinate": { cat: "EQUAL", note: "" },
+    "Amoxicillin Sodium/Clavulanate Potassium+Midazolam Hydrochloride": { cat: "EQUAL", note: "" },
+    "Azithromycin+Cefotaxime Sodium": { cat: "EQUAL", note: "" },
+    "Azithromycin+cefTRIAXone sodium": { cat: "EQUAL", note: "" },
+    "Azithromycin+Ciprofloxacin": { cat: "EQUAL", note: "" },
+    "Azithromycin+fentaNYL citrate": { cat: "EQUAL", note: "" },
+    "Azithromycin+Furosemide": { cat: "EQUAL", note: "" },
+    "Azithromycin+Gentamicin Sulfate": { cat: "EQUAL", note: "" },
+    "Azithromycin+Imipenem/Cilastatin Sodium": { cat: "EQUAL", note: "" },
+    "Azithromycin+Piperacillin Sodium/Tazobactam Sodium": { cat: "EQUAL", note: "" },
+    "Azithromycin+Potassium Chloride": { cat: "EQUAL", note: "" },
+    "Calcium Chloride+Epinephrine+Heparin Sodium": { cat: "EQUAL", note: "" },
+    "Cefotaxime Sodium+levoFLOXacin": { cat: "EQUAL", note: "" },
+    "Furosemide+Morphine Hydrochloride": { cat: "EQUAL", note: "" },
+    "Haloperidol Lactate+Norepinephrine Bitartrate": { cat: "EQUAL", note: "" },
+    "Ketamine Hydrochloride+methylPREDNISolone sodium succinate": { cat: "EQUAL", note: "" },
+    "Magnesium Sulfate+Sulfamethoxazole/Trimethoprim": { cat: "EQUAL", note: "" },
+    "methylPREDNISolone sodium succinate+Phytonadione": { cat: "EQUAL", note: "" },
+    "methylPREDNISolone sodium succinate+Tigecycline": { cat: "EQUAL", note: "" },
+    "Rocuronium Bromide+Sulfamethoxazole/Trimethoprim": { cat: "EQUAL", note: "" },
+    "Rocuronium Bromide+Vancomycin Hydrochloride": { cat: "EQUAL", note: "" },
+"Amiodarone Hydrochloride+Haloperidol Lactate": { cat: "MORE_COMP", note: "" },
+    "Azithromycin+cefTAZidime": { cat: "MORE_COMP", note: "" },
+    "Azithromycin+levoFLOXacin": { cat: "MORE_COMP", note: "" },
+    "Calcium Chloride+Heparin Sodium": { cat: "MORE_COMP", note: "" },
+    "Cefepime Hydrochloride+Vancomycin Hydrochloride": { cat: "MORE_COMP", note: "" },
+    "Cefotaxime Sodium+Midazolam Hydrochloride": { cat: "MORE_COMP", note: "" },
+    "Cefotaxime Sodium+Vancomycin Hydrochloride": { cat: "MORE_COMP", note: "" },
+    "cefTAZidime+Vancomycin Hydrochloride": { cat: "MORE_COMP", note: "" },
+    "cefTRIAXone sodium+Vancomycin Hydrochloride": { cat: "MORE_COMP", note: "" },
+    "fentaNYL citrate+Piperacillin Sodium/Tazobactam Sodium": { cat: "MORE_COMP", note: "" },
+    "Furosemide+Norepinephrine Bitartrate": { cat: "MORE_COMP", note: "" },
+    "Furosemide+Thiopental Sodium": { cat: "MORE_COMP", note: "" },
+    "Gentamicin Sulfate+Piperacillin Sodium/Tazobactam Sodium": { cat: "MORE_COMP", note: "" },
+    "Haloperidol Lactate+Midazolam Hydrochloride": { cat: "MORE_COMP", note: "" },
+    "Haloperidol Lactate+SUFentanil citrate": { cat: "MORE_COMP", note: "" },
+    "Imipenem/Cilastatin Sodium+Midazolam Hydrochloride": { cat: "MORE_COMP", note: "" },
+    "Imipenem/Cilastatin Sodium+Vancomycin Hydrochloride": { cat: "MORE_COMP", note: "" },
+    "methylPREDNISolone sodium succinate+Midazolam Hydrochloride": { cat: "MORE_COMP", note: "" },
+    "Piperacillin Sodium/Tazobactam Sodium+Vancomycin Hydrochloride": { cat: "MORE_COMP", note: "" },
+    "Amikacin Sulfate+Haloperidol Lactate": { cat: "LESS_COMP", note: "" },
+    "Amikacin Sulfate+Heparin Sodium": { cat: "LESS_COMP", note: "" },
+    "Amiodarone Hydrochloride+Furosemide": { cat: "LESS_COMP", note: "" },
+    "Amphotericin B+Cefotaxime Sodium": { cat: "LESS_COMP", note: "" },
+    "Amphotericin B+cefTAZidime": { cat: "LESS_COMP", note: "" },
+    "Amphotericin B+cefTRIAXone sodium": { cat: "LESS_COMP", note: "" },
+    "Amphotericin B+fentaNYL citrate": { cat: "LESS_COMP", note: "" },
+    "Amphotericin B+Furosemide": { cat: "LESS_COMP", note: "" },
+    "Amphotericin B+Heparin Sodium": { cat: "LESS_COMP", note: "" },
+    "Amphotericin B+Imipenem/Cilastatin Sodium": { cat: "LESS_COMP", note: "" },
+    "Amphotericin B+Magnesium Sulfate": { cat: "LESS_COMP", note: "" },
+    "Amphotericin B+Phytonadione": { cat: "LESS_COMP", note: "" },
+    "Amphotericin B+SUFentanil citrate": { cat: "LESS_COMP", note: "" },
+    "Calcium Chloride+Imipenem/Cilastatin Sodium": { cat: "LESS_COMP", note: "" },
+    "Calcium Gluconate+Haloperidol Lactate": { cat: "LESS_COMP", note: "" },
+    "Calcium Gluconate+Imipenem/Cilastatin Sodium": { cat: "LESS_COMP", note: "" },
+    "Ciprofloxacin+Sodium Bicarbonate": { cat: "LESS_COMP", note: "" },
+    "diazePAM+fentaNYL citrate": { cat: "LESS_COMP", note: "" },
+    "diazePAM+SUFentanil citrate": { cat: "LESS_COMP", note: "" },
+    "EPINEPHrine+Haloperidol Lactate": { cat: "LESS_COMP", note: "" },
+    "fentaNYL citrate+Haloperidol Lactate": { cat: "LESS_COMP", note: "" },
+    "Furosemide+Gentamicin Sulfate": { cat: "LESS_COMP", note: "" },
+    "Furosemide+Magnesium Sulfate": { cat: "LESS_COMP", note: "" },
+    "Furosemide+Midazolam Hydrochloride": { cat: "LESS_COMP", note: "" },
+    "Gentamicin Sulfate+Haloperidol Lactate": { cat: "LESS_COMP", note: "" },
+    "Gentamicin Sulfate+Heparin Sodium": { cat: "LESS_COMP", note: "" },
+    "Haloperidol Lactate+Phytonadione": { cat: "LESS_COMP", note: "" },
+    "Haloperidol Lactate+Piperacillin Sodium/Tazobactam Sodium": { cat: "LESS_COMP", note: "" },
+    "Haloperidol Lactate+Potassium Chloride": { cat: "LESS_COMP", note: "" },
+    "Haloperidol Lactate+Vancomycin Hydrochloride": { cat: "LESS_COMP", note: "" },
+    "Heparin Sodium+Sulfamethoxazole/Trimethoprim": { cat: "LESS_COMP", note: "" },
+    "Heparin Sodium+Vancomycin Hydrochloride": { cat: "LESS_COMP", note: "" },
+    "Midazolam Hydrochloride+Piperacillin Sodium/Tazobactam Sodium": { cat: "LESS_COMP", note: "" },
+  "levoFLOXacin+Magnesium Sulfate": { cat: "UNCERTAIN", note: "" }
+
+
+};
+
+let currentRegimen = new Set();
+
+document.addEventListener("DOMContentLoaded", () => {
+    const drugSelect = document.getElementById("drugSelect");
+    const addDrugBtn = document.getElementById("addDrugBtn");
+    const chipsWrapper = document.getElementById("chipsWrapper");
+    const tableContainer = document.getElementById("tableContainer");
+    const emptyRegimenText = document.getElementById("emptyRegimenText");
+
+    // Populate dropdown element list
+    itemsList.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item;
+        option.textContent = item;
+        drugSelect.appendChild(option);
+    });
+
+    // Add item handler
+    addDrugBtn.addEventListener("click", () => {
+        const value = drugSelect.value;
+        if (value && !currentRegimen.has(value)) {
+            currentRegimen.add(value);
+            renderChips();
+            runMatrixAnalysis();
+            drugSelect.value = "";
+        }
+    });
+
+    // Remove item handler
+    window.removeDrug = function(item) {
+        currentRegimen.delete(item);
+        renderChips();
+        runMatrixAnalysis();
+    };
+
+    function renderChips() {
+        chipsWrapper.innerHTML = "";
+        if (currentRegimen.size === 0) {
+            chipsWrapper.appendChild(emptyRegimenText);
+            return;
+        }
+        currentRegimen.forEach(item => {
+            const chip = document.createElement("div");
+            chip.className = "chip";
+            chip.innerHTML = `${item} <button class="remove-btn" onclick="removeDrug('${item}')">&times;</button>`;
+            chipsWrapper.appendChild(chip);
+        });
+    }
+
+    function runMatrixAnalysis() {
+    const selected = Array.from(currentRegimen);
+    if (selected.length < 2) {
+        tableContainer.innerHTML = `<div class="empty-state">Add at least two items to generate compatibility reporting matrices.</div>`;
+        return;
+    }
+
+    let html = `
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Combination Pair Intersections</th>
+                    <th>Status Classification</th>
+                    <th>Clinical Notes / Evidence Context</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    for (let i = 0; i < selected.length; i++) {
+        for (let j = i + 1; j < selected.length; j++) {
+            const itemA = selected[i];
+            const itemB = selected[j];
+            const key = [itemA, itemB].sort().join("+");
+            const match = compatibilityDatabase[key];
+
+            // 1. Default fallback initialization if interaction is NOT included in your dataset
+            let badgeClass = "badge-uncertain"; 
+            let statusText = "no DATA"; 
+            let noteText = "";
+
+            // 2. Map explicitly to your 6 exact categories if data exists
+            if (match) {
+                noteText = match.note || "";
+                switch (match.cat) {
+                    case "COMP":
+                        badgeClass = "badge-compatible";
+                        statusText = "compatible";
+                        break;
+                    case "NOT_COMP":
+                        badgeClass = "badge-not-comp";
+                        statusText = "not compatible";
+                        break;
+                    case "EQUAL":
+                        badgeClass = "badge-equal";
+                        statusText = "comptible studies = icomptible studies";
+                        break;
+                    case "MORE_COMP":
+                        badgeClass = "badge-more-comp";
+                        statusText = "comptible studies > incmpatibles studies";
+                        break;
+                    case "LESS_COMP":
+                        badgeClass = "badge-less-comp";
+                        statusText = "comptible studies < incmpatibles studies";
+                        break;
+                    case "UNCERTAIN":
+                        badgeClass = "badge-uncertain";
+                        statusText = "incertain";
+                        break;
+                    default:
+                        statusText = "no DATA";
+                }
+            }
+
+            html += `
+                <tr>
+                    <td><strong>${itemA}</strong> <span style="color:#7f8c8d;">&</span> <strong>${itemB}</strong></td>
+                    <td><span class="badge ${badgeClass}">${statusText}</span></td>
+                    <td style="font-size: 0.9rem; color: #34495e;">${noteText}</td>
+                </tr>
+            `;
+        }
+    }
+
+    html += `</tbody></table>`;
+    tableContainer.innerHTML = html;
+}
+});
+</script>
+
+</body>
+</html>
