@@ -53,6 +53,67 @@
         h2 { font-size: 1.5rem; }
         h3 { font-size: 1.25rem; }
 
+        /* Searchable Combobox Component Container */
+        .search-container {
+            position: relative;
+            flex-grow: 1;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            background-color: #fff;
+            height: 48px;
+            box-sizing: border-box;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .dropdown-list {
+            position: absolute;
+            top: 52px;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            max-height: 240px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .dropdown-item {
+            padding: 12px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #f1f2f6;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover, .dropdown-item.selected {
+            background-color: #f1f2f6;
+            color: var(--accent-color);
+        }
+
+        .dropdown-no-results {
+            padding: 12px;
+            color: #7f8c8d;
+            font-style: italic;
+            text-align: center;
+        }
+
         .input-group {
             display: flex;
             flex-direction: column;
@@ -66,22 +127,6 @@
             }
         }
 
-        select {
-            flex-grow: 1;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 1rem;
-            background-color: #fff;
-            height: 48px; /* Great for mobile touch targets */
-            -webkit-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%232c3e50' d='M0 0l5 6 5-6z'/></svg>");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            padding-right: 32px;
-        }
-
         button {
             padding: 12px 24px;
             background-color: var(--accent-color);
@@ -91,7 +136,7 @@
             font-weight: bold;
             cursor: pointer;
             font-size: 1rem;
-            min-height: 48px; /* Accessible standard finger target size */
+            min-height: 48px;
             transition: background 0.2s;
         }
 
@@ -149,13 +194,13 @@
             background-color: #f8f9fa;
         }
 
-        /* Responsive UI transformation for the compatibility table on mobile windows */
+        /* Responsive Mobile Table to Card UI Rules Transformation */
         @media (max-width: 600px) {
-            .results-table, .results-table inequities, .results-table tbody, .results-table th, .results-table td, .results-table tr {
+            .results-table, .results-table tbody, .results-table th, .results-table td, .results-table tr {
                 display: block;
             }
             .results-table thead {
-                display: none; /* Hide standard headers but maintain content dynamically via labels */
+                display: none;
             }
             .results-table tr {
                 margin-bottom: 15px;
@@ -188,7 +233,6 @@
             }
         }
 
-        /* Status Badges Styling */
         .badge {
             display: inline-block;
             padding: 6px 12px;
@@ -196,7 +240,7 @@
             font-weight: bold;
             font-size: 0.8rem;
             text-align: center;
-            white-space: normal; /* Safe dynamic text wrapper for screen constraints */
+            white-space: normal;
             word-break: break-word;
         }
 
@@ -238,20 +282,21 @@
     <div class="card">
         <h2>Multi-Drug IV Compatibility Analyzer</h2>
         <p style="font-size: 0.9rem; color: #7f8c8d; margin-top: -10px; margin-bottom: 20px;">
-            Select and add all medications and carrier fluids running on the patient's line to analyze active intersection compatibilities.
+            Type to find and add medications or carrier fluids running on the patient's line to analyze active intersections.
         </p>
         
         <div class="input-group">
-            <select id="drugSelect">
-                <option value="">-- Select Medication or Fluid --</option>
-            </select>
+            <div class="search-container">
+                <input type="text" id="drugSearchInput" class="search-input" placeholder="Type to search medication or fluid..." autocomplete="off">
+                <div id="dropdownList" class="dropdown-list"></div>
+            </div>
             <button id="addDrugBtn">Add to Regimen</button>
         </div>
 
         <div class="drugs-list-container">
             <label style="font-weight: bold; font-size: 0.9rem;">Current Patient Evaluation List:</label>
             <div id="chipsWrapper" class="chips-wrapper">
-                <div class="empty-state" id="emptyRegimenText">No items added yet. Choose items from the dropdown to run cross-matching.</div>
+                <div class="empty-state" id="emptyRegimenText">No items added yet. Search items above to run cross-matching.</div>
             </div>
         </div>
     </div>
@@ -277,22 +322,23 @@
 </div>
 
 <script>
+// Comprehensive list of all 55 items, explicitly ordered via case-insensitive alphabetical sorting
 const itemsList = [
     "Albumin Human", "Amikacin Sulfate", "Amiodarone Hydrochloride", "Amoxicillin Sodium", 
     "Amoxicillin Sodium/Clavulanate Potassium", "Amphotericin B", "Azithromycin", "Bactrim IV", 
     "Calcium Chloride", "Calcium Gluconate", "Cefepime Hydrochloride", "Cefepime Hydrochloride/Enmetazobactam", 
     "Cefotaxime Sodium", "cefTAZidime", "cefTRIAXone sodium", "Ciprofloxacin", "clonazePAM", 
-    "Colistimethate Sodium", "diazePAM", "EPINEPHrine", "fentaNYL citrate", "Furosemide", 
+    "Colistimethate Sodium", "Dextrose 10%", "Dextrose 15% in water", "Dextrose 30% in water", 
+    "Dextrose 5% in Water", "diazePAM", "EPINEPHrine", "fentaNYL citrate", "Furosemide", 
     "Gentamicin Sulfate", "Haloperidol Lactate", "Heparin Sodium", "Hydrocortisone", 
     "Imipenem/Cilastatin Sodium", "Ketamine Hydrochloride", "levoFLOXacin", "Magnesium Sulfate", 
     "methylPREDNISolone acetate", "methylPREDNISolone sodium succinate", "metroNIDAZOLE", 
     "Midazolam Hydrochloride", "Morphine Hydrochloride", "Norepinephrine Bitartrate", 
     "Norepinephrine Hydrochloride", "Omeprazole", "Phenytoin Sodium", "Piperacillin Sodium/Tazobactam Sodium", 
-    "Potassium Chloride", "Rocuronium Bromide", "Sodium Bicarbonate", "SODIUM CHLORIDE", 
-    "Sufenta", "Thiopental Sodium", "Tigecycline", "Vancocin HCl", "Vitamin K", 
-    "Dextrose 10%", "Dextrose 15% in water", "Dextrose 30% in water", "Dextrose 5% in Water", 
-    "Ringer's lactated", "Sodium chloride 0.9%"
-].sort();
+    "Potassium Chloride", "Ringer's lactated", "Rocuronium Bromide", "Sodium Bicarbonate", 
+    "SODIUM CHLORIDE", "Sodium chloride 0.9%", "Sufenta", "Thiopental Sodium", 
+    "Tigecycline", "Vancocin HCl", "Vitamin K"
+].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 
 const compatibilityDatabase = {
     "Albumin Human+fentaNYL citrate": { cat: "COMP", note: "" },
@@ -948,28 +994,75 @@ const compatibilityDatabase = {
 };
 
 let currentRegimen = new Set();
+let selectedValue = ""; // Holds staged item selection from dropdown matches
 
 document.addEventListener("DOMContentLoaded", () => {
-    const drugSelect = document.getElementById("drugSelect");
+    const searchInput = document.getElementById("drugSearchInput");
+    const dropdownList = document.getElementById("dropdownList");
     const addDrugBtn = document.getElementById("addDrugBtn");
     const chipsWrapper = document.getElementById("chipsWrapper");
     const tableContainer = document.getElementById("tableContainer");
     const emptyRegimenText = document.getElementById("emptyRegimenText");
 
-    itemsList.forEach(item => {
-        const option = document.createElement("option");
-        option.value = item;
-        option.textContent = item;
-        drugSelect.appendChild(option);
+    // Filter dropdown results layout mapping engine
+    function filterItems(query) {
+        dropdownList.innerHTML = "";
+        const cleanQuery = query.toLowerCase().trim();
+        
+        // Hide items already added to the active evaluation checklist
+        const visibleItems = itemsList.filter(item => 
+            item.toLowerCase().includes(cleanQuery) && !currentRegimen.has(item)
+        );
+
+        if (visibleItems.length === 0) {
+            dropdownList.innerHTML = `<div class="dropdown-no-results">No matches found</div>`;
+        } else {
+            visibleItems.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "dropdown-item";
+                div.textContent = item;
+                div.addEventListener("click", () => {
+                    searchInput.value = item;
+                    selectedValue = item;
+                    dropdownList.style.display = "none";
+                });
+                dropdownList.appendChild(div);
+            });
+        }
+    }
+
+    // Interactive Trigger Listeners
+    searchInput.addEventListener("input", (e) => {
+        selectedValue = ""; // Reset exact match index if user variations continue typing
+        dropdownList.style.display = "block";
+        filterItems(e.target.value);
     });
 
+    searchInput.addEventListener("focus", () => {
+        dropdownList.style.display = "block";
+        filterItems(searchInput.value);
+    });
+
+    // Handle clicking outside the searchable combobox element to dismiss dropdown safely
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest(".search-container")) {
+            dropdownList.style.display = "none";
+        }
+    });
+
+    // Core validation processor to add a selection into evaluation array
     addDrugBtn.addEventListener("click", () => {
-        const value = drugSelect.value;
-        if (value && !currentRegimen.has(value)) {
-            currentRegimen.add(value);
+        let value = selectedValue || searchInput.value.trim();
+        
+        // Match exact text string variant safely (case-insensitive protection fallback fallback)
+        const standardMatchedItem = itemsList.find(i => i.toLowerCase() === value.toLowerCase());
+        
+        if (standardMatchedItem && !currentRegimen.has(standardMatchedItem)) {
+            currentRegimen.add(standardMatchedItem);
             renderChips();
             runMatrixAnalysis();
-            drugSelect.value = "";
+            searchInput.value = "";
+            selectedValue = "";
         }
     });
 
