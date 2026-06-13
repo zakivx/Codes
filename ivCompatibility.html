@@ -27,7 +27,7 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            padding: 16px;
         }
 
         .container {
@@ -39,8 +39,8 @@
             background: var(--card-bg);
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            padding: 24px;
-            margin-bottom: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
         }
 
         h2, h3 {
@@ -50,10 +50,20 @@
             color: #1a252f;
         }
 
+        h2 { font-size: 1.5rem; }
+        h3 { font-size: 1.25rem; }
+
         .input-group {
             display: flex;
+            flex-direction: column;
             gap: 12px;
             margin-bottom: 20px;
+        }
+
+        @media (min-width: 600px) {
+            .input-group {
+                flex-direction: row;
+            }
         }
 
         select {
@@ -63,6 +73,13 @@
             border-radius: 6px;
             font-size: 1rem;
             background-color: #fff;
+            height: 48px; /* Great for mobile touch targets */
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%232c3e50' d='M0 0l5 6 5-6z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
         }
 
         button {
@@ -74,10 +91,11 @@
             font-weight: bold;
             cursor: pointer;
             font-size: 1rem;
+            min-height: 48px; /* Accessible standard finger target size */
             transition: background 0.2s;
         }
 
-        button:hover {
+        button:hover, button:active {
             background-color: #2980b9;
         }
 
@@ -105,8 +123,14 @@
             font-weight: bold;
             border: none;
             background: none;
-            padding: 0;
-            font-size: 1.1rem;
+            padding: 4px 8px;
+            margin-right: -6px;
+            font-size: 1.2rem;
+            min-width: 30px;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .results-table {
@@ -125,6 +149,45 @@
             background-color: #f8f9fa;
         }
 
+        /* Responsive UI transformation for the compatibility table on mobile windows */
+        @media (max-width: 600px) {
+            .results-table, .results-table inequities, .results-table tbody, .results-table th, .results-table td, .results-table tr {
+                display: block;
+            }
+            .results-table thead {
+                display: none; /* Hide standard headers but maintain content dynamically via labels */
+            }
+            .results-table tr {
+                margin-bottom: 15px;
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                background: #fdfefe;
+                padding: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            }
+            .results-table td {
+                border: none;
+                position: relative;
+                padding-left: 0;
+                padding-right: 0;
+                padding-top: 8px;
+                padding-bottom: 8px;
+            }
+            .results-table td:not(:last-child) {
+                border-bottom: 1px dashed #edf2f7;
+            }
+            .results-table td::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: #7f8c8d;
+                margin-bottom: 4px;
+                font-weight: bold;
+            }
+        }
+
         /* Status Badges Styling */
         .badge {
             display: inline-block;
@@ -133,7 +196,8 @@
             font-weight: bold;
             font-size: 0.8rem;
             text-align: center;
-            white-space: nowrap;
+            white-space: normal; /* Safe dynamic text wrapper for screen constraints */
+            word-break: break-word;
         }
 
         .badge-compatible   { background-color: rgba(42, 204, 127, 0.15); color: #1e8251; border: 1px solid var(--color-comp); }
@@ -148,22 +212,24 @@
             text-align: center;
             padding: 20px;
             font-style: italic;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .legend {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            grid-template-columns: 1fr;
+            gap: 16px;
             margin-top: 15px;
             font-size: 0.85rem;
         }
 
-        @media (max-width: 768px) {
-            .legend { grid-template-columns: 1fr; }
+        @media (min-width: 768px) {
+            .legend { grid-template-columns: 1fr 1fr; }
         }
 
-        .legend-item { display: flex; align-items: center; gap: 8px; }
-        .dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+        .legend-item { display: flex; align-items: flex-start; gap: 10px; }
+        .dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -177,7 +243,7 @@
         
         <div class="input-group">
             <select id="drugSelect">
-                <option value="">-- Select Medication or Fluid to add --</option>
+                <option value="">-- Select Medication or Fluid --</option>
             </select>
             <button id="addDrugBtn">Add to Regimen</button>
         </div>
@@ -211,7 +277,6 @@
 </div>
 
 <script>
-// Comprehensive list of all 55 items provided, retaining exact case structure
 const itemsList = [
     "Albumin Human", "Amikacin Sulfate", "Amiodarone Hydrochloride", "Amoxicillin Sodium", 
     "Amoxicillin Sodium/Clavulanate Potassium", "Amphotericin B", "Azithromycin", "Bactrim IV", 
@@ -229,8 +294,6 @@ const itemsList = [
     "Ringer's lactated", "Sodium chloride 0.9%"
 ].sort();
 
-// Compatibility Database dictionary mapping values exactly via "SortedItemA+SortedItemB" keys.
-// Use categories: "COMP", "NOT_COMP", "EQUAL", "MORE_COMP", "LESS_COMP", "UNCERTAIN"
 const compatibilityDatabase = {
     "Albumin Human+fentaNYL citrate": { cat: "COMP", note: "" },
     "Albumin Human+Hydrocortisone": { cat: "COMP", note: "" },
@@ -882,8 +945,6 @@ const compatibilityDatabase = {
     "Heparin Sodium+Vancomycin Hydrochloride": { cat: "LESS_COMP", note: "" },
     "Midazolam Hydrochloride+Piperacillin Sodium/Tazobactam Sodium": { cat: "LESS_COMP", note: "" },
   "levoFLOXacin+Magnesium Sulfate": { cat: "UNCERTAIN", note: "" }
-
-
 };
 
 let currentRegimen = new Set();
@@ -895,7 +956,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const tableContainer = document.getElementById("tableContainer");
     const emptyRegimenText = document.getElementById("emptyRegimenText");
 
-    // Populate dropdown element list
     itemsList.forEach(item => {
         const option = document.createElement("option");
         option.value = item;
@@ -903,7 +963,6 @@ document.addEventListener("DOMContentLoaded", () => {
         drugSelect.appendChild(option);
     });
 
-    // Add item handler
     addDrugBtn.addEventListener("click", () => {
         const value = drugSelect.value;
         if (value && !currentRegimen.has(value)) {
@@ -914,7 +973,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Remove item handler
     window.removeDrug = function(item) {
         currentRegimen.delete(item);
         renderChips();
@@ -936,82 +994,80 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function runMatrixAnalysis() {
-    const selected = Array.from(currentRegimen);
-    if (selected.length < 2) {
-        tableContainer.innerHTML = `<div class="empty-state">Add at least two items to generate compatibility reporting matrices.</div>`;
-        return;
-    }
-
-    let html = `
-        <table class="results-table">
-            <thead>
-                <tr>
-                    <th>Combination Pair Intersections</th>
-                    <th>Status Classification</th>
-                    <th>Clinical Notes / Evidence Context</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    for (let i = 0; i < selected.length; i++) {
-        for (let j = i + 1; j < selected.length; j++) {
-            const itemA = selected[i];
-            const itemB = selected[j];
-            const key = [itemA, itemB].sort().join("+");
-            const match = compatibilityDatabase[key];
-
-            // 1. Default fallback initialization if interaction is NOT included in your dataset
-            let badgeClass = "badge-uncertain"; 
-            let statusText = "no DATA"; 
-            let noteText = "";
-
-            // 2. Map explicitly to your 6 exact categories if data exists
-            if (match) {
-                noteText = match.note || "";
-                switch (match.cat) {
-                    case "COMP":
-                        badgeClass = "badge-compatible";
-                        statusText = "compatible";
-                        break;
-                    case "NOT_COMP":
-                        badgeClass = "badge-not-comp";
-                        statusText = "not compatible";
-                        break;
-                    case "EQUAL":
-                        badgeClass = "badge-equal";
-                        statusText = "comptible studies = icomptible studies";
-                        break;
-                    case "MORE_COMP":
-                        badgeClass = "badge-more-comp";
-                        statusText = "comptible studies > incmpatibles studies";
-                        break;
-                    case "LESS_COMP":
-                        badgeClass = "badge-less-comp";
-                        statusText = "comptible studies < incmpatibles studies";
-                        break;
-                    case "UNCERTAIN":
-                        badgeClass = "badge-uncertain";
-                        statusText = "incertain";
-                        break;
-                    default:
-                        statusText = "no DATA";
-                }
-            }
-
-            html += `
-                <tr>
-                    <td><strong>${itemA}</strong> <span style="color:#7f8c8d;">&</span> <strong>${itemB}</strong></td>
-                    <td><span class="badge ${badgeClass}">${statusText}</span></td>
-                    <td style="font-size: 0.9rem; color: #34495e;">${noteText}</td>
-                </tr>
-            `;
+        const selected = Array.from(currentRegimen);
+        if (selected.length < 2) {
+            tableContainer.innerHTML = `<div class="empty-state">Add at least two items to generate compatibility reporting matrices.</div>`;
+            return;
         }
-    }
 
-    html += `</tbody></table>`;
-    tableContainer.innerHTML = html;
-}
+        let html = `
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Combination Pair Intersections</th>
+                        <th>Status Classification</th>
+                        <th>Clinical Notes / Evidence Context</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        for (let i = 0; i < selected.length; i++) {
+            for (let j = i + 1; j < selected.length; j++) {
+                const itemA = selected[i];
+                const itemB = selected[j];
+                const key = [itemA, itemB].sort().join("+");
+                const match = compatibilityDatabase[key];
+
+                let badgeClass = "badge-uncertain"; 
+                let statusText = "no DATA"; 
+                let noteText = "";
+
+                if (match) {
+                    noteText = match.note || "";
+                    switch (match.cat) {
+                        case "COMP":
+                            badgeClass = "badge-compatible";
+                            statusText = "compatible";
+                            break;
+                        case "NOT_COMP":
+                            badgeClass = "badge-not-comp";
+                            statusText = "not compatible";
+                            break;
+                        case "EQUAL":
+                            badgeClass = "badge-equal";
+                            statusText = "compatible studies = incompatible studies";
+                            break;
+                        case "MORE_COMP":
+                            badgeClass = "badge-more-comp";
+                            statusText = "compatible studies > incompatible studies";
+                            break;
+                        case "LESS_COMP":
+                            badgeClass = "badge-less-comp";
+                            statusText = "compatible studies < incompatible studies";
+                            break;
+                        case "UNCERTAIN":
+                            badgeClass = "badge-uncertain";
+                            statusText = "uncertain";
+                            break;
+                        default:
+                            statusText = "no DATA";
+                    }
+                }
+
+                html += `
+                    <tr>
+                        <td data-label="Combination Pair Intersections"><strong>${itemA}</strong> <span style="color:#7f8c8d;">&</span> <strong>${itemB}</strong></td>
+                        <td data-label="Status Classification"><span class="badge ${badgeClass}">${statusText}</span></td>
+                        <td data-label="Clinical Notes / Evidence Context" style="font-size: 0.9rem; color: #34495e;">${noteText || "—"}</td>
+                    </tr>
+                `;
+            }
+        }
+
+        html += `</tbody></table>`;
+        tableContainer.innerHTML = html;
+    }
 });
 </script>
 
