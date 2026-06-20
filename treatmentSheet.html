@@ -9,7 +9,7 @@ body { font-family: Arial, sans-serif; font-size: 13px; background: #ddd; color:
 
 /* ─── TAB BAR ─── */
 #tabBar { max-width: 210mm; margin: 14px auto 0; display: flex; }
-.tab-btn { flex:1; padding:9px 14px; font-family:Arial,sans-serif; font-size:12px; font-weight:bold; border:1.5px solid #999; border-bottom:none; background:#ccc; color:#666; cursor:pointer; letter-spacing:0.04em; text-transform:uppercase; border-radius:4px 4px 0 0; }
+.tab-btn { flex:1; padding:9px 14px; font-family:Arial,sans-serif; font-size:12px; font-weight:bold; border:1.5px solid #999; border-bottom:none; background:#ccc; color:#666; cursor:pointer; letter-spacing:0.04em;  border-radius:4px 4px 0 0; }
 .tab-btn:first-child { border-right:none; }
 .tab-btn.active { background:#fff; color:#000; border-color:#999; position:relative; z-index:2; }
 .tab-btn:hover:not(.active) { background:#bbb; }
@@ -19,7 +19,7 @@ body { font-family: Arial, sans-serif; font-size: 13px; background: #ddd; color:
 .ctrl-row { display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end; padding:8px 0; border-bottom:1px solid #ddd; }
 .ctrl-row:last-child { border-bottom:none; }
 .ctrl-tab1,.ctrl-tab2 { display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end; padding:8px 0; border-bottom:1px solid #ddd; }
-.ctrl-section-label { width:100%; font-size:10px; font-weight:bold; text-transform:uppercase; letter-spacing:0.1em; color:#555; padding-bottom:4px; border-bottom:1px solid #eee; margin-bottom:2px; }
+.ctrl-section-label { width:100%; font-size:10px; font-weight:bold;  letter-spacing:0.1em; color:#555; padding-bottom:4px; border-bottom:1px solid #eee; margin-bottom:2px; }
 .field { display:flex; flex-direction:column; gap:3px; }
 label { font-size:11px; font-weight:bold; display:block; }
 input,select { font-family:Arial,sans-serif; font-size:12px; padding:5px 7px; border:1px solid #aaa; border-radius:3px; background:#fff; color:#000; }
@@ -39,14 +39,14 @@ button:hover { background:#eee; }
 
 /* ─── NUTRITION INPUT ─── */
 .nutr-input-block { border:1px solid #ccc; border-radius:3px; padding:10px; background:#fafafa; margin-bottom:8px; width:100%; }
-.nutr-input-block h4 { font-size:11px; font-weight:bold; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; color:#333; }
+.nutr-input-block h4 { font-size:11px; font-weight:bold;  letter-spacing:0.08em; margin-bottom:8px; color:#333; }
 .nutr-row { display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; margin-bottom:6px; }
 .nutr-row .field select { min-width:200px; }
 .nutr-row .field input { width:100px; }
 
 /* ─── PHASE SELECTOR ─── */
 .phase-block { background:#f0f4ff; border:1px solid #c0cef0; border-radius:4px; padding:10px 12px; width:100%; }
-.phase-block h4 { font-size:11px; font-weight:bold; text-transform:uppercase; letter-spacing:0.08em; color:#334; margin-bottom:8px; }
+.phase-block h4 { font-size:11px; font-weight:bold;  letter-spacing:0.08em; color:#334; margin-bottom:8px; }
 .phase-options { display:flex; gap:8px; flex-wrap:wrap; }
 .phase-opt { display:flex; align-items:center; gap:5px; font-size:11px; cursor:pointer; padding:5px 10px; border:1.5px solid #bbc; border-radius:3px; background:#fff; }
 .phase-opt:hover { background:#e8edff; }
@@ -65,24 +65,24 @@ button:hover { background:#eee; }
 .print-page { width:210mm; min-height:297mm; background:#fff; margin:0 auto 24px; box-shadow:0 2px 12px rgba(0,0,0,0.2); display:flex; flex-direction:column; }
 .print-page.hidden-tab { display:none; }
 .page-header { padding:14px 15mm 10px; text-align:center; margin-top:30px; }
-.page-header h2 { font-size:14px; font-weight:bold; text-transform:uppercase; letter-spacing:0.05em; }
+.page-header h2 { font-size:14px; font-weight:bold;  letter-spacing:0.05em; }
 .page-header h3 { font-size:12px; font-weight:normal; margin-top:3px; }
-.page-title { margin-top:8px; font-size:18px; font-weight:bold; letter-spacing:0.15em; text-transform:uppercase; border:2px solid #000; display:inline-block; padding:3px 18px; }
+.page-title { margin-top:8px; font-size:18px; font-weight:bold; letter-spacing:0.15em;  border:2px solid #000; display:inline-block; padding:3px 18px; }
 .table-area { flex:1; padding:30px 9mm 9mm; }
 
 /* ─── PATIENT INFO ─── */
 .patient-grid { display:grid; grid-template-columns:2.5fr 0.7fr 1.5fr 1.3fr; border:1px solid #000; margin-bottom:4px; }
 .patient-cell { padding:5px 7px; border-right:1px solid #000; font-size:12px; }
 .patient-cell:last-child { border-right:none; }
-.patient-cell .lbl { font-size:9px; font-weight:bold; text-transform:uppercase; letter-spacing:0.08em; display:block; color:#555; margin-bottom:1px; }
+.patient-cell .lbl { font-size:9px; font-weight:bold;  letter-spacing:0.08em; display:block; color:#555; margin-bottom:1px; }
 .days-row { display:grid; grid-template-columns:1fr 1fr 1fr; border:1px solid #000; border-top:none; margin-bottom:4px; }
 .day-cell { padding:4px 7px; border-right:1px solid #000; font-size:11px; }
 .day-cell:last-child { border-right:none; }
-.day-cell .lbl { font-size:9px; font-weight:bold; text-transform:uppercase; color:#555; }
+.day-cell .lbl { font-size:9px; font-weight:bold;  color:#555; }
 .metrics-row { display:grid; grid-template-columns:repeat(6,1fr); border:1px solid #000; border-top:none; margin-bottom:16px; }
 .metric-cell { padding:4px 6px; border-right:1px solid #000; font-size:11px; }
 .metric-cell:last-child { border-right:none; }
-.metric-cell .lbl { font-size:8.5px; font-weight:bold; text-transform:uppercase; color:#555; display:block; }
+.metric-cell .lbl { font-size:8.5px; font-weight:bold;  color:#555; display:block; }
 
 /* ─── TABLES ─── */
 .rn { font-size:10px; color:#888; margin-right:5px; }
@@ -90,24 +90,29 @@ button:hover { background:#eee; }
 .actions-cell button { padding:2px 6px; font-size:10px; margin:1px; border-radius:2px; }
 
 #drugTable { width:100%; border-collapse:collapse; margin-bottom:12px; }
-#drugTable th { background:#000; color:#fff; padding:6px 8px; font-size:10.5px; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; text-align:left; border:1px solid #000; }
+#drugTable th { background:#000; color:#fff; padding:6px 8px; font-size:10.5px; font-weight:bold; letter-spacing:0.08em;  text-align:left; border:1px solid #000; }
 #drugTable td { padding:6px 8px; font-size:12px; border:1px solid #999; vertical-align:middle; }
 #drugTable tbody tr:nth-child(even) td { background:#f5f5f5; }
 
 #perfTable { width:100%; border-collapse:collapse; margin-bottom:12px; }
-#perfTable th { background:#333; color:#fff; padding:5px 8px; font-size:10.5px; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; text-align:left; border:1px solid #333; }
+#perfTable th { background:#333; color:#fff; padding:5px 8px; font-size:10.5px; font-weight:bold; letter-spacing:0.08em;  text-align:left; border:1px solid #333; }
 #perfTable td { padding:5px 8px; font-size:12px; border:1px solid #999; vertical-align:middle; }
 #perfTable tbody tr:nth-child(even) td { background:#f5f5f5; }
 
 #drogTable { width:100%; border-collapse:collapse; margin-bottom:12px; }
-#drogTable th { background:#555; color:#fff; padding:5px 8px; font-size:10.5px; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; text-align:left; border:1px solid #555; }
+#drogTable th { background:#555; color:#fff; padding:5px 8px; font-size:10.5px; font-weight:bold; letter-spacing:0.08em;  text-align:left; border:1px solid #555; }
 #drogTable td { padding:5px 8px; font-size:12px; border:1px solid #999; vertical-align:middle; }
 #drogTable tbody tr:nth-child(even) td { background:#f5f5f5; }
+
+#sedTable { width:100%; border-collapse:collapse; margin-bottom:12px; }
+#sedTable th { background:#4a6741; color:#fff; padding:5px 8px; font-size:10.5px; font-weight:bold; letter-spacing:0.08em;  text-align:left; border:1px solid #4a6741; }
+#sedTable td { padding:5px 8px; font-size:12px; border:1px solid #999; vertical-align:middle; }
+#sedTable tbody tr:nth-child(even) td { background:#f0f5ef; }
 
 /* ─── NUTRITION TABLE ─── */
 #nutritionSection { margin-bottom:14px; }
 #nutrTable { width:100%; border-collapse:collapse; margin-bottom:4px; font-size:10.5px; }
-#nutrTable th { padding:4px 5px; font-size:9px; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; text-align:center; border:1px solid #aaa; background:#eee; }
+#nutrTable th { padding:4px 5px; font-size:9px; font-weight:bold; letter-spacing:0.06em;  text-align:center; border:1px solid #aaa; background:#eee; }
 #nutrTable th:first-child { text-align:left; }
 #nutrTable td { padding:4px 5px; border:1px solid #ccc; text-align:center; font-size:10.5px; vertical-align:middle; }
 #nutrTable td:first-child { text-align:left; font-weight:bold; }
@@ -117,25 +122,25 @@ button:hover { background:#eee; }
 #nutrTable .row-total td:first-child { background:#000; color:#fff; }
 #nutrTable .row-cible td { background:#e8f5e9; font-size:10px; border-top:1px dashed #5a5; }
 #nutrTable .row-cible td:first-child { background:#2e7d32; color:#fff; font-weight:bold; }
-#nutrTable .row-subtitle td { font-size:9px; font-weight:bold; text-transform:uppercase; letter-spacing:0.07em; color:#fff; padding:3px 5px; }
+#nutrTable .row-subtitle td { font-size:9px; font-weight:bold;  letter-spacing:0.07em; color:#fff; padding:3px 5px; }
 #nutrTable .row-subtitle.ent td { background:#2a6496; }
 #nutrTable .row-subtitle.par td { background:#5a3e7a; }
 
 /* ─── BOTTOM SECTIONS ─── */
 .bottom-sections { display:grid; grid-template-columns:1fr 1.5fr; gap:12px; margin-top:6px; }
 .soins-table { width:100%; border-collapse:collapse; font-size:11px; }
-.soins-table th { background:#000; color:#fff; padding:5px 7px; font-size:10px; font-weight:bold; text-transform:uppercase; letter-spacing:0.07em; border:1px solid #000; text-align:left; }
+.soins-table th { background:#000; color:#fff; padding:5px 7px; font-size:10px; font-weight:bold;  letter-spacing:0.07em; border:1px solid #000; text-align:left; }
 .soins-table td { padding:4px 7px; border:1px solid #999; vertical-align:top; font-size:11px; }
 .soins-table td:last-child { font-size:10px; color:#444; }
 .insulin-display { margin-top:8px; }
-.insulin-display-title { font-size:10px; font-weight:bold; text-transform:uppercase; letter-spacing:0.08em; background:#000; color:#fff; padding:4px 8px; }
+.insulin-display-title { font-size:10px; font-weight:bold;  letter-spacing:0.08em; background:#000; color:#fff; padding:4px 8px; }
 .insulin-table { width:100%; border-collapse:collapse; font-size:11px; }
 .insulin-table td { padding:4px 7px; border:1px solid #999; text-align:center; }
-.gray { background:#eee; font-weight:bold; font-size:10px; text-transform:uppercase; }
+.gray { background:#eee; font-weight:bold; font-size:10px;  }
 .dots { color:#aaa; }
 .checklist-wrap { display:flex; gap:10px; }
 .checklist-group { flex:1; border:1px solid #999; }
-.checklist-group h4 { font-size:10px; font-weight:bold; text-transform:uppercase; letter-spacing:0.08em; background:#000; color:#fff; padding:4px 8px; }
+.checklist-group h4 { font-size:10px; font-weight:bold;  letter-spacing:0.08em; background:#000; color:#fff; padding:4px 8px; }
 .checklist-body { padding:6px 8px; }
 .checklist-item { display:flex; align-items:center; gap:6px; margin-bottom:4px; font-size:11px; }
 .checklist-item input[type="checkbox"] { width:12px; height:12px; margin:0; padding:0; border:none; }
@@ -160,10 +165,14 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
     @page :first { margin-top:0mm; }
     @page :left { margin-top:15mm; }
     @page :right { margin-top:15mm; }
-    .print-page.hidden-tab { display:none !important; }
+    /* Normal single-tab print */
+    body:not(.print-all) .print-page.hidden-tab { display:none !important; }
+    /* Print-all: show both pages */
+    body.print-all .print-page { display:flex !important; page-break-before:always; }
+    body.print-all .print-page:first-of-type { page-break-before:auto; }
     .print-page { width:210mm; margin:0; box-shadow:none; min-height:0; }
     .bottom-sections { page-break-inside:avoid; break-inside:avoid; }
-    #drugTable.empty-table,#perfTable.empty-table,#drogTable.empty-table { display:none !important; }
+    #drugTable.empty-table,#perfTable.empty-table,#drogTable.empty-table,#sedTable.empty-table { display:none !important; }
     #nutritionSection { page-break-inside:avoid; }
 }
 </style>
@@ -173,6 +182,8 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
 <div id="tabBar">
     <button class="tab-btn active" id="tab1Btn" onclick="switchTab(1)">💊 Feuille de Traitements</button>
     <button class="tab-btn" id="tab2Btn" onclick="switchTab(2)">💧 Nutrition et Perfusion</button>
+    <button class="tab-btn" id="printCurrentBtn" onclick="printCurrent()" style="flex:0;padding:9px 16px;background:#222;color:#fff;border-color:#222;">🖨 Imprimer</button>
+    <button class="tab-btn" id="printAllBtn" onclick="printAll()" style="flex:0;padding:9px 16px;background:#555;color:#fff;border-color:#555;">🖨 Tout</button>
 </div>
 
 <div id="controls">
@@ -185,6 +196,7 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
                 <select id="boxSelect"></select>
                 <button class="btn-dark" onclick="saveToBox()">Sauvegarder</button>
                 <button onclick="loadFromBox()">Charger</button>
+                <button onclick="if(confirm('Vider tous les champs ?')) resetAllInputs()">Vider</button>
             </div>
         </div>
     </div>
@@ -194,7 +206,7 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
         <div class="field" style="flex:2;min-width:150px"><label for="p_name">Nom et Prénom</label><input type="text" id="p_name" oninput="syncPatient()"></div>
         <div class="field" style="width:60px"><label for="p_box">Box</label><input type="text" id="p_box" oninput="syncPatient()"></div>
         <div class="field" style="flex:1;min-width:110px"><label for="p_doc">Médecin</label><input type="text" id="p_doc" oninput="syncPatient()"></div>
-        <div class="field" style="flex:1;min-width:110px"><label for="p_date">Date (JJ/MM/AA)</label><input type="text" id="p_date" oninput="syncPatient()"></div>
+        <div class="field" style="flex:1;min-width:110px"><label for="p_date">Date</label><input type="date" id="p_date" oninput="syncPatient()"></div>
     </div>
 
     <!-- Dates → auto J calculation -->
@@ -245,7 +257,7 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
     <!-- TAB 1: Drug input -->
     <div class="ctrl-tab1" id="ctrlDrug">
         <div style="width:100%" class="ctrl-section-label">💊 Médicaments</div>
-        <div class="field" style="flex:2;min-width:120px"><label for="name">Médicament</label><input type="text" id="name"></div>
+        <div class="field" style="width:100%"><label for="name">Médicament</label><textarea id="name" rows="2" style="width:100%;font-family:Arial,sans-serif;font-size:12px;padding:5px 7px;border:1px solid #aaa;border-radius:3px;resize:vertical;" placeholder="Nom du médicament..."></textarea></div>
         <div class="field" style="width:65px"><label for="jours">Jours</label><input type="number" id="jours"></div>
         <div class="field" style="flex:1;min-width:80px"><label for="dose">Dose</label><input type="text" id="dose"></div>
         <div class="field" style="width:60px"><label for="times">Qté</label><input type="number" id="times"></div>
@@ -254,8 +266,6 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
         <div class="field" style="flex:1.5;min-width:100px"><label for="schedule">Horaires</label><input type="text" id="schedule"></div>
         <div style="display:flex;gap:6px;align-self:flex-end">
             <button class="btn-dark" onclick="addDrug()">+ Ajouter</button>
-            <button onclick="clearAllDrugs()">Effacer tout</button>
-            <button class="btn-dark" onclick="window.print()">🖨 Imprimer</button>
         </div>
     </div>
 
@@ -272,14 +282,40 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
         </div>
     </div>
 
+    <!-- TAB 2: Custom targets override -->
+    <div class="ctrl-tab2" id="ctrlTargets" style="flex-direction:column">
+        <div style="width:100%" class="ctrl-section-label">✏️ Objectifs nutritionnels personnalisés /kg (optionnel)</div>
+        <div style="font-size:10px;color:#666;margin-bottom:6px;">Valeurs par kg de poids calculé — multipliées automatiquement. Remplacent les cibles de phase si renseignées.</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;">
+            <div class="field" style="width:88px"><label style="font-size:10px">Kcal/kg</label><input type="number" step="0.1" id="tgt_kcal" placeholder="ex: 25" oninput="renderNutrTable()"></div>
+            <div class="field" style="width:88px"><label style="font-size:10px">Prot (g)/kg</label><input type="number" step="0.1" id="tgt_prot" placeholder="ex: 1.2" oninput="renderNutrTable()"></div>
+            <div class="field" style="width:88px"><label style="font-size:10px">Lipid (g)/kg</label><input type="number" step="0.1" id="tgt_lipid" placeholder="ex: 1.0" oninput="renderNutrTable()"></div>
+            <div class="field" style="width:95px"><label style="font-size:10px">Na⁺ (mmol)/kg</label><input type="number" step="0.1" id="tgt_na" placeholder="ex: 1" oninput="renderNutrTable()"></div>
+            <div class="field" style="width:95px"><label style="font-size:10px">K⁺ (mmol)/kg</label><input type="number" step="0.1" id="tgt_k" placeholder="ex: 1" oninput="renderNutrTable()"></div>
+            <div class="field" style="width:98px"><label style="font-size:10px">Ca²⁺ (mmol)/kg</label><input type="number" step="0.1" id="tgt_ca" placeholder="ex: 0.1" oninput="renderNutrTable()"></div>
+            <div class="field" style="width:98px"><label style="font-size:10px">Mg²⁺ (mmol)/kg</label><input type="number" step="0.1" id="tgt_mg" placeholder="ex: 0.1" oninput="renderNutrTable()"></div>
+            <div class="field" style="width:95px"><label style="font-size:10px">Eau (mL)/kg</label><input type="number" step="1" id="tgt_eau" placeholder="ex: 30" oninput="renderNutrTable()"></div>
+            <div style="align-self:flex-end"><button onclick="clearCustomTargets()">Réinitialiser</button></div>
+        </div>
+    </div>
+
     <!-- TAB 2: Enteral Nutrition -->
     <div class="ctrl-tab2" id="ctrlEnteral">
         <div style="width:100%" class="ctrl-section-label">🥤 Nutrition Entérale</div>
         <div class="nutr-input-block">
             <div class="nutr-row">
-                <div class="field"><label for="ent_product">Produit entéral</label><select id="ent_product"></select></div>
-                <div class="field"><label for="ent_qty">Quantité</label><input type="number" id="ent_qty" placeholder="ex: 1000" style="width:110px"></div>
-                <div class="field"><label for="ent_dil">Dilution (mL eau)</label><input type="number" id="ent_dil" placeholder="ex: 200" style="width:110px"></div>
+                <div class="field"><label for="ent_product">Produit entéral</label><select id="ent_product" onchange="toggleEntInputs()"></select></div>
+                <!-- Standard inputs -->
+                <div class="field" id="ent_qty_wrap"><label for="ent_qty">Quantité (mL)</label><input type="number" id="ent_qty" placeholder="ex: 1000" style="width:110px"></div>
+                <div class="field" id="ent_debit_wrap" style="display:none"><label for="ent_debit">Débit (mL/h)</label><input type="number" id="ent_debit" placeholder="ex: 42" style="width:110px"></div>
+                <!-- Protifar specific -->
+                <div class="field" id="ent_prot_wrap" style="display:none"><label for="ent_prot_scoops">Nb cuillères (2.5g)</label><input type="number" id="ent_prot_scoops" placeholder="ex: 4" style="width:100px"></div>
+                <div class="field" id="ent_prot_prises_wrap" style="display:none"><label for="ent_prises">Nb prises/j</label><input type="number" id="ent_prises" placeholder="ex: 3" style="width:80px"></div>
+                <div class="field" id="ent_dil_wrap" style="display:none"><label for="ent_dil">Dilution/prise (mL)</label><input type="number" id="ent_dil" placeholder="ex: 200" style="width:110px"></div>
+                <!-- Kaligon specific -->
+                <div class="field" id="ent_kal_qty_wrap" style="display:none"><label for="ent_kal_qty">Quantité/prise (mL)</label><input type="number" id="ent_kal_qty" placeholder="ex: 10" style="width:110px"></div>
+                <div class="field" id="ent_kal_prises_wrap" style="display:none"><label for="ent_kal_prises">Nb prises/j</label><input type="number" id="ent_kal_prises" placeholder="ex: 3" style="width:80px"></div>
+                <div class="field" id="ent_kal_dil_wrap" style="display:none"><label for="ent_kal_dil">Dilution/prise (mL)</label><input type="number" id="ent_kal_dil" placeholder="ex: 100" style="width:110px"></div>
                 <div style="align-self:flex-end"><button class="btn-dark" onclick="addNutrItem('enteral')">+ Ajouter</button></div>
             </div>
         </div>
@@ -293,8 +329,23 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
                 <div class="field"><label for="par_product">Produit parentéral</label><select id="par_product"></select></div>
                 <div class="field"><label for="par_qty">Quantité</label><input type="number" id="par_qty" placeholder="ex: 1000" style="width:110px"></div>
                 <div class="field"><label for="par_dil">Dilution (mL)</label><input type="number" id="par_dil" placeholder="ex: 0" style="width:110px"></div>
+                <div class="field"><label for="par_debit">Débit (mL/h)</label><input type="number" id="par_debit" placeholder="ex: 42" style="width:110px"></div>
                 <div style="align-self:flex-end"><button class="btn-dark" onclick="addNutrItem('parenteral')">+ Ajouter</button></div>
             </div>
+        </div>
+    </div>
+
+    <!-- TAB 1: Sedation input -->
+    <div class="ctrl-tab1" id="ctrlSed">
+        <div style="width:100%" class="ctrl-section-label">😴 Sédation (Seringues Auto-Pousseuses)</div>
+        <div class="field" style="flex:1.5;min-width:110px"><label for="sed_name">Sédation</label><input type="text" id="sed_name" placeholder="ex: Midazolam"></div>
+        <div class="field" style="flex:2;min-width:130px"><label for="sed_prep">Préparation</label><input type="text" id="sed_prep" placeholder="ex: 50 mg dans 50 mL NaCl"></div>
+        <div class="field" style="flex:1;min-width:80px"><label for="sed_dil">Dilution</label><input type="text" id="sed_dil" placeholder="ex: 50 mL NaCl"></div>
+        <div class="field" style="flex:1;min-width:80px"><label for="sed_debit">Débit (mL/h)</label><input type="text" id="sed_debit" placeholder="ex: 5"></div>
+        <div class="field" style="flex:1.5;min-width:110px"><label for="sed_obj">Objectif</label><input type="text" id="sed_obj" placeholder="ex: RASS -2 à 0"></div>
+        <div style="display:flex;gap:6px;align-self:flex-end">
+            <button class="btn-dark" onclick="addSed()">+ Ajouter</button>
+            <button onclick="clearAllSeds()">Effacer tout</button>
         </div>
     </div>
 
@@ -304,6 +355,7 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
         <div class="field" style="flex:2;min-width:130px"><label for="perf_name">Perfusion</label><input type="text" id="perf_name" placeholder="ex: NaCl 0.9%"></div>
         <div class="field" style="flex:1;min-width:80px"><label for="perf_qte">Quantité</label><input type="text" id="perf_qte" placeholder="ex: 500 mL"></div>
         <div class="field" style="flex:1;min-width:80px"><label for="perf_debit">Débit</label><input type="text" id="perf_debit" placeholder="ex: 42 mL/h"></div>
+        <div class="field" style="flex:2;min-width:160px"><label for="perf_elec">Électrolytes ajoutés</label><input type="text" id="perf_elec" placeholder="ex: KCl 2g, NaCl 3g"></div>
         <div style="display:flex;gap:6px;align-self:flex-end">
             <button class="btn-dark" onclick="addPerf()">+ Ajouter</button>
             <button onclick="clearAllPerfs()">Effacer tout</button>
@@ -311,7 +363,7 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
     </div>
 
     <!-- TAB 2: Drogue SAP -->
-    <div class="ctrl-tab2" id="ctrlDrog">
+    <div class="ctrl-tab1" id="ctrlDrog">
         <div style="width:100%" class="ctrl-section-label">💉 Drogues (Seringues Auto-Pousseuses)</div>
         <div class="field" style="flex:1.5;min-width:110px"><label for="drog_name">Drogue</label><input type="text" id="drog_name" placeholder="ex: Noradrénaline"></div>
         <div class="field" style="flex:2;min-width:130px"><label for="drog_prep">Préparation</label><input type="text" id="drog_prep" placeholder="ex: 4 mg dans 50 mL NaCl"></div>
@@ -321,8 +373,13 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
         <div style="display:flex;gap:6px;align-self:flex-end">
             <button class="btn-dark" onclick="addDrog()">+ Ajouter</button>
             <button onclick="clearAllDrogs()">Effacer tout</button>
-            <button class="btn-dark" onclick="window.print()">🖨 Imprimer</button>
         </div>
+    </div>
+
+    <!-- TAB 2: Note -->
+    <div class="ctrl-tab2" id="ctrlNote2" style="flex-direction:column">
+        <div style="width:100%" class="ctrl-section-label">📝 Note (Nutrition et Perfusion)</div>
+        <textarea id="note2_input" rows="3" style="width:100%;font-family:Arial,sans-serif;font-size:12px;padding:6px;border:1px solid #aaa;border-radius:3px;resize:vertical;" placeholder="Notes libres..." oninput="syncNote2()"></textarea>
     </div>
 
     <!-- TAB 2: Risk factors note -->
@@ -443,10 +500,24 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
                         <div class="checklist-item"><input type="checkbox"> Patch de Nicotine</div>
                         <div class="checklist-item"><input type="checkbox"> Contre-indications</div>
                         <div class="checklist-item"><input type="checkbox"> Disponibilité</div>
+                        <div class="checklist-item"><input type="checkbox"> Dosage sérique</div>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- Drogues SAP table -->
+        <table id="drogTable" style="margin-top:14px">
+            <thead><tr><th>Drogue (SAP)</th><th>Préparation</th><th>Dilution</th><th>Débit</th><th>Objectif</th><th class="actions-cell">Actions</th></tr></thead>
+            <tbody></tbody>
+        </table>
+
+        <!-- Sédation table -->
+        <table id="sedTable" style="margin-top:8px">
+            <thead><tr><th>Sédation (SAP)</th><th>Préparation</th><th>Dilution</th><th>Débit</th><th>Objectif</th><th class="actions-cell">Actions</th></tr></thead>
+            <tbody></tbody>
+        </table>
+        <!-- Note page 1 -->
+        <div id="note1_display" style="display:none;margin-top:16px;border:1px solid #ccc;border-radius:3px;padding:8px 12px;font-size:11px;white-space:pre-wrap;background:#fffef0;"></div>
     </div>
 </div><!-- /page1 -->
 
@@ -501,14 +572,12 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
         </div>
 
         <table id="perfTable">
-            <thead><tr><th>Perfusion</th><th>Quantité</th><th>Débit</th><th class="actions-cell">Actions</th></tr></thead>
+            <thead><tr><th>Perfusion</th><th>Quantité</th><th>Débit</th><th>Électrolytes</th><th>Apport Eau</th><th class="actions-cell">Actions</th></tr></thead>
             <tbody></tbody>
         </table>
 
-        <table id="drogTable">
-            <thead><tr><th>Drogue</th><th>Préparation</th><th>Dilution</th><th>Débit</th><th>Objectif</th><th class="actions-cell">Actions</th></tr></thead>
-            <tbody></tbody>
-        </table>
+        <!-- Note page 2 -->
+        <div id="note2_display" style="display:none;margin-top:16px;border:1px solid #ccc;border-radius:3px;padding:8px 12px;font-size:11px;white-space:pre-wrap;background:#fffef0;"></div>
     </div>
 </div><!-- /page2 -->
 
@@ -537,6 +606,7 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
         <div class="modal-field"><label>Perfusion</label><input type="text" id="editp_name"></div>
         <div class="modal-field"><label>Quantité</label><input type="text" id="editp_qte"></div>
         <div class="modal-field"><label>Débit</label><input type="text" id="editp_debit"></div>
+        <div class="modal-field"><label>Électrolytes ajoutés</label><input type="text" id="editp_elec"></div>
     </div>
     <div class="modal-foot">
         <button onclick="document.getElementById('editPerfDialog').close()">Annuler</button>
@@ -565,7 +635,8 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
         <div class="modal-field"><label>Catégorie</label><select id="editn_cat"><option value="enteral">Entérale</option><option value="parenteral">Parentérale</option></select></div>
         <div class="modal-field"><label>Produit</label><select id="editn_product"></select></div>
         <div class="modal-field"><label>Quantité</label><input type="number" id="editn_qty"></div>
-        <div class="modal-field"><label>Dilution (mL eau)</label><input type="number" id="editn_dil"></div>
+        <div class="modal-field" id="editn_dil_wrap"><label>Dilution (mL eau)</label><input type="number" id="editn_dil"></div>
+        <div class="modal-field"><label>Débit (mL/h)</label><input type="number" id="editn_debit"></div>
     </div>
     <div class="modal-foot">
         <button onclick="document.getElementById('editNutrDialog').close()">Annuler</button>
@@ -646,18 +717,81 @@ function selectPhase(n) {
 }
 
 function addNutrItem(cat) {
-    const selId = cat === 'enteral' ? 'ent_product' : 'par_product';
-    const qtyId = cat === 'enteral' ? 'ent_qty'     : 'par_qty';
-    const dilId = cat === 'enteral' ? 'ent_dil'     : 'par_dil';
-    const pName = document.getElementById(selId).value;
-    const qty   = parseFloat(document.getElementById(qtyId).value);
-    const dil   = parseFloat(document.getElementById(dilId).value) || 0;
-    if (!pName) return alert('Choisissez un produit.');
-    if (!qty || qty <= 0) return alert('Entrez une quantité valide.');
-    nutrItems.push({ pName, cat, qty, dil });
-    document.getElementById(qtyId).value = '';
-    document.getElementById(dilId).value = '';
+    if (cat === 'enteral') {
+        const pName = document.getElementById('ent_product').value;
+        if (!pName) return alert('Choisissez un produit.');
+        const isProtifar = pName === 'Protifar 2.2g/2.5g';
+        const isKaligon  = pName === 'Kaligon 15%';
+        let qty, dil=0, debit=0, prises=1, dilTotal=0, displayLabel='';
+        if (isProtifar) {
+            const scoops = parseFloat(document.getElementById('ent_prot_scoops').value) || 0;
+            prises = parseFloat(document.getElementById('ent_prises').value) || 1;
+            dil    = parseFloat(document.getElementById('ent_dil').value) || 0;
+            if (!scoops || scoops <= 0) return alert('Entrez le nombre de cuillères.');
+            qty = scoops * 2.5 * prises; // total g/j
+            dilTotal = dil * prises;
+            displayLabel = scoops + ' cuillère(s) × ' + prises + ' prises/j';
+            ['ent_prot_scoops','ent_prises','ent_dil'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+        } else if (isKaligon) {
+            const kalQty = parseFloat(document.getElementById('ent_kal_qty').value) || 0;
+            prises = parseFloat(document.getElementById('ent_kal_prises').value) || 1;
+            dil    = parseFloat(document.getElementById('ent_kal_dil').value) || 0;
+            if (!kalQty || kalQty <= 0) return alert('Entrez la quantité par prise.');
+            qty = kalQty * prises; // total mL/j
+            dilTotal = dil * prises;
+            displayLabel = kalQty + ' mL × ' + prises + ' prises/j';
+            ['ent_kal_qty','ent_kal_prises','ent_kal_dil'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+        } else {
+            qty   = parseFloat(document.getElementById('ent_qty').value);
+            debit = parseFloat(document.getElementById('ent_debit')?.value) || 0;
+            if (!qty || qty <= 0) return alert('Entrez une quantité valide.');
+            dilTotal = 0;
+            displayLabel = '';
+            document.getElementById('ent_qty').value = '';
+            const debEl = document.getElementById('ent_debit'); if (debEl) debEl.value = '';
+        }
+        nutrItems.push({ pName, cat: 'enteral', qty, dil: dilTotal, debit, prises, displayLabel });
+    } else {
+        const pName = document.getElementById('par_product').value;
+        const qty   = parseFloat(document.getElementById('par_qty').value);
+        const dil   = parseFloat(document.getElementById('par_dil')?.value) || 0;
+        const debit = parseFloat(document.getElementById('par_debit')?.value) || 0;
+        if (!pName) return alert('Choisissez un produit.');
+        if (!qty || qty <= 0) return alert('Entrez une quantité valide.');
+        nutrItems.push({ pName, cat: 'parenteral', qty, dil, debit });
+        document.getElementById('par_qty').value = '';
+        const dilEl = document.getElementById('par_dil'); if (dilEl) dilEl.value = '';
+        const debEl = document.getElementById('par_debit'); if (debEl) debEl.value = '';
+    }
+    markDirty();
     renderNutrTable();
+}
+
+// Products that need dilution input
+const DILUTION_PRODUCTS = ['Protifar 2.2g/2.5g', 'Kaligon 15%'];
+
+function toggleEntInputs() {
+    const sel = document.getElementById('ent_product');
+    if (!sel) return;
+    const v = sel.value;
+    const isProtifar = v === 'Protifar 2.2g/2.5g';
+    const isKaligon  = v === 'Kaligon 15%';
+    const isNutrison = v.toLowerCase().includes('nutrison');
+    const isStandard = !isProtifar && !isKaligon;
+    // Standard qty/debit
+    const show = (id, vis) => { const el = document.getElementById(id); if (el) el.style.display = vis ? '' : 'none'; };
+    show('ent_qty_wrap',           isStandard);
+    show('ent_debit_wrap',         isNutrison);
+    // Protifar
+    show('ent_prot_wrap',          isProtifar);
+    show('ent_prot_prises_wrap',   isProtifar);
+    show('ent_dil_wrap',           isProtifar || isKaligon);
+    // Kaligon
+    show('ent_kal_qty_wrap',       isKaligon);
+    show('ent_kal_prises_wrap',    isKaligon);
+    show('ent_kal_dil_wrap',       isKaligon);
+    // Hide dil_wrap when Kaligon (it has its own)
+    if (isKaligon) show('ent_dil_wrap', false);
 }
 
 function removeNutrItem(idx) { nutrItems.splice(idx, 1); renderNutrTable(); }
@@ -670,6 +804,9 @@ function openEditNutr(idx) {
     populateEditNutrProducts(item.cat, item.pName);
     document.getElementById('editn_qty').value = item.qty;
     document.getElementById('editn_dil').value = item.dil || '';
+    document.getElementById('editn_debit').value = item.debit || '';
+    const wrap = document.getElementById('editn_dil_wrap');
+    if (wrap) wrap.style.display = (item.cat === 'enteral' && DILUTION_PRODUCTS.includes(item.pName)) ? '' : 'none';
     document.getElementById('editNutrDialog').showModal();
 }
 
@@ -688,6 +825,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('editn_cat').addEventListener('change', function() {
         populateEditNutrProducts(this.value, null);
     });
+    document.getElementById('editn_product').addEventListener('change', function() {
+        const cat = document.getElementById('editn_cat').value;
+        const wrap = document.getElementById('editn_dil_wrap');
+        if (wrap) wrap.style.display = (cat === 'enteral' && DILUTION_PRODUCTS.includes(this.value)) ? '' : 'none';
+    });
 });
 
 function saveNutrEdit() {
@@ -695,8 +837,9 @@ function saveNutrEdit() {
     const pName = document.getElementById('editn_product').value;
     const qty   = parseFloat(document.getElementById('editn_qty').value);
     const dil   = parseFloat(document.getElementById('editn_dil').value) || 0;
+    const debit = parseFloat(document.getElementById('editn_debit').value) || 0;
     if (!qty || qty <= 0) return alert('Quantité invalide.');
-    nutrItems[editNutrIdx] = { pName, cat, qty, dil };
+    nutrItems[editNutrIdx] = { pName, cat, qty, dil, debit };
     document.getElementById('editNutrDialog').close();
     renderNutrTable();
 }
@@ -809,21 +952,29 @@ function renderNutrTable() {
 
     // Add dilution water from SAP drugs, perfusions, and médicaments (drug table)
     let dilWaterDrugs = 0;
+    // Drogue SAP: debit/h × 24
     document.querySelectorAll('#drogTable tbody tr').forEach(r => {
-        const dil = r.dataset.dil || '';
-        const m = dil.match(/([0-9.]+)/);
-        if (m) dilWaterDrugs += parseFloat(m[1]);
+        const w = calcDrogWater(r.dataset.debit);
+        if (w) dilWaterDrugs += w;
     });
+    // Sedation SAP: debit/h × 24
+    document.querySelectorAll('#sedTable tbody tr').forEach(r => {
+        const w = calcDrogWater(r.dataset.debit);
+        if (w) dilWaterDrugs += w;
+    });
+    // Perfusions: quantity mL (computed separately for display)
+    let dilWaterPerfs = 0;
     document.querySelectorAll('#perfTable tbody tr').forEach(r => {
         const qte = r.dataset.qte || '';
         const m = qte.match(/([0-9.]+)/);
-        if (m) dilWaterDrugs += parseFloat(m[1]);
+        if (m) dilWaterPerfs += parseFloat(m[1]);
     });
+    dilWaterDrugs += dilWaterPerfs;
+    // Médicaments: dilution × prises
     let dilWaterMeds = 0;
     document.querySelectorAll('#drugTable tbody tr').forEach(r => {
-        const dil = r.dataset.dilution || '';
-        const m = dil.match(/([0-9.]+)/);
-        if (m) dilWaterMeds += parseFloat(m[1]);
+        const dc = calcDrugDilTotal(r.dataset.dilution, r.dataset.times);
+        if (dc) dilWaterMeds += dc.ml;
     });
 
     if (nutrItems.length > 0 || dilWaterDrugs > 0 || dilWaterMeds > 0) {
@@ -835,14 +986,22 @@ function renderNutrTable() {
             mvals.forEach(v => { const td = mtr.insertCell(); td.textContent = v; });
             totals.water += dilWaterMeds;
         }
-        // Dilution/perf water row
-        if (dilWaterDrugs > 0) {
+        // Perfusions water row (separate)
+        if (dilWaterPerfs > 0) {
+            const ptr = tbody.insertRow();
+            ptr.className = 'row-parenteral';
+            const pvals = ['Volume Perfusions', '', fmt(dilWaterPerfs) + ' mL', '—','—','—','—','—','—','—', fmt(dilWaterPerfs), ''];
+            pvals.forEach(v => { const td = ptr.insertCell(); td.textContent = v; });
+        }
+        // Dilution SAP (drogs + seds) row
+        const dilWaterSAP = dilWaterDrugs - dilWaterPerfs;
+        if (dilWaterSAP > 0) {
             const dtr = tbody.insertRow();
             dtr.className = 'row-enteral';
-            const dvals = ['Dilutions SAP + Perfusions', '', fmt(dilWaterDrugs) + ' mL', '—','—','—','—','—','—','—', fmt(dilWaterDrugs), ''];
+            const dvals = ['Dilutions SAP (Drogues + Sédation)', '', fmt(dilWaterSAP) + ' mL', '—','—','—','—','—','—','—', fmt(dilWaterSAP), ''];
             dvals.forEach(v => { const td = dtr.insertCell(); td.textContent = v; });
-            totals.water += dilWaterDrugs;
         }
+        if (dilWaterDrugs > 0) totals.water += dilWaterDrugs;
         // Total row
         const tr = tbody.insertRow();
         tr.className = 'row-total';
@@ -851,30 +1010,42 @@ function renderNutrTable() {
         .forEach(v => { const td = tr.insertCell(); td.textContent = v; });
     }
 
-    // Cible row
+    // Custom target overrides (per/kg × calc weight)
+    const calcW = getCalcWeight();
+    const customTargets = {};
+    const customIds = ['kcal','prot','lipid','na','k','ca','mg','eau'];
+    customIds.forEach(id => {
+        const perKg = parseFloat(document.getElementById('tgt_' + id)?.value);
+        if (!isNaN(perKg) && perKg > 0) {
+            customTargets[id] = calcW ? Math.round(perKg * calcW * 10) / 10 : perKg;
+        }
+    });
+    const hasCustom = Object.keys(customTargets).length > 0;
+
+    // Phase-calculated cible
     const w = getCalcWeight();
     const targets = getPhaseTargets(w);
-    if (targets) {
+
+    if (targets || hasCustom) {
         const phaseLabels = ['Phase aiguë (J1–J2)','Rétablissement (J3–J7)','Rétablissement (>J7)'];
+        const label = hasCustom && !currentPhase
+            ? 'Cible personnalisée'
+            : (currentPhase ? 'Cible (' + phaseLabels[currentPhase - 1] + (w ? ', ' + w + ' kg' : '') + ')' + (hasCustom ? ' — modifiée' : '') : 'Cible personnalisée');
         const cr = tbody.insertRow();
         cr.className = 'row-cible';
         const cells = [
-            'Cible (' + phaseLabels[currentPhase - 1] + (w ? ', ' + w + ' kg' : '') + ')',
-            '', '',
-            fmtRange(targets.kcal),
-            fmtRange(targets.protein),
-            fmtRange(targets.lipids),
-            fmtRange(targets.na),
-            fmtRange(targets.k),
-            '—',
-            '—',
-            fmtRange(targets.water),
+            label, '', '',
+            customTargets.kcal  !== undefined ? fmt(customTargets.kcal)  : (targets ? fmtRange(targets.kcal)    : '—'),
+            customTargets.prot  !== undefined ? fmt(customTargets.prot)  : (targets ? fmtRange(targets.protein) : '—'),
+            customTargets.lipid !== undefined ? fmt(customTargets.lipid) : (targets ? fmtRange(targets.lipids)  : '—'),
+            customTargets.na    !== undefined ? fmt(customTargets.na)    : (targets ? fmtRange(targets.na)      : '—'),
+            customTargets.k     !== undefined ? fmt(customTargets.k)     : (targets ? fmtRange(targets.k)       : '—'),
+            customTargets.ca    !== undefined ? fmt(customTargets.ca)    : '—',
+            customTargets.mg    !== undefined ? fmt(customTargets.mg)    : '—',
+            customTargets.eau   !== undefined ? fmt(customTargets.eau)   : (targets ? fmtRange(targets.water)   : '—'),
             ''
         ];
-        cells.forEach((v, i) => {
-            const td = cr.insertCell(); td.textContent = v;
-            if (i === 0) td.colSpan = 1;
-        });
+        cells.forEach(v => { const td = cr.insertCell(); td.textContent = v; });
     }
 }
 
@@ -897,6 +1068,14 @@ function autoCalcWeights() {
     }
 }
 
+
+function clearCustomTargets() {
+    ['kcal','prot','lipid','na','k','ca','mg','eau'].forEach(id => {
+        const el = document.getElementById('tgt_' + id); if (el) el.value = '';
+    });
+    renderNutrTable();
+}
+
 function updateTargets() { renderNutrTable(); }
 
 /* ══════════════════════════════════════════════
@@ -913,6 +1092,7 @@ function populateProductSelects() {
             sel.appendChild(opt);
         });
     });
+    toggleEntInputs();
 }
 
 /* ══════════════════════════════════════════════
@@ -945,6 +1125,11 @@ for (let i = 1; i <= 18; i++) {
     opt.value = i; opt.textContent = 'Box ' + i;
     boxSelect.appendChild(opt);
 }
+boxSelect.addEventListener('change', () => {
+    document.getElementById('p_box').value = boxSelect.value;
+    syncPatient();
+    loadFromBox();
+});
 
 /* ══════════════════════════════════════════════
    TAB SWITCHING
@@ -962,10 +1147,19 @@ function switchTab(n) {
    SYNC PATIENT
 ══════════════════════════════════════════════ */
 function syncPatient() {
-    ['name','box','doc','date','poids','pi','pa','taille','mdrd','cock'].forEach(f => {
+    markDirty();
+    ['name','box','doc','poids','pi','pa','taille','mdrd','cock'].forEach(f => {
         const val = document.getElementById("p_" + f).value;
         document.querySelectorAll(".out_" + f).forEach(el => el.textContent = val);
     });
+    // Format date for display
+    const dv = document.getElementById("p_date").value;
+    let displayDate = dv;
+    if (dv) {
+        const parts = dv.split('-');
+        if (parts.length === 3) displayDate = parts[2] + '/' + parts[1] + '/' + parts[0].slice(2);
+    }
+    document.querySelectorAll(".out_date").forEach(el => el.textContent = displayDate);
 }
 
 /* ══════════════════════════════════════════════
@@ -997,20 +1191,30 @@ function syncInsulin() {
 ══════════════════════════════════════════════ */
 function addDrug(data = null) {
     const fields = ["name","jours","dose","times","route","dilution","schedule"];
-    const values = data || fields.map(id => document.getElementById(id).value);
+    const values = data || fields.map(id => { const el = document.getElementById(id); return el ? el.value : ''; });
     if (!values[0]) return data ? null : alert("Nom du médicament requis.");
     const row = document.querySelector("#drugTable tbody").insertRow();
     [row.dataset.name,row.dataset.jours,row.dataset.dose,row.dataset.times,
      row.dataset.route,row.dataset.dilution,row.dataset.schedule] = values;
     renderDrugRow(row);
-    if (!data) fields.forEach(id => document.getElementById(id).value = "");
+    if (!data) { fields.forEach(id => { const el=document.getElementById(id); if(el) el.value=''; }); markDirty(); }
+}
+function calcDrugDilTotal(dilStr, times) {
+    // dilution x prises
+    const m = (dilStr||'').match(/([0-9.]+)/);
+    const dilML = m ? parseFloat(m[1]) : 0;
+    const n = parseFloat(times) || 1;
+    if (!dilML) return null;
+    return { ml: dilML * n, unit: dilStr.replace(/[0-9.]+/, '') };
 }
 function renderDrugRow(row) {
     const n = row.rowIndex;
-    row.innerHTML = `<td><span class="rn">${n}.</span>${row.dataset.name}</td>
+    const dilCalc = calcDrugDilTotal(row.dataset.dilution, row.dataset.times);
+    const dilDisplay = dilCalc ? `${row.dataset.dilution||'—'} <span style="color:#1a6;font-size:10px">(${dilCalc.ml} mL/j)</span>` : (row.dataset.dilution || '—');
+    row.innerHTML = `<td style="white-space:pre-wrap"><span class="rn">${n}.</span>${row.dataset.name||""}</td>
         <td style="text-align:center">${row.dataset.jours||'—'}</td>
         <td>${row.dataset.dose}</td><td>${row.dataset.times}</td>
-        <td>${row.dataset.route}</td><td>${row.dataset.dilution||'—'}</td><td>${row.dataset.schedule}</td>
+        <td>${row.dataset.route}</td><td>${dilDisplay}</td><td>${row.dataset.schedule}</td>
         <td class="actions-cell">
             <button onclick="moveDrugRow(this,-1)">↑</button>
             <button onclick="moveDrugRow(this,1)">↓</button>
@@ -1045,18 +1249,26 @@ function clearAllDrugs() {
    PERFUSIONS
 ══════════════════════════════════════════════ */
 function addPerf(data = null) {
-    const fields = ["perf_name","perf_qte","perf_debit"];
+    const fields = ["perf_name","perf_qte","perf_debit","perf_elec"];
     const values = data || fields.map(id=>document.getElementById(id).value);
     if(!values[0]) return data ? null : alert("Nom de la perfusion requis.");
     const row = document.querySelector("#perfTable tbody").insertRow();
-    [row.dataset.name,row.dataset.qte,row.dataset.debit] = values;
+    [row.dataset.name,row.dataset.qte,row.dataset.debit,row.dataset.elec] = values;
     renderPerfRow(row);
-    if(!data) fields.forEach(id=>document.getElementById(id).value="");
+    if(!data) { fields.forEach(id=>document.getElementById(id).value=''); markDirty(); }
 }
 function renderPerfRow(row) {
     const n=row.rowIndex;
+    // Auto-calc water from qty (extract numeric mL)
+    const qte = row.dataset.qte || '';
+    const qteMatch = qte.match(/([0-9.]+)/);
+    const qteML = qteMatch ? parseFloat(qteMatch[1]) : null;
+    const waterStr = qteML ? qteML + ' mL' : '—';
     row.innerHTML=`<td><span class="rn">${n}.</span>${row.dataset.name}</td>
-        <td>${row.dataset.qte}</td><td>${row.dataset.debit}</td>
+        <td>${row.dataset.qte}</td>
+        <td>${row.dataset.debit||'—'}</td>
+        <td>${row.dataset.elec||'—'}</td>
+        <td style="color:#1a6">${waterStr}</td>
         <td class="actions-cell">
             <button onclick="movePerfRow(this,-1)">↑</button>
             <button onclick="movePerfRow(this,1)">↓</button>
@@ -1078,12 +1290,14 @@ function openEditPerf(btn) {
     document.getElementById("editp_name").value=currentRow.dataset.name||'';
     document.getElementById("editp_qte").value=currentRow.dataset.qte||'';
     document.getElementById("editp_debit").value=currentRow.dataset.debit||'';
+    document.getElementById("editp_elec").value=currentRow.dataset.elec||'';
     document.getElementById("editPerfDialog").showModal();
 }
 function savePerfEdit() {
     currentRow.dataset.name=document.getElementById("editp_name").value;
     currentRow.dataset.qte=document.getElementById("editp_qte").value;
     currentRow.dataset.debit=document.getElementById("editp_debit").value;
+    currentRow.dataset.elec=document.getElementById("editp_elec").value;
     renderPerfRow(currentRow);
     document.getElementById("editPerfDialog").close();
 }
@@ -1101,13 +1315,23 @@ function addDrog(data = null) {
     const row = document.querySelector("#drogTable tbody").insertRow();
     [row.dataset.name,row.dataset.prep,row.dataset.dil,row.dataset.debit,row.dataset.obj] = values;
     renderDrogRow(row);
-    if(!data) fields.forEach(id=>document.getElementById(id).value="");
+    if(!data) { fields.forEach(id=>document.getElementById(id).value=''); markDirty(); }
+}
+function calcDrogWater(debitStr) {
+    // debit/h × 24
+    const m = (debitStr||'').match(/([0-9.]+)/);
+    if (!m) return null;
+    return Math.round(parseFloat(m[1]) * 24 * 10) / 10;
 }
 function renderDrogRow(row) {
     const n=row.rowIndex;
-    row.innerHTML=`<td><span class="rn">${n}.</span>${row.dataset.name}</td>
+    const w24 = calcDrogWater(row.dataset.debit);
+    const debitDisplay = w24 !== null
+        ? `${row.dataset.debit} <span style="color:#1a6;font-size:10px">(${w24} mL/j)</span>`
+        : (row.dataset.debit || '—');
+    row.innerHTML=`<td><span class="rn">${n}.</span>${row.dataset.name||""}</td>
         <td>${row.dataset.prep}</td><td>${row.dataset.dil||'—'}</td>
-        <td>${row.dataset.debit}</td><td>${row.dataset.obj}</td>
+        <td>${debitDisplay}</td><td>${row.dataset.obj}</td>
         <td class="actions-cell">
             <button onclick="moveDrogRow(this,-1)">↑</button>
             <button onclick="moveDrogRow(this,1)">↓</button>
@@ -1146,6 +1370,66 @@ function clearAllDrogs() {
     if(confirm("Supprimer toutes les drogues SAP ?")) document.querySelector("#drogTable tbody").innerHTML="";
 }
 
+
+/* ══════════════════════════════════════════════
+   SÉDATION SAP
+══════════════════════════════════════════════ */
+function addSed(data = null) {
+    const fields = ["sed_name","sed_prep","sed_dil","sed_debit","sed_obj"];
+    const values = data || fields.map(id=>document.getElementById(id).value);
+    if(!values[0]) return data ? null : alert("Nom de la sédation requis.");
+    const row = document.querySelector("#sedTable tbody").insertRow();
+    [row.dataset.name,row.dataset.prep,row.dataset.dil,row.dataset.debit,row.dataset.obj] = values;
+    renderSedRow(row);
+    if(!data) { fields.forEach(id=>document.getElementById(id).value=''); markDirty(); }
+}
+function renderSedRow(row) {
+    const n=row.rowIndex;
+    const w24 = calcDrogWater(row.dataset.debit);
+    const debitDisplay = w24 !== null
+        ? `${row.dataset.debit} <span style="color:#1a6;font-size:10px">(${w24} mL/j)</span>`
+        : (row.dataset.debit || '—');
+    row.innerHTML=`<td><span class="rn">${n}.</span>${row.dataset.name||""}</td>
+        <td>${row.dataset.prep}</td><td>${row.dataset.dil||'—'}</td>
+        <td>${debitDisplay}</td><td>${row.dataset.obj}</td>
+        <td class="actions-cell">
+            <button onclick="moveSedRow(this,-1)">↑</button>
+            <button onclick="moveSedRow(this,1)">↓</button>
+            <button onclick="openEditSed(this)">Edit</button>
+            <button onclick="this.closest('tr').remove();refreshSedNums()">✕</button>
+        </td>`;
+}
+function refreshSedNums() {
+    document.querySelectorAll("#sedTable tbody tr").forEach((r,i)=>{ const s=r.querySelector('.rn'); if(s) s.textContent=(i+1)+'.'; });
+}
+function moveSedRow(btn,dir) {
+    const row=btn.closest("tr");
+    if(dir===-1&&row.previousElementSibling) row.parentNode.insertBefore(row,row.previousElementSibling);
+    else if(dir===1&&row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling,row);
+    refreshSedNums();
+}
+function openEditSed(btn) {
+    currentRow=btn.closest("tr");
+    document.getElementById("editsd_name").value=currentRow.dataset.name||'';
+    document.getElementById("editsd_prep").value=currentRow.dataset.prep||'';
+    document.getElementById("editsd_dil").value=currentRow.dataset.dil||'';
+    document.getElementById("editsd_debit").value=currentRow.dataset.debit||'';
+    document.getElementById("editsd_obj").value=currentRow.dataset.obj||'';
+    document.getElementById("editSedDialog").showModal();
+}
+function saveEditSed() {
+    currentRow.dataset.name=document.getElementById("editsd_name").value;
+    currentRow.dataset.prep=document.getElementById("editsd_prep").value;
+    currentRow.dataset.dil=document.getElementById("editsd_dil").value;
+    currentRow.dataset.debit=document.getElementById("editsd_debit").value;
+    currentRow.dataset.obj=document.getElementById("editsd_obj").value;
+    renderSedRow(currentRow);
+    document.getElementById("editSedDialog").close();
+}
+function clearAllSeds() {
+    if(confirm("Supprimer toutes les sédations SAP ?")) document.querySelector("#sedTable tbody").innerHTML="";
+}
+
 /* ══════════════════════════════════════════════
    SAVE / LOAD
 ══════════════════════════════════════════════ */
@@ -1168,22 +1452,64 @@ function saveToBox() {
         drugs:  Array.from(document.querySelectorAll("#drugTable tbody tr")).map(r=>
             [r.dataset.name,r.dataset.jours,r.dataset.dose,r.dataset.times,r.dataset.route,r.dataset.dilution,r.dataset.schedule]),
         perfs:  Array.from(document.querySelectorAll("#perfTable tbody tr")).map(r=>
-            [r.dataset.name,r.dataset.qte,r.dataset.debit]),
+            [r.dataset.name,r.dataset.qte,r.dataset.debit,r.dataset.elec||'']),
         drogs:  Array.from(document.querySelectorAll("#drogTable tbody tr")).map(r=>
+            [r.dataset.name,r.dataset.prep,r.dataset.dil,r.dataset.debit,r.dataset.obj]),
+        seds:   Array.from(document.querySelectorAll("#sedTable tbody tr")).map(r=>
             [r.dataset.name,r.dataset.prep,r.dataset.dil,r.dataset.debit,r.dataset.obj]),
         checks: Array.from(document.querySelectorAll('#page1 input[type="checkbox"]')).map(c=>c.checked),
         insulin: ins,
         showExtraImage: document.getElementById("extraImageContainer").style.display=== "block",
         nutrItems,
-        currentPhase
+        currentPhase,
+        note1: document.getElementById('note1_input')?.value || '',
+        note2: document.getElementById('note2_input')?.value || '',
+        customTargets: ['kcal','prot','lipid','na','k','ca','mg','eau'].reduce((o,id) => {
+            const el = document.getElementById('tgt_' + id);
+            if (el && el.value) o[id] = el.value;
+            return o;
+        }, {})
     };
     localStorage.setItem('prescriptionStorage', JSON.stringify(storageBoxes));
+    isDirty = false; clearTimeout(saveReminderTimer);
     alert("Sauvegardé — Box " + n);
+}
+
+function resetAllInputs() {
+    // Patient fields
+    ['name','box','doc','date','poids','taille','pi','pa','mdrd','cock'].forEach(f => {
+        const el = document.getElementById('p_' + f); if (el) el.value = '';
+    });
+    ['p_age','p_date_hosp','p_date_int','p_date_trach'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+    });
+    syncPatient(); calcDays();
+    // Tables
+    document.querySelector('#drugTable tbody').innerHTML = '';
+    document.querySelector('#perfTable tbody').innerHTML = '';
+    document.querySelector('#drogTable tbody').innerHTML = '';
+    document.querySelector('#sedTable tbody').innerHTML = '';
+    // Checkboxes
+    document.querySelectorAll('#page1 input[type="checkbox"]').forEach(c => c.checked = false);
+    // Insulin
+    ['act_h1','act_u1','act_h2','act_u2','act_h3','act_u3','act_h4','act_u4',
+     'nph_h1','nph_u1','nph_h2','nph_u2','len_h1','len_u1','len_h2','len_u2']
+        .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    syncInsulin();
+    toggleExtraImage(false);
+    nutrItems = []; currentPhase = null;
+    document.querySelectorAll('.phase-opt').forEach(el => el.classList.remove('selected'));
+    document.querySelectorAll('input[name="phase"]').forEach(r => r.checked = false);
+    clearCustomTargets();
+    renderNutrTable();
+    const n1=document.getElementById('note1_input'); if(n1) n1.value='';
+    const n2=document.getElementById('note2_input'); if(n2) n2.value='';
+    syncNote1(); syncNote2();
 }
 
 function loadFromBox() {
     const data = (JSON.parse(localStorage.getItem('prescriptionStorage')) || {})[boxSelect.value];
-    if (!data) return alert("Box vide !");
+    if (!data) { alert("Box vide !"); resetAllInputs(); return; }
 
     Object.keys(data.patient).forEach(k => {
         if (['date_hosp','date_int','date_trach','age'].includes(k)) return;
@@ -1201,26 +1527,103 @@ function loadFromBox() {
     if (data.perfs) data.perfs.forEach(d => addPerf(d));
     document.querySelector("#drogTable tbody").innerHTML = "";
     if (data.drogs) data.drogs.forEach(d => addDrog(d));
+    document.querySelector("#sedTable tbody").innerHTML = "";
+    if (data.seds) data.seds.forEach(d => addSed(d));
     const cks = document.querySelectorAll('#page1 input[type="checkbox"]');
     if (data.checks) data.checks.forEach((v, i) => { if (cks[i]) cks[i].checked = v; });
     if (data.insulin) Object.keys(data.insulin).forEach(id => { const el = document.getElementById(id); if (el) el.value = data.insulin[id]; });
     syncInsulin();
     toggleExtraImage(data.showExtraImage);
     nutrItems = data.nutrItems || [];
+    if (data.customTargets) {
+        Object.keys(data.customTargets).forEach(id => {
+            const el = document.getElementById('tgt_' + id);
+            if (el) el.value = data.customTargets[id];
+        });
+    }
     if (data.currentPhase) selectPhase(data.currentPhase);
     else renderNutrTable();
+    if (data.note1 !== undefined) {
+        const n1 = document.getElementById('note1_input'); if (n1) n1.value = data.note1; syncNote1();
+    }
+    if (data.note2 !== undefined) {
+        const n2 = document.getElementById('note2_input'); if (n2) n2.value = data.note2; syncNote2();
+    }
 }
 
 /* ─── PRINT ─── */
 window.addEventListener('beforeprint', () => {
-    ['drugTable','perfTable','drogTable'].forEach(id => {
+    ['drugTable','perfTable','drogTable','sedTable'].forEach(id => {
         const tbl = document.getElementById(id);
         tbl.classList.toggle('empty-table', tbl.querySelector('tbody').rows.length === 0);
     });
 });
 window.addEventListener('afterprint', () => {
-    ['drugTable','perfTable','drogTable'].forEach(id => document.getElementById(id).classList.remove('empty-table'));
+    ['drugTable','perfTable','drogTable','sedTable'].forEach(id => document.getElementById(id).classList.remove('empty-table'));
 });
+
+
+/* ─── Dirty tracking ─── */
+let isDirty = false;
+let saveReminderTimer = null;
+
+function markDirty() {
+    isDirty = true;
+    clearTimeout(saveReminderTimer);
+    saveReminderTimer = setTimeout(() => {
+        if (isDirty) alert('⚠️ Des modifications non sauvegardées détectées. Pensez à sauvegarder !');
+    }, 10000);
+}
+
+/* ─── Warn before closing ─── */
+window.addEventListener('beforeunload', (e) => {
+    if (!isDirty) return;
+    e.preventDefault();
+    e.returnValue = 'Des données non sauvegardées seront perdues. Quitter ?';
+});
+
+
+/* ─── Notes ─── */
+function syncNote1() {
+    const v = document.getElementById('note1_input').value;
+    const d = document.getElementById('note1_display');
+    if (!d) return;
+    d.textContent = v;
+    d.style.display = v.trim() ? '' : 'none';
+    markDirty();
+}
+function syncNote2() {
+    const v = document.getElementById('note2_input').value;
+    const d = document.getElementById('note2_display');
+    if (!d) return;
+    d.textContent = v;
+    d.style.display = v.trim() ? '' : 'none';
+    markDirty();
+}
+
+
+/* ─── Print functions ─── */
+function printCurrent() {
+    document.body.classList.remove('print-all');
+    window.print();
+}
+
+function printAll() {
+    // Show both pages for printing
+    document.body.classList.add('print-all');
+    // Make sure both pages are visible for the print engine
+    const p1 = document.getElementById('page1');
+    const p2 = document.getElementById('page2');
+    const p1Hidden = p1.classList.contains('hidden-tab');
+    const p2Hidden = p2.classList.contains('hidden-tab');
+    p1.classList.remove('hidden-tab');
+    p2.classList.remove('hidden-tab');
+    window.print();
+    // Restore after print
+    if (p1Hidden) p1.classList.add('hidden-tab');
+    if (p2Hidden) p2.classList.add('hidden-tab');
+    document.body.classList.remove('print-all');
+}
 
 /* ─── INIT ─── */
 window.onload = () => {
@@ -1231,5 +1634,20 @@ window.onload = () => {
     switchTab(1);
 };
 </script>
+
+<dialog id="editSedDialog">
+    <div class="modal-head">Modifier la sédation SAP</div>
+    <div class="modal-body">
+        <div class="modal-field"><label>Sédation</label><input type="text" id="editsd_name"></div>
+        <div class="modal-field"><label>Préparation</label><input type="text" id="editsd_prep"></div>
+        <div class="modal-field"><label>Dilution</label><input type="text" id="editsd_dil"></div>
+        <div class="modal-field"><label>Débit</label><input type="text" id="editsd_debit"></div>
+        <div class="modal-field"><label>Objectif</label><input type="text" id="editsd_obj"></div>
+    </div>
+    <div class="modal-foot">
+        <button onclick="document.getElementById('editSedDialog').close()">Annuler</button>
+        <button class="btn-dark" onclick="saveEditSed()">Enregistrer</button>
+    </div>
+</dialog>
 </body>
 </html>
