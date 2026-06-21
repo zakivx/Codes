@@ -25,9 +25,16 @@
             background-color: var(--background);
             color: var(--text);
             display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+          margin: 5px;
+        }
+
+        .app-wrapper {
+            flex: 1;
+            display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
             padding: 16px;
         }
 
@@ -140,59 +147,63 @@
     </style>
 </head>
 <body>
+
 <header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
   <a href="https://zakivx.github.io/Codes/medicalTools.html" 
      style="color:#fff; text-decoration:none; font-weight:bold;">
     ← Back to Medical Tools
   </a>
 </header>
-<div class="container">
-    <h1>CVC Insertion Length</h1>
-    <p class="subtitle">Height-based estimation formulas</p>
 
-    <div class="input-group">
-        <label for="height">Patient Height</label>
-        <div class="input-wrapper">
-            <input type="number" id="height" placeholder="Enter height" min="1" step="any" inputmode="decimal">
-            <span class="unit">cm</span>
-        </div>
-    </div>
+<div class="app-wrapper">
+    <div class="container">
+        <h1>CVC Insertion Length</h1>
+        <p class="subtitle">Height-based estimation formulas</p>
 
-    <div id="placeholder" class="placeholder-text">
-        Enter height to automatically calculate lengths.
-    </div>
-
-    <div id="results" class="results-container hidden">
-        <div class="result-card">
-            <div>
-                <span class="site-name">Right Internal Jugular</span>
-                <span class="site-abbr">RIJ (Height / 10)</span>
+        <div class="input-group">
+            <label for="height">Patient Height</label>
+            <div class="input-wrapper">
+                <input type="number" id="height" placeholder="Enter height" min="1" step="any" inputmode="decimal">
+                <span class="unit">cm</span>
             </div>
-            <div class="calculated-value" id="rij">—</div>
         </div>
 
-        <div class="result-card">
-            <div>
-                <span class="site-name">Right Subclavian</span>
-                <span class="site-abbr">RSV (Height / 10 - 2)</span>
-            </div>
-            <div class="calculated-value" id="rsv">—</div>
+        <div id="placeholder" class="placeholder-text">
+            Enter height to automatically calculate lengths.
         </div>
 
-        <div class="result-card">
-            <div>
-                <span class="site-name">Left Internal Jugular</span>
-                <span class="site-abbr">LIJ (Height / 10 + 4)</span>
+        <div id="results" class="results-container hidden">
+            <div class="result-card">
+                <div>
+                    <span class="site-name">Right Internal Jugular</span>
+                    <span class="site-abbr">RIJ (Height / 10)</span>
+                </div>
+                <div class="calculated-value" id="rij">—</div>
             </div>
-            <div class="calculated-value" id="lij">—</div>
-        </div>
 
-        <div class="result-card">
-            <div>
-                <span class="site-name">Left Subclavian</span>
-                <span class="site-abbr">LSC (Height / 10 + 2)</span>
+            <div class="result-card">
+                <div>
+                    <span class="site-name">Right Subclavian</span>
+                    <span class="site-abbr">RSV (Height / 10 - 2)</span>
+                </div>
+                <div class="calculated-value" id="rsv">—</div>
             </div>
-            <div class="calculated-value" id="lsc">—</div>
+
+            <div class="result-card">
+                <div>
+                    <span class="site-name">Left Internal Jugular</span>
+                    <span class="site-abbr">LIJ (Height / 10 + 4)</span>
+                </div>
+                <div class="calculated-value" id="lij">—</div>
+            </div>
+
+            <div class="result-card">
+                <div>
+                    <span class="site-name">Left Subclavian</span>
+                    <span class="site-abbr">LSC (Height / 10 + 2)</span>
+                </div>
+                <div class="calculated-value" id="lsc">—</div>
+            </div>
         </div>
     </div>
 </div>
@@ -224,7 +235,7 @@
         const base = height / 10;
         
         const rij = base;
-        const rsv = base - 2; // Interpreting "Height/10 2 cm" as Height/10 - 2 cm based on standard clinical variants
+        const rsv = base - 2; 
         const lij = base + 4;
         const lsc = base + 2;
 
