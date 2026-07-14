@@ -172,7 +172,7 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
     body.print-all .print-page:first-of-type { page-break-before:auto; }
     .print-page { width:210mm; margin:0; box-shadow:none; min-height:0; }
     .bottom-sections { page-break-inside:avoid; break-inside:avoid; }
-    #drugTable.empty-table,#perfTable.empty-table,#drogTable.empty-table,#sedTable.empty-table { display:none !important; }
+    #drugTable.empty-table,#perfTable.empty-table,#drogTable.empty-table,#sedTable.empty-table,#enteralPrescTable.empty-table,#parenteralPrescTable.empty-table { display:none !important; }
     #nutritionSection { page-break-inside:avoid; }
 }
 </style>
@@ -571,10 +571,35 @@ dialog::backdrop { background:rgba(0,0,0,0.5); }
             </table>
         </div>
 
+        <!-- Enteral prescription table -->
+        <table id="entPrescTable" style="width:100%;border-collapse:collapse;margin-bottom:10px;">
+            <thead><tr>
+                <th style="background:#2a6496;color:#fff;padding:5px 7px;font-size:10.5px;font-weight:bold;text-transform:uppercase;letter-spacing:0.07em;text-align:left;border:1px solid #2a6496;">🥤 Produit Entéral</th>
+                <th style="background:#2a6496;color:#fff;padding:5px 7px;font-size:10.5px;font-weight:bold;text-transform:uppercase;letter-spacing:0.07em;text-align:center;border:1px solid #2a6496;">Dose / Quantité</th>
+                <th style="background:#2a6496;color:#fff;padding:5px 7px;font-size:10.5px;font-weight:bold;text-transform:uppercase;letter-spacing:0.07em;text-align:center;border:1px solid #2a6496;">Prises/j</th>
+                <th style="background:#2a6496;color:#fff;padding:5px 7px;font-size:10.5px;font-weight:bold;text-transform:uppercase;letter-spacing:0.07em;text-align:center;border:1px solid #2a6496;">Débit (mL/h)</th>
+                <th style="background:#2a6496;color:#fff;padding:5px 7px;font-size:10.5px;font-weight:bold;text-transform:uppercase;letter-spacing:0.07em;text-align:center;border:1px solid #2a6496;">Dilution</th>
+            </tr></thead>
+            <tbody id="entPrescTbody"></tbody>
+        </table>
+
+        <!-- Parenteral prescription table -->
+        <table id="parPrescTable" style="width:100%;border-collapse:collapse;margin-bottom:14px;">
+            <thead><tr>
+                <th style="background:#5a3e7a;color:#fff;padding:5px 7px;font-size:10.5px;font-weight:bold;text-transform:uppercase;letter-spacing:0.07em;text-align:left;border:1px solid #5a3e7a;">💉 Produit Parentéral</th>
+                <th style="background:#5a3e7a;color:#fff;padding:5px 7px;font-size:10.5px;font-weight:bold;text-transform:uppercase;letter-spacing:0.07em;text-align:center;border:1px solid #5a3e7a;">Dose / Quantité</th>
+                <th style="background:#5a3e7a;color:#fff;padding:5px 7px;font-size:10.5px;font-weight:bold;text-transform:uppercase;letter-spacing:0.07em;text-align:center;border:1px solid #5a3e7a;">Prises/j</th>
+                <th style="background:#5a3e7a;color:#fff;padding:5px 7px;font-size:10.5px;font-weight:bold;text-transform:uppercase;letter-spacing:0.07em;text-align:center;border:1px solid #5a3e7a;">Débit (mL/h)</th>
+                <th style="background:#5a3e7a;color:#fff;padding:5px 7px;font-size:10.5px;font-weight:bold;text-transform:uppercase;letter-spacing:0.07em;text-align:center;border:1px solid #5a3e7a;">Dilution</th>
+            </tr></thead>
+            <tbody id="parPrescTbody"></tbody>
+        </table>
+
         <table id="perfTable">
             <thead><tr><th>Perfusion</th><th>Quantité</th><th>Débit</th><th>Électrolytes</th><th>Apport Eau</th><th class="actions-cell">Actions</th></tr></thead>
             <tbody></tbody>
         </table>
+
 
         <!-- Note page 2 -->
         <div id="note2_display" style="display:none;margin-top:16px;border:1px solid #ccc;border-radius:3px;padding:8px 12px;font-size:11px;white-space:pre-wrap;background:#fffef0;"></div>
@@ -896,6 +921,66 @@ function fmtRange(arr) {
     return fmt(arr[0]) + ' – ' + fmt(arr[1]);
 }
 
+
+/* ─── Enteral / Parenteral prescription tables (page 2) ─── */
+function renderPrescTables() {
+    const entTbody = document.getElementById('entPrescTbody');
+    const parTbody = document.getElementById('parPrescTbody');
+    if (!entTbody || !parTbody) return;
+    entTbody.innerHTML = '';
+    parTbody.innerHTML = '';
+
+    const tdL = 'padding:5px 7px;border:1px solid #bbb;font-size:11px;vertical-align:middle;font-weight:bold;';
+    const tdC = 'padding:5px 7px;border:1px solid #bbb;font-size:11px;vertical-align:middle;text-align:center;';
+
+    let entIdx = 0, parIdx = 0;
+
+    nutrItems.forEach((item) => {
+        const p = products[item.cat]?.[item.pName];
+        if (!p) return;
+
+        const isEnt = item.cat === 'enteral';
+        const tbody = isEnt ? entTbody : parTbody;
+        const rowN  = isEnt ? entIdx++ : parIdx++;
+
+        // Dose / Quantité label
+        let doseLabel = '';
+        if (item.displayLabel) {
+            doseLabel = item.displayLabel;
+        } else {
+            const unit = p.liquid ? 'mL' : (p.isPack === false ? 'g' : 'amp');
+            doseLabel = item.qty + ' ' + unit;
+        }
+
+        const prisesLabel = item.prises ? item.prises + '/j' : '—';
+        const debitLabel  = item.debit  ? item.debit + ' mL/h' : '—';
+        const dilLabel    = item.dil    ? item.dil + ' mL' : '—';
+
+        const bg = rowN % 2 === 0 ? '#fff' : (isEnt ? '#eaf3fb' : '#f3eefb');
+        const tr = document.createElement('tr');
+        tr.style.background = bg;
+        tr.innerHTML =
+            '<td style="' + tdL + '">' + item.pName + '</td>' +
+            '<td style="' + tdC + '">' + doseLabel  + '</td>' +
+            '<td style="' + tdC + '">' + prisesLabel + '</td>' +
+            '<td style="' + tdC + '">' + debitLabel  + '</td>' +
+            '<td style="' + tdC + '">' + dilLabel    + '</td>';
+        tbody.appendChild(tr);
+    });
+
+    // Placeholders
+    if (entTbody.rows.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="5" style="text-align:center;color:#aaa;padding:8px;font-size:11px;">Aucun produit entéral ajouté.</td>';
+        entTbody.appendChild(tr);
+    }
+    if (parTbody.rows.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="5" style="text-align:center;color:#aaa;padding:8px;font-size:11px;">Aucun produit parentéral ajouté.</td>';
+        parTbody.appendChild(tr);
+    }
+}
+
 function renderNutrTable() {
     const tbody = document.getElementById('nutrTbody');
     tbody.innerHTML = '';
@@ -1047,8 +1132,8 @@ function renderNutrTable() {
         ];
         cells.forEach(v => { const td = cr.insertCell(); td.textContent = v; });
     }
+    renderPrescTables();
 }
-
 
 /* ── Auto-calculate Poids Idéal and Poids Ajusté ── */
 function autoCalcWeights() {
@@ -1255,7 +1340,7 @@ function addPerf(data = null) {
     const row = document.querySelector("#perfTable tbody").insertRow();
     [row.dataset.name,row.dataset.qte,row.dataset.debit,row.dataset.elec] = values;
     renderPerfRow(row);
-    if(!data) { fields.forEach(id=>document.getElementById(id).value=''); markDirty(); }
+    if(!data) { fields.forEach(id=>document.getElementById(id).value=''); markDirty(); renderNutrTable(); }
 }
 function renderPerfRow(row) {
     const n=row.rowIndex;
@@ -1273,7 +1358,7 @@ function renderPerfRow(row) {
             <button onclick="movePerfRow(this,-1)">↑</button>
             <button onclick="movePerfRow(this,1)">↓</button>
             <button onclick="openEditPerf(this)">Edit</button>
-            <button onclick="this.closest('tr').remove();refreshPerfNums()">✕</button>
+            <button onclick="this.closest('tr').remove();refreshPerfNums();renderNutrTable()">✕</button>
         </td>`;
 }
 function refreshPerfNums() {
@@ -1299,10 +1384,14 @@ function savePerfEdit() {
     currentRow.dataset.debit=document.getElementById("editp_debit").value;
     currentRow.dataset.elec=document.getElementById("editp_elec").value;
     renderPerfRow(currentRow);
+    renderNutrTable();
     document.getElementById("editPerfDialog").close();
 }
 function clearAllPerfs() {
-    if(confirm("Supprimer toutes les perfusions ?")) document.querySelector("#perfTable tbody").innerHTML="";
+    if(confirm("Supprimer toutes les perfusions ?")) {
+        document.querySelector("#perfTable tbody").innerHTML="";
+        renderNutrTable();
+    }
 }
 
 /* ══════════════════════════════════════════════
@@ -1553,13 +1642,13 @@ function loadFromBox() {
 
 /* ─── PRINT ─── */
 window.addEventListener('beforeprint', () => {
-    ['drugTable','perfTable','drogTable','sedTable'].forEach(id => {
+    ['drugTable','perfTable','drogTable','sedTable','enteralPrescTable','parenteralPrescTable'].forEach(id => {
         const tbl = document.getElementById(id);
         tbl.classList.toggle('empty-table', tbl.querySelector('tbody').rows.length === 0);
     });
 });
 window.addEventListener('afterprint', () => {
-    ['drugTable','perfTable','drogTable','sedTable'].forEach(id => document.getElementById(id).classList.remove('empty-table'));
+    ['drugTable','perfTable','drogTable','sedTable','enteralPrescTable','parenteralPrescTable'].forEach(id => document.getElementById(id).classList.remove('empty-table'));
 });
 
 
@@ -1624,6 +1713,8 @@ function printAll() {
     if (p2Hidden) p2.classList.add('hidden-tab');
     document.body.classList.remove('print-all');
 }
+
+
 
 /* ─── INIT ─── */
 window.onload = () => {
