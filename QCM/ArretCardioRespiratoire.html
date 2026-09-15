@@ -1,328 +1,156 @@
-
 <div id="quiz-container"></div>
 
-
-
 <style>
-  /* =========================================
-     GLOBAL
-     ========================================= */
-
   * {
     box-sizing: border-box;
   }
 
-  html {
-    font-size: 16px;
-  }
-
-  body {
-    margin: 0;
-    padding: 0;
-  }
-
   #quiz-container {
-    width: 100%;
-    max-width: 1000px;
+    max-width: 700px;
     margin: 0 auto;
-    padding: 24px;
-
-    font-family: Arial, sans-serif;
-    font-size: 2rem;
-    line-height: 1.6;
-  }
-
-
-  /* =========================================
-     PROGRESS
-     ========================================= */
-
-  .progress {
-    margin-bottom: 24px;
-    padding: 14px 18px;
-
-    background: #f3f3f3;
-    border-radius: 10px;
-
-    font-size: 2rem;
-    font-weight: bold;
+    padding: 1em;
+    font-size: 16px;
     line-height: 1.5;
   }
 
-
-  /* =========================================
-     QUESTION
-     ========================================= */
-
   .question-title {
-    margin-bottom: 28px;
-
-    font-size: 2rem;
-    font-weight: 700;
-    line-height: 1.6;
+    font-weight: bold;
+    margin-bottom: 0.8em;
+    font-size: clamp(1.05em, 4vw, 1.25em);
   }
 
+  .question-number {
+    font-weight: bold;
+    margin-bottom: 0.5em;
+  }
 
-  /* =========================================
-     ANSWERS
-     ========================================= */
+  form#qcm-form {
+    width: 100%;
+  }
 
   .choice {
-    display: flex;
-    align-items: flex-start;
-
-    width: 100%;
-
-    margin: 16px 0;
-    padding: 16px 14px;
-
-    gap: 14px;
-
+    margin: 0.6em 0;
     cursor: pointer;
-
-    font-size: 2rem;
-    line-height: 1.6;
-
-    border-radius: 10px;
-
-    transition: background 0.15s ease;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.5em;
+    line-height: 1.5;
+    font-size: clamp(1em, 3.6vw, 1.1em);
+    padding: 0.4em 0.3em;
+    border-radius: 6px;
   }
 
-  .choice:hover {
-    background: #f7f7f7;
+  .choice:active {
+    background: rgba(0,0,0,0.04);
   }
-
-
-  /* =========================================
-     CHECKBOX
-     ========================================= */
 
   .choice input {
-    width: 32px;
-    height: 32px;
-
-    margin: 7px 4px 0 0;
-
-    flex: 0 0 auto;
-
-    cursor: pointer;
+    margin: 0.2em 0 0 0;
+    flex-shrink: 0;
+    width: 1.2em;
+    height: 1.2em;
+    accent-color: #2563eb;
   }
-
-
-  /* =========================================
-     A / B / C / D / E
-     ========================================= */
 
   .choice-label {
-    min-width: 32px;
-
-    margin-right: 4px;
-
-    flex: 0 0 auto;
-
-    font-size: 2rem;
-    font-weight: 700;
+    font-weight: bold;
+    margin-right: 0.2em;
+    flex-shrink: 0;
   }
-
-
-  /* =========================================
-     CORRECTION
-     ========================================= */
 
   .correct-checked {
     color: green;
     font-weight: bold;
-    background: #eef9ee;
   }
 
   .incorrect-checked {
     color: red;
     font-weight: bold;
-    background: #fff0f0;
   }
 
   .missed-correct {
-    color: #0066cc;
+    color: blue;
     font-weight: bold;
-    background: #eef6ff;
   }
-
-
-  /* =========================================
-     JUSTIFICATION
-     ========================================= */
 
   .justification {
+    flex-basis: 100%;
     width: 100%;
-
-    margin: 12px 0 8px 0;
-    padding-left: 50px;
-
+    font-size: clamp(0.9em, 3.2vw, 0.95em);
+    margin: 0.35em 0 0.6em 1.9em;
     color: #555;
-
-    font-size: 1.5rem;
     font-weight: normal;
-    line-height: 1.6;
+    line-height: 1.45;
   }
 
-
-  /* =========================================
-     NAVIGATION
-     ========================================= */
+  .note {
+    margin-top: 1em;
+    font-weight: bold;
+    font-size: clamp(1.2em, 5vw, 1.4em);
+  }
 
   .navigation {
     display: flex;
-
-    width: 100%;
-    max-width: 800px;
-
-    gap: 12px;
-
-    margin-top: 30px;
+    gap: 0.6em;
+    margin-top: 1.2em;
+    flex-wrap: wrap;
   }
-
-
-  /* =========================================
-     BUTTONS
-     ========================================= */
 
   button {
-    min-height: 64px;
-
-    padding: 12px 20px;
-
-    border: 1px solid #ccc;
-    border-radius: 10px;
-
-    background: #f5f5f5;
-    color: #222;
-
-    font-family: inherit;
-    font-size: 2rem;
-    line-height: 1.4;
-
+    flex: 1 1 auto;
+    min-width: 90px;
+    padding: 0.75em 1em;
+    font-size: clamp(0.95em, 3.6vw, 1.05em);
     cursor: pointer;
-
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    font-weight: 600;
+    -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-  }
-
-  button:hover:not(:disabled) {
-    background: #e9e9e9;
   }
 
   button:disabled {
     cursor: not-allowed;
-    opacity: 0.55;
+    opacity: 0.5;
+    background: #94a3b8;
   }
 
-
-  /* =========================================
-     FINAL SCORE
-     ========================================= */
-
-  .note {
-    margin-top: 28px;
-    padding: 18px;
-
-    background: #f3f3f3;
-    border-radius: 10px;
-
-    font-size: 2rem;
+  .progress {
+    margin-bottom: 1em;
     font-weight: bold;
-    line-height: 1.6;
+    font-size: clamp(0.9em, 3.4vw, 1em);
+    color: #444;
   }
 
-
-  /* =========================================
-     MOBILE
-     ========================================= */
-
-  @media (max-width: 768px) {
-
+  @media (max-width: 480px) {
     #quiz-container {
-      max-width: 100%;
-      padding: 16px 12px;
-
-      font-size: 2rem;
-    }
-
-    .progress {
-      font-size: 2rem;
-    }
-
-    .question-title {
-      font-size: 2rem;
-    }
-
-    .choice {
-      font-size: 2rem;
-      padding: 16px 10px;
-    }
-
-    .choice-label {
-      font-size: 2rem;
-    }
-
-    .justification {
-      font-size: 1.5rem;
-      padding-left: 48px;
-    }
-
-    button {
-      font-size: 2rem;
-      min-height: 64px;
-    }
-
-    .note {
-      font-size: 2rem;
-    }
-  }
-
-
-  /* =========================================
-     SMALL MOBILE
-     Keep the same font size
-     ========================================= */
-
-  @media (max-width: 400px) {
-
-    #quiz-container {
-      padding: 14px 10px;
-    }
-
-    .choice {
-      gap: 10px;
-      padding: 14px 8px;
-    }
-
-    .choice input {
-      width: 30px;
-      height: 30px;
-    }
-
-    .choice-label {
-      min-width: 30px;
+      padding: 0.75em;
+      font-size: 15px;
     }
 
     .navigation {
-      gap: 8px;
+      flex-direction: column;
     }
 
     button {
-      padding: 10px 8px;
-      font-size: 2rem;
+      width: 100%;
+    }
+
+    .justification {
+      margin-left: 1.6em;
     }
   }
 </style>
-
-
-
-
 
 <script>
 (() => {
 
   const questions = [
+
+  
 
     {
       question: `12. Les traitements pharmacologiques potentiellement utiles et fortement recommandés au cours de la réanimation cardiopulmonaire spécialisée sont :`,
@@ -1002,15 +830,8 @@
 
   let currentQuestion = 0;
 
-  /*
-   * Stockage des réponses de l'utilisateur.
-   * Chaque élément contient les indices des réponses sélectionnées.
-   */
   const userAnswers = new Array(questions.length).fill(null);
 
-  /*
-   * Indique si la question a déjà été corrigée.
-   */
   const validated = new Array(questions.length).fill(false);
 
 
@@ -1053,9 +874,6 @@
 
     const q = questions[currentQuestion];
 
-    /*
-     * Progression
-     */
     const progress = document.createElement('div');
 
     progress.className = 'progress';
@@ -1066,9 +884,6 @@
     container.appendChild(progress);
 
 
-    /*
-     * Question
-     */
     const questionTitle = document.createElement('div');
 
     questionTitle.className = 'question-title';
@@ -1079,17 +894,11 @@
     container.appendChild(questionTitle);
 
 
-    /*
-     * Formulaire
-     */
     const form = document.createElement('form');
 
     form.id = 'qcm-form';
 
 
-    /*
-     * Randomisation des réponses
-     */
     const shuffledChoices = shuffleArray(q.choices);
 
 
@@ -1114,9 +923,6 @@
       input.value = originalIndex;
 
 
-      /*
-       * Restaurer les réponses précédentes
-       */
       if (
         userAnswers[currentQuestion] &&
         userAnswers[currentQuestion].includes(originalIndex)
@@ -1137,15 +943,18 @@
         choice.label + '.';
 
 
+      const textSpan =
+        document.createElement('span');
+
+      textSpan.textContent =
+        decodeHTML(choice.text);
+
+
       label.appendChild(input);
 
       label.appendChild(choiceLabel);
 
-      label.appendChild(
-        document.createTextNode(
-          ' ' + decodeHTML(choice.text)
-        )
-      );
+      label.appendChild(textSpan);
 
 
       form.appendChild(label);
@@ -1156,10 +965,6 @@
     container.appendChild(form);
 
 
-    /*
-     * Si la question a déjà été corrigée,
-     * afficher directement la correction.
-     */
     if (validated[currentQuestion]) {
 
       showCorrection(q, form);
@@ -1167,9 +972,6 @@
     }
 
 
-    /*
-     * Navigation
-     */
     const navigation =
       document.createElement('div');
 
@@ -1177,9 +979,6 @@
       'navigation';
 
 
-    /*
-     * Bouton Previous
-     */
     const btnPrevious =
       document.createElement('button');
 
@@ -1205,9 +1004,6 @@
     );
 
 
-    /*
-     * Bouton Valider
-     */
     const btnValidate =
       document.createElement('button');
 
@@ -1235,9 +1031,6 @@
     );
 
 
-    /*
-     * Bouton Next
-     */
     const btnNext =
       document.createElement('button');
 
@@ -1253,10 +1046,6 @@
       'click',
       () => {
 
-        /*
-         * Il faut valider avant de passer
-         * à la question suivante.
-         */
         if (!validated[currentQuestion]) {
 
           alert(
@@ -1298,9 +1087,6 @@
   }
 
 
-  /*
-   * Sauvegarder les réponses cochées
-   */
   function saveCurrentAnswer(form) {
 
     const checked =
@@ -1318,9 +1104,6 @@
   }
 
 
-  /*
-   * Valider la question actuelle
-   */
   function validateCurrentQuestion(
     q,
     form,
@@ -1346,25 +1129,16 @@
     }
 
 
-    /*
-     * Sauvegarder les réponses
-     */
     userAnswers[currentQuestion] =
       checkedBoxes.map(
         input => parseInt(input.value)
       );
 
 
-    /*
-     * Marquer comme validée
-     */
     validated[currentQuestion] =
       true;
 
 
-    /*
-     * Désactiver les cases
-     */
     const checkboxes =
       [
         ...form.querySelectorAll(
@@ -1391,15 +1165,8 @@
   }
 
 
-  /*
-   * Afficher la correction
-   */
   function showCorrection(q, form) {
 
-    /*
-     * Empêcher la correction d'être
-     * ajoutée plusieurs fois.
-     */
     if (
       form.querySelector(
         '.correction-container'
@@ -1438,9 +1205,6 @@
         input.parentElement;
 
 
-      /*
-       * Vérification de la réponse
-       */
       if (
         input.checked &&
         choiceData.correct
@@ -1475,9 +1239,6 @@
       }
 
 
-      /*
-       * Justification
-       */
       const justification =
         document.createElement('div');
 
@@ -1511,9 +1272,6 @@
   }
 
 
-  /*
-   * Calcul du score final
-   */
   function calculateFinalScore() {
 
     let totalPoints = 0;
@@ -1541,10 +1299,6 @@
             );
 
 
-        /*
-         * Chaque bonne réponse sélectionnée
-         * rapporte un point.
-         */
         answers.forEach(
           answerIndex => {
 
@@ -1569,9 +1323,6 @@
     );
 
 
-    /*
-     * Note sur 5
-     */
     const note =
       Math.round(
         (
@@ -1590,9 +1341,6 @@
   }
 
 
-  /*
-   * Afficher le score final
-   */
   function showFinalScore() {
 
     const result =
@@ -1635,9 +1383,6 @@
     container.appendChild(details);
 
 
-    /*
-     * Bouton pour recommencer
-     */
     const restart =
       document.createElement('button');
 
@@ -1668,9 +1413,6 @@
   }
 
 
-  /*
-   * Lancement du QCM
-   */
   renderQuestion();
 
 })();
