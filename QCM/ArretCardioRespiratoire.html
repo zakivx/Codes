@@ -2,22 +2,33 @@
 <div id="quiz-container"></div>
 
 
+
 <style>
   /* =========================================
-     GENERAL
+     GLOBAL
      ========================================= */
 
   * {
     box-sizing: border-box;
   }
 
+  html {
+    font-size: 16px;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
   #quiz-container {
     width: 100%;
-    max-width: 850px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 24px;
+
     font-family: Arial, sans-serif;
-    font-size: 16px;
+    font-size: 2rem;
     line-height: 1.6;
   }
 
@@ -27,13 +38,13 @@
      ========================================= */
 
   .progress {
-    margin-bottom: 18px;
-    padding: 10px 14px;
+    margin-bottom: 24px;
+    padding: 14px 18px;
 
-    border-radius: 8px;
     background: #f3f3f3;
+    border-radius: 10px;
 
-    font-size: 1rem;
+    font-size: 2rem;
     font-weight: bold;
     line-height: 1.5;
   }
@@ -44,33 +55,35 @@
      ========================================= */
 
   .question-title {
-    margin-bottom: 20px;
+    margin-bottom: 28px;
 
-    font-size: 1.1rem;
-    font-weight: bold;
+    font-size: 2rem;
+    font-weight: 700;
     line-height: 1.6;
   }
 
 
   /* =========================================
-     ANSWER CHOICES
+     ANSWERS
      ========================================= */
 
   .choice {
     display: flex;
     align-items: flex-start;
 
-    margin: 10px 0;
-    padding: 12px 14px;
+    width: 100%;
 
-    gap: 8px;
+    margin: 16px 0;
+    padding: 16px 14px;
+
+    gap: 14px;
 
     cursor: pointer;
 
-    font-size: 1rem;
-    line-height: 1.55;
+    font-size: 2rem;
+    line-height: 1.6;
 
-    border-radius: 8px;
+    border-radius: 10px;
 
     transition: background 0.15s ease;
   }
@@ -85,10 +98,10 @@
      ========================================= */
 
   .choice input {
-    width: 18px;
-    height: 18px;
+    width: 32px;
+    height: 32px;
 
-    margin: 4px 4px 0 0;
+    margin: 7px 4px 0 0;
 
     flex: 0 0 auto;
 
@@ -101,16 +114,19 @@
      ========================================= */
 
   .choice-label {
-    margin-right: 3px;
+    min-width: 32px;
+
+    margin-right: 4px;
 
     flex: 0 0 auto;
 
-    font-weight: bold;
+    font-size: 2rem;
+    font-weight: 700;
   }
 
 
   /* =========================================
-     CORRECTION COLORS
+     CORRECTION
      ========================================= */
 
   .correct-checked {
@@ -139,14 +155,14 @@
   .justification {
     width: 100%;
 
-    margin: 8px 0 4px 0;
-    padding-left: 26px;
+    margin: 12px 0 8px 0;
+    padding-left: 50px;
 
     color: #555;
 
-    font-size: 0.9rem;
+    font-size: 1.5rem;
     font-weight: normal;
-    line-height: 1.5;
+    line-height: 1.6;
   }
 
 
@@ -158,15 +174,11 @@
     display: flex;
 
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
 
-    gap: 8px;
+    gap: 12px;
 
-    margin-top: 22px;
-  }
-
-  .navigation button {
-    flex: 1;
+    margin-top: 30px;
   }
 
 
@@ -175,17 +187,19 @@
      ========================================= */
 
   button {
-    min-height: 44px;
+    min-height: 64px;
 
-    padding: 10px 16px;
+    padding: 12px 20px;
 
     border: 1px solid #ccc;
-    border-radius: 8px;
+    border-radius: 10px;
 
     background: #f5f5f5;
     color: #222;
 
-    font-size: 1rem;
+    font-family: inherit;
+    font-size: 2rem;
+    line-height: 1.4;
 
     cursor: pointer;
 
@@ -203,193 +217,105 @@
 
 
   /* =========================================
-     FINAL SCORE / NOTE
+     FINAL SCORE
      ========================================= */
 
   .note {
-    margin-top: 20px;
-    padding: 14px;
-
-    border-radius: 8px;
+    margin-top: 28px;
+    padding: 18px;
 
     background: #f3f3f3;
+    border-radius: 10px;
 
-    font-size: 1.2rem;
+    font-size: 2rem;
     font-weight: bold;
     line-height: 1.6;
   }
 
 
   /* =========================================
-     TABLET + MOBILE
+     MOBILE
      ========================================= */
 
   @media (max-width: 768px) {
 
     #quiz-container {
-      width: 100%;
       max-width: 100%;
-
       padding: 16px 12px;
 
       font-size: 2rem;
-      line-height: 1.6;
     }
-
-
-    /* Progress */
 
     .progress {
-      padding: 12px 14px;
-      margin-bottom: 20px;
-
-      font-size: 1.5rem;
-      line-height: 1.5;
+      font-size: 2rem;
     }
-
-
-    /* Question */
 
     .question-title {
-      margin-bottom: 24px;
-
       font-size: 2rem;
-      line-height: 1.6;
-
-      font-weight: 700;
     }
-
-
-    /* Answers */
 
     .choice {
-      display: flex;
-      align-items: flex-start;
-
-      margin: 14px 0;
-      padding: 14px 10px;
-
-      gap: 12px;
-
       font-size: 2rem;
-      line-height: 1.6;
-
-      border-radius: 10px;
+      padding: 16px 10px;
     }
-
-
-    /* Checkbox */
-
-    .choice input {
-      width: 30px;
-      height: 30px;
-
-      margin-top: 7px;
-
-      flex-shrink: 0;
-    }
-
-
-    /* A / B / C / D / E */
 
     .choice-label {
-      min-width: 30px;
-
-      margin-right: 0;
-
       font-size: 2rem;
-      font-weight: 700;
     }
-
-
-    /* Justification */
 
     .justification {
-      margin-top: 10px;
-
-      padding-left: 42px;
-
       font-size: 1.5rem;
-      line-height: 1.6;
+      padding-left: 48px;
     }
 
-
-    /* Navigation */
-
-    .navigation {
-      position: sticky;
-      bottom: 0;
-      z-index: 10;
-
-      width: 100%;
-      max-width: none;
-
-      margin-left: -12px;
-      margin-right: -12px;
-
-      padding: 12px;
-
-      background: white;
-
-      border-top: 1px solid #ccc;
+    button {
+      font-size: 2rem;
+      min-height: 64px;
     }
-
-
-    /* Navigation buttons */
-
-    .navigation button {
-      min-height: 60px;
-
-      padding: 10px 8px;
-
-      font-size: 1.5rem;
-      font-weight: 600;
-
-      border-radius: 10px;
-    }
-
-
-    /* Score */
 
     .note {
-      padding: 18px;
-
-      font-size: 1.7rem;
-      line-height: 1.6;
+      font-size: 2rem;
     }
   }
 
 
   /* =========================================
-     VERY SMALL SCREENS
+     SMALL MOBILE
+     Keep the same font size
      ========================================= */
 
-  @media (max-width: 360px) {
+  @media (max-width: 400px) {
 
     #quiz-container {
       padding: 14px 10px;
     }
 
     .choice {
-      padding: 13px 8px;
       gap: 10px;
+      padding: 14px 8px;
     }
 
     .choice input {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
     }
 
     .choice-label {
-      min-width: 28px;
+      min-width: 30px;
     }
 
-    .navigation button {
-      padding: 8px 5px;
-      font-size: 1.4rem;
+    .navigation {
+      gap: 8px;
+    }
+
+    button {
+      padding: 10px 8px;
+      font-size: 2rem;
     }
   }
 </style>
+
+
 
 
 
