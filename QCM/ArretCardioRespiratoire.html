@@ -2,82 +2,257 @@
 <div id="quiz-container"></div>
 
 <style>
-  .question-title {
-    font-weight: bold;
-    margin-bottom: 0.8em;
+  * {
+    box-sizing: border-box;
   }
 
-  .question-number {
+  #quiz-container {
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto;
+    padding: 16px;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .progress {
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #f3f3f3;
     font-weight: bold;
-    margin-bottom: 0.5em;
+    font-size: 0.95rem;
+  }
+
+  .question-title {
+    font-weight: bold;
+    margin-bottom: 18px;
+    font-size: 1.08rem;
+    line-height: 1.6;
   }
 
   .choice {
-    margin: 0.4em 0;
+    margin: 10px 0;
+    padding: 11px 12px;
     cursor: pointer;
-    display: block;
-    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.55;
+    border-radius: 8px;
+    transition: background 0.15s ease;
+  }
+
+  .choice:hover {
+    background: #f7f7f7;
   }
 
   .choice input {
-    margin-right: 0.4em;
+    margin: 4px 4px 0 0;
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
   }
 
   .choice-label {
     font-weight: bold;
-    margin-right: 0.3em;
+    margin-right: 3px;
+    flex: 0 0 auto;
   }
 
   .correct-checked {
     color: green;
     font-weight: bold;
+    background: #eef9ee;
   }
 
   .incorrect-checked {
     color: red;
     font-weight: bold;
+    background: #fff0f0;
   }
 
   .missed-correct {
-    color: blue;
+    color: #0066cc;
     font-weight: bold;
+    background: #eef6ff;
   }
 
   .justification {
-    font-size: 0.9em;
-    margin: 0.25em 0 0.5em 1.8em;
+    width: 100%;
+    font-size: 0.9rem;
+    margin: 8px 0 4px 0;
+    padding-left: 26px;
     color: #555;
     font-weight: normal;
-  }
-
-  .note {
-    margin-top: 1em;
-    font-weight: bold;
-    font-size: 1.2em;
+    line-height: 1.5;
   }
 
   .navigation {
     display: flex;
-    gap: 0.5em;
-    margin-top: 1em;
-    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 22px;
+    width: 100%;
+  }
+
+  .navigation button {
+    flex: 1;
+    min-height: 46px;
   }
 
   button {
-    padding: 0.5em 1em;
-    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 1rem;
     cursor: pointer;
+    background: #f5f5f5;
+    color: #222;
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+
+  button:hover:not(:disabled) {
+    background: #e9e9e9;
   }
 
   button:disabled {
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.55;
   }
 
-  .progress {
-    margin-bottom: 1em;
+  .note {
+    margin-top: 20px;
+    padding: 14px;
+    border-radius: 8px;
     font-weight: bold;
+    font-size: 1.2rem;
+    background: #f3f3f3;
   }
+
+
+  /* =========================
+     MOBILE
+     ========================= */
+
+  @media (max-width: 600px) {
+
+    #quiz-container {
+      padding: 12px;
+      font-size: 15px;
+    }
+
+    .progress {
+      font-size: 0.9rem;
+      padding: 9px 10px;
+    }
+
+    .question-title {
+      font-size: 1rem;
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+
+    .choice {
+      margin: 7px 0;
+      padding: 10px 8px;
+      gap: 7px;
+      line-height: 1.5;
+    }
+
+    .choice input {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+    }
+
+    .choice-label {
+      min-width: 20px;
+    }
+
+    .justification {
+      font-size: 0.85rem;
+      padding-left: 27px;
+      line-height: 1.45;
+    }
+
+    .navigation {
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
+      margin-left: -12px;
+      margin-right: -12px;
+      padding: 10px 12px;
+      background: white;
+      border-top: 1px solid #ddd;
+    }
+
+    .navigation button {
+      min-height: 48px;
+      padding: 10px 6px;
+      font-size: 0.95rem;
+    }
+
+    .note {
+      font-size: 1.1rem;
+    }
+  }
+
+
+  /* =========================
+     VERY SMALL PHONES
+     ========================= */
+
+  @media (max-width: 380px) {
+
+    #quiz-container {
+      padding: 9px;
+      font-size: 14px;
+    }
+
+    .question-title {
+      font-size: 0.96rem;
+    }
+
+    .choice {
+      padding: 9px 6px;
+    }
+
+    .navigation {
+      margin-left: -9px;
+      margin-right: -9px;
+      padding: 8px 9px;
+    }
+
+    .navigation button {
+      font-size: 0.85rem;
+      padding: 8px 4px;
+    }
+  }
+
+
+  /* =========================
+     TABLETS / DESKTOP
+     ========================= */
+
+  @media (min-width: 601px) {
+
+    #quiz-container {
+      padding: 24px;
+    }
+
+    .choice {
+      padding: 12px 14px;
+    }
+
+    .navigation {
+      max-width: 600px;
+    }
+
+  }
+
 </style>
 
 <script>
