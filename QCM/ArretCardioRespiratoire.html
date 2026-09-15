@@ -1,0 +1,1438 @@
+
+<div id="quiz-container"></div>
+
+<style>
+  .question-title {
+    font-weight: bold;
+    margin-bottom: 0.8em;
+  }
+
+  .question-number {
+    font-weight: bold;
+    margin-bottom: 0.5em;
+  }
+
+  .choice {
+    margin: 0.4em 0;
+    cursor: pointer;
+    display: block;
+    line-height: 1.5;
+  }
+
+  .choice input {
+    margin-right: 0.4em;
+  }
+
+  .choice-label {
+    font-weight: bold;
+    margin-right: 0.3em;
+  }
+
+  .correct-checked {
+    color: green;
+    font-weight: bold;
+  }
+
+  .incorrect-checked {
+    color: red;
+    font-weight: bold;
+  }
+
+  .missed-correct {
+    color: blue;
+    font-weight: bold;
+  }
+
+  .justification {
+    font-size: 0.9em;
+    margin: 0.25em 0 0.5em 1.8em;
+    color: #555;
+    font-weight: normal;
+  }
+
+  .note {
+    margin-top: 1em;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+
+  .navigation {
+    display: flex;
+    gap: 0.5em;
+    margin-top: 1em;
+    flex-wrap: wrap;
+  }
+
+  button {
+    padding: 0.5em 1em;
+    font-size: 1em;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .progress {
+    margin-bottom: 1em;
+    font-weight: bold;
+  }
+</style>
+
+<script>
+(() => {
+
+  const questions = [
+
+    {
+      question: `12. Les traitements pharmacologiques potentiellement utiles et fortement recommandés au cours de la réanimation cardiopulmonaire spécialisée sont :`,
+      choices: [
+        {
+          label: "A",
+          text: `La dobutamine`,
+          correct: false,
+          justification: `La dobutamine n'est pas un traitement recommandé de routine pendant la RCP.`
+        },
+        {
+          label: "B",
+          text: `L’adrénaline`,
+          correct: true,
+          justification: `L'adrénaline est utilisée pendant la RCP selon l'algorithme de réanimation.`
+        },
+        {
+          label: "C",
+          text: `L’atropine`,
+          correct: false,
+          justification: `L'atropine n'est pas recommandée de routine dans l'arrêt cardiaque.`
+        },
+        {
+          label: "D",
+          text: `La lidocaïne`,
+          correct: false,
+          justification: `La lidocaïne peut être utilisée comme alternative à l'amiodarone dans certaines situations de FV/TV sans pouls réfractaire, mais n'est pas le traitement principal de routine.`
+        },
+        {
+          label: "E",
+          text: `L’amiodarone`,
+          correct: true,
+          justification: `L'amiodarone est recommandée dans la fibrillation ventriculaire ou la tachycardie ventriculaire sans pouls réfractaire aux chocs.`
+        }
+      ]
+    },
+
+    {
+      question: `13. À quelle fréquence doit-on effectuer les compressions thoraciques lors du massage cardiaque externe chez l’adulte ? (x4)`,
+      choices: [
+        {
+          label: "A",
+          text: `50/min`,
+          correct: false,
+          justification: `Une fréquence de 50/min est insuffisante.`
+        },
+        {
+          label: "B",
+          text: `60/min`,
+          correct: false,
+          justification: `Une fréquence de 60/min est insuffisante.`
+        },
+        {
+          label: "C",
+          text: `100/min`,
+          correct: true,
+          justification: `Chez l'adulte, les compressions thoraciques doivent être réalisées à une fréquence de 100 à 120/min.`
+        },
+        {
+          label: "D",
+          text: `140/min`,
+          correct: false,
+          justification: `Une fréquence de 140/min est trop élevée.`
+        },
+        {
+          label: "E",
+          text: `160/min`,
+          correct: false,
+          justification: `Une fréquence de 160/min est excessive.`
+        }
+      ]
+    },
+
+    {
+      question: `Pour affirmer le diagnostic d’un arrêt circulatoire, il faut exiger :`,
+      choices: [
+        {
+          label: "A",
+          text: `L’absence de pouls fémoral ou carotidien`,
+          correct: true,
+          justification: `Chez un professionnel de santé, l'absence de pouls central est un élément permettant de reconnaître un arrêt cardiaque.`
+        },
+        {
+          label: "B",
+          text: `L’absence de gasps`,
+          correct: false,
+          justification: `Les gasps peuvent être présents lors d'un arrêt cardiaque et ne doivent pas être interprétés comme une respiration normale.`
+        },
+        {
+          label: "C",
+          text: `L’absence de toute activité musculaire`,
+          correct: false,
+          justification: `L'absence d'activité musculaire n'est pas un critère diagnostique nécessaire.`
+        },
+        {
+          label: "D",
+          text: `La cyanose des extrémités`,
+          correct: false,
+          justification: `La cyanose périphérique n'est ni nécessaire ni suffisante pour diagnostiquer un arrêt cardiaque.`
+        }
+      ]
+    },
+
+    {
+      question: `Pour traiter l’arrêt circulatoire par asystolie :`,
+      choices: [
+        {
+          label: "A",
+          text: `L’adrénaline est la catécholamine la plus efficace`,
+          correct: true,
+          justification: `L'adrénaline est le vasopresseur recommandé pendant la RCP.`
+        },
+        {
+          label: "B",
+          text: `Une première injection d’adrénaline peut se faire par voie endotrachéale ou intra-osseuse`,
+          correct: false,
+          justification: `La voie intra-osseuse est une alternative à la voie intraveineuse. La voie endotrachéale n'est plus recommandée lorsque les voies IV ou IO sont disponibles.`
+        },
+        {
+          label: "C",
+          text: `L’injection d’atropine est indispensable`,
+          correct: false,
+          justification: `L'atropine n'est pas recommandée de routine dans l'asystolie.`
+        },
+        {
+          label: "D",
+          text: `L’administration de bicarbonate est contre-indiquée`,
+          correct: false,
+          justification: `Le bicarbonate n'est pas administré systématiquement mais peut être indiqué dans certaines situations particulières.`
+        }
+      ]
+    },
+
+    {
+      question: `Lors d’une fibrillation ventriculaire, un choc électrique externe :`,
+      choices: [
+        {
+          label: "A",
+          text: `Doit être délivré en fin d’inspiration`,
+          correct: false,
+          justification: `Le moment du cycle respiratoire n'est pas un critère conditionnant la délivrance du choc.`
+        },
+        {
+          label: "B",
+          text: `Doit être délivré avec une énergie de 3 joules par Kg`,
+          correct: false,
+          justification: `Chez l'adulte, l'énergie de défibrillation n'est pas fixée à 3 J/kg.`
+        },
+        {
+          label: "C",
+          text: `A une efficacité indépendante de la pression des électrodes sur le thorax`,
+          correct: false,
+          justification: `Un bon contact entre les électrodes et le thorax est important pour optimiser la délivrance du courant électrique.`
+        },
+        {
+          label: "D",
+          text: `Nécessite pour sa réalisation l’utilisation d’une substance conductrice`,
+          correct: true,
+          justification: `Une interface conductrice adaptée est nécessaire avec les palettes manuelles afin d'assurer un bon contact électrique.`
+        }
+      ]
+    },
+
+    {
+      question: `Au cours d’un arrêt cardiaque :`,
+      choices: [
+        {
+          label: "A",
+          text: `Une RCP réalisée par un seul sauveteur doit enchaîner une ventilation artificielle et cinq pressions thoraciques externes`,
+          correct: false,
+          justification: `Chez l'adulte, le rapport recommandé est de 30 compressions pour 2 insufflations lorsqu'une ventilation est réalisée.`
+        },
+        {
+          label: "B",
+          text: `Le monitorage de la PeTCO₂ représente le meilleur moyen d’apprécier simplement l’efficacité de la RCP entreprise`,
+          correct: true,
+          justification: `La capnographie permet de surveiller la qualité de la RCP et fournit des informations sur la perfusion générée par les compressions.`
+        },
+        {
+          label: "C",
+          text: `L’acidose rencontrée est uniquement respiratoire`,
+          correct: false,
+          justification: `L'arrêt cardiaque entraîne une acidose mixte, métabolique et respiratoire.`
+        },
+        {
+          label: "D",
+          text: `La perfusion de soluté glucosé est déconseillée au cours de la RCP`,
+          correct: true,
+          justification: `Les solutés glucosés ne sont pas recommandés systématiquement pendant la RCP.`
+        }
+      ]
+    },
+
+    {
+      question: `Au cours de la RCP spécialisée :`,
+      choices: [
+        {
+          label: "A",
+          text: `La récupération d’une activité cardiaque spontanée peut se faire après un seul choc électrique externe`,
+          correct: true,
+          justification: `Une fibrillation ventriculaire peut être interrompue après un seul choc et permettre une récupération de la circulation spontanée.`
+        },
+        {
+          label: "B",
+          text: `L’adrénaline tire son efficacité de son effet β-mimétique`,
+          correct: false,
+          justification: `L'effet recherché pendant la RCP est principalement lié à l'effet alpha-adrénergique vasoconstricteur.`
+        },
+        {
+          label: "C",
+          text: `L’adrénaline améliore le débit sanguin coronarien`,
+          correct: true,
+          justification: `L'adrénaline augmente la pression de perfusion coronaire principalement grâce à sa vasoconstriction alpha-adrénergique.`
+        },
+        {
+          label: "D",
+          text: `Certains vasopresseurs non catécholaminergiques pourraient être plus efficaces que l’adrénaline`,
+          correct: false,
+          justification: `Les données disponibles ne montrent pas de supériorité clinique des vasopresseurs non catécholaminergiques.`
+        }
+      ]
+    },
+
+    {
+      question: `Les états cardiaques suivants donnent lieu à un tableau clinique d’arrêt circulatoire :`,
+      choices: [
+        {
+          label: "A",
+          text: `Fibrillation ventriculaire`,
+          correct: true,
+          justification: `La fibrillation ventriculaire peut provoquer un arrêt circulatoire par absence de débit cardiaque efficace.`
+        },
+        {
+          label: "B",
+          text: `Dissociation électromécanique`,
+          correct: true,
+          justification: `La dissociation électromécanique correspond à une activité électrique sans débit circulatoire efficace.`
+        },
+        {
+          label: "C",
+          text: `Torsades de pointes`,
+          correct: false,
+          justification: `Les torsades de pointes ne correspondent pas nécessairement à un arrêt circulatoire.`
+        },
+        {
+          label: "D",
+          text: `Tachycardie ventriculaire sans pouls`,
+          correct: true,
+          justification: `La tachycardie ventriculaire sans pouls est un rythme d'arrêt cardiaque choquable.`
+        }
+      ]
+    },
+
+    {
+      question: `Quels sont les facteurs pronostiques lors d’un arrêt circulatoire ?`,
+      choices: [
+        {
+          label: "A",
+          text: `Rythme initial choquable`,
+          correct: true,
+          justification: `La présence initiale d'un rythme choquable est généralement associée à un meilleur pronostic.`
+        },
+        {
+          label: "B",
+          text: `Présence d'un témoin, survenue dans un lieu public`,
+          correct: true,
+          justification: `Un arrêt témoin et la survenue dans un lieu public favorisent une RCP et une défibrillation précoces.`
+        },
+        {
+          label: "C",
+          text: `Massage cardiaque externe débuté à l’hôpital`,
+          correct: false,
+          justification: `Le lieu de début du massage n'est pas en lui-même un facteur pronostique favorable.`
+        },
+        {
+          label: "D",
+          text: `Délai de no-flow bref`,
+          correct: true,
+          justification: `Un délai court avant le début de la RCP est associé à un meilleur pronostic.`
+        },
+        {
+          label: "E",
+          text: `Délai de low-flow bref`,
+          correct: true,
+          justification: `Une durée courte de RCP avant le retour d'une circulation spontanée est associée à un meilleur pronostic.`
+        }
+      ]
+    },
+
+    {
+      question: `Quels sont les rythmes cardiaques choquables au cours d’un arrêt circulatoire ?`,
+      choices: [
+        {
+          label: "A",
+          text: `Fibrillation ventriculaire à grandes mailles`,
+          correct: true,
+          justification: `La fibrillation ventriculaire est un rythme choquable.`
+        },
+        {
+          label: "B",
+          text: `Fibrillation ventriculaire à petites mailles`,
+          correct: true,
+          justification: `Une fibrillation ventriculaire à petites mailles reste un rythme choquable.`
+        },
+        {
+          label: "C",
+          text: `Tachycardie ventriculaire sans pouls`,
+          correct: true,
+          justification: `La tachycardie ventriculaire sans pouls est un rythme choquable.`
+        },
+        {
+          label: "D",
+          text: `Dissociation électromécanique`,
+          correct: false,
+          justification: `L'activité électrique sans pouls est un rythme non choquable.`
+        },
+        {
+          label: "E",
+          text: `Asystolie`,
+          correct: false,
+          justification: `L'asystolie est un rythme non choquable.`
+        }
+      ]
+    },
+
+    {
+      question: `Le traitement des torsades de pointes comporte :`,
+      choices: [
+        {
+          label: "A",
+          text: `L’amiodarone`,
+          correct: false,
+          justification: `L'amiodarone peut prolonger l'intervalle QT et n'est pas le traitement de choix des torsades de pointes.`
+        },
+        {
+          label: "B",
+          text: `L’entraînement électrosystolique`,
+          correct: true,
+          justification: `La stimulation cardiaque peut être utilisée pour augmenter la fréquence cardiaque et prévenir les récidives liées à une bradycardie.`
+        },
+        {
+          label: "C",
+          text: `L’isoprénaline`,
+          correct: true,
+          justification: `L'isoprénaline peut être utilisée dans certaines torsades acquises liées à une bradycardie.`
+        },
+        {
+          label: "D",
+          text: `Le magnésium`,
+          correct: true,
+          justification: `Le sulfate de magnésium est le traitement pharmacologique de référence des torsades de pointes.`
+        }
+      ]
+    },
+
+    {
+      question: `L’administration de bicarbonate de sodium molaire en cours de l’arrêt circulatoire peut avoir des effets indésirables suivants :`,
+      choices: [
+        {
+          label: "A",
+          text: `Accentuation de l’acidose tissulaire`,
+          correct: true,
+          justification: `Le bicarbonate peut augmenter la production de CO₂ et aggraver l'acidose intracellulaire ou tissulaire.`
+        },
+        {
+          label: "B",
+          text: `Inactivation de l’adrénaline administrée simultanément`,
+          correct: false,
+          justification: `L'inactivation de l'adrénaline n'est pas considérée comme l'effet indésirable principal du bicarbonate.`
+        },
+        {
+          label: "C",
+          text: `Hypernatrémie`,
+          correct: true,
+          justification: `Le bicarbonate de sodium apporte une importante charge sodée et peut provoquer une hypernatrémie.`
+        },
+        {
+          label: "D",
+          text: `Hyperosmolarité`,
+          correct: true,
+          justification: `Le bicarbonate de sodium hypertonique peut augmenter l'osmolarité plasmatique.`
+        }
+      ]
+    },
+
+    {
+      question: `Quel est le traitement pharmacologique potentiellement utile et fortement recommandé au cours de la réanimation d’un arrêt cardiocirculatoire ?`,
+      choices: [
+        {
+          label: "A",
+          text: `La noradrénaline`,
+          correct: false,
+          justification: `La noradrénaline n'est pas le vasopresseur recommandé de routine pendant la RCP.`
+        },
+        {
+          label: "B",
+          text: `L’adrénaline`,
+          correct: true,
+          justification: `L'adrénaline est le vasopresseur recommandé pendant la réanimation d'un arrêt cardiaque.`
+        },
+        {
+          label: "C",
+          text: `La dobutamine`,
+          correct: false,
+          justification: `La dobutamine n'est pas indiquée de routine pendant la RCP.`
+        },
+        {
+          label: "D",
+          text: `La lidocaine`,
+          correct: false,
+          justification: `La lidocaïne peut être une alternative à l'amiodarone dans certains rythmes choquables réfractaires, mais n'est pas le traitement pharmacologique de référence de tous les arrêts cardiaques.`
+        },
+        {
+          label: "E",
+          text: `L’atropine`,
+          correct: false,
+          justification: `L'atropine n'est pas recommandée de routine dans l'arrêt cardiaque.`
+        }
+      ]
+    },
+
+    {
+      question: `39. Pour affirmer la survenue d’un arrêt cardiaque, il faut rechercher :`,
+      choices: [
+        {
+          label: "A",
+          text: `L’absence de pouls fémoral ou carotidien`,
+          correct: true,
+          justification: `Chez un professionnel de santé, l'absence de pouls central est un élément permettant de confirmer un arrêt cardiaque.`
+        },
+        {
+          label: "B",
+          text: `L’absence de gasps`,
+          correct: false,
+          justification: `Les gasps peuvent être présents pendant un arrêt cardiaque.`
+        },
+        {
+          label: "C",
+          text: `L’absence de toute activité musculaire`,
+          correct: false,
+          justification: `L'absence de toute activité musculaire n'est pas un critère diagnostique nécessaire.`
+        },
+        {
+          label: "D",
+          text: `La cyanose des extrémités`,
+          correct: false,
+          justification: `La cyanose périphérique n'est ni nécessaire ni suffisante.`
+        },
+        {
+          label: "E",
+          text: `La pâleur des conjonctives`,
+          correct: false,
+          justification: `La pâleur conjonctivale n'est pas un critère diagnostique de l'arrêt cardiaque.`
+        }
+      ]
+    },
+
+    {
+      question: `40. Pour traiter un arrêt cardiaque par asystolie :`,
+      choices: [
+        {
+          label: "A",
+          text: `L’adrénaline est actuellement la catécholamine la plus efficace`,
+          correct: true,
+          justification: `L'adrénaline est le vasopresseur recommandé pendant la RCP en cas d'asystolie.`
+        },
+        {
+          label: "B",
+          text: `Une première injection d’adrénaline peut éventuellement se faire par voie endotrachéale ou intra-osseuse`,
+          correct: false,
+          justification: `La voie intra-osseuse est une alternative à la voie intraveineuse. La voie endotrachéale n'est plus recommandée comme voie d'administration de routine.`
+        },
+        {
+          label: "C",
+          text: `L’injection d’atropine est toujours indispensable`,
+          correct: false,
+          justification: `L'atropine n'est pas recommandée de routine dans l'asystolie.`
+        },
+        {
+          label: "D",
+          text: `L’administration de bicarbonate est toujours contre-indiquée`,
+          correct: false,
+          justification: `Le bicarbonate n'est pas utilisé systématiquement mais peut être indiqué dans certaines situations particulières.`
+        },
+        {
+          label: "E",
+          text: `L’injection d’isoprénaline est indiquée en cas d’inefficacité de l’adrénaline chez l’enfant`,
+          correct: false,
+          justification: `L'isoprénaline n'est pas le traitement standard de l'asystolie pédiatrique réfractaire à l'adrénaline.`
+        }
+      ]
+    },
+
+    {
+      question: `41. Un choc électrique externe, pour traiter une fibrillation ventriculaire tonique :`,
+      choices: [
+        {
+          label: "A",
+          text: `Doit être délivré en fin d’inspiration`,
+          correct: false,
+          justification: `Le choc de défibrillation n'est pas synchronisé avec la respiration.`
+        },
+        {
+          label: "B",
+          text: `Doit avoir une énergie initiale d’environ 3 J/kg`,
+          correct: false,
+          justification: `Cette formulation ne correspond pas à l'énergie initiale recommandée chez l'adulte.`
+        },
+        {
+          label: "C",
+          text: `A une efficacité indépendante de la pression des électrodes sur le thorax`,
+          correct: false,
+          justification: `Un contact correct des électrodes avec le thorax est nécessaire.`
+        },
+        {
+          label: "D",
+          text: `Nécessite, pour sa réalisation, l’utilisation d’une substance conductrice (interface palette/peau)`,
+          correct: true,
+          justification: `Une interface conductrice adaptée est nécessaire lors de l'utilisation de palettes manuelles.`
+        },
+        {
+          label: "E",
+          text: `Sera plus efficace si son déclenchement est synchrone d’un complexe ventriculaire`,
+          correct: false,
+          justification: `La fibrillation ventriculaire est traitée par défibrillation non synchronisée.`
+        }
+      ]
+    },
+
+    {
+      question: `42. Au cours d’un arrêt cardiaque :`,
+      choices: [
+        {
+          label: "A",
+          text: `Une RCP réalisée par un seul sauveteur doit enchaîner une ventilation artificielle et cinq compressions thoraciques externes`,
+          correct: false,
+          justification: `Chez l'adulte, le rapport recommandé est de 30 compressions pour 2 insufflations.`
+        },
+        {
+          label: "B",
+          text: `Le monitorage de la PetCO₂ représente le meilleur moyen d’apprécier simplement l’efficacité de la RCP entreprise`,
+          correct: true,
+          justification: `La capnographie permet une évaluation continue de la qualité de la RCP.`
+        },
+        {
+          label: "C",
+          text: `L’acidose rencontrée est uniquement respiratoire`,
+          correct: false,
+          justification: `L'acidose de l'arrêt cardiaque est mixte.`
+        },
+        {
+          label: "D",
+          text: `La perfusion de soluté glucosé est déconseillée au cours de la RCP`,
+          correct: true,
+          justification: `Le glucose n'est pas administré systématiquement pendant la RCP.`
+        },
+        {
+          label: "E",
+          text: `Le THAM est plus efficace et moins délétère que le bicarbonate de sodium pour tamponner l’acidose`,
+          correct: false,
+          justification: `Le THAM n'est pas recommandé de routine pour traiter l'acidose pendant l'arrêt cardiaque.`
+        }
+      ]
+    },
+
+    {
+      question: `43. Au cours de la RCP spécialisée :`,
+      choices: [
+        {
+          label: "A",
+          text: `La récupération d’une activité cardiaque spontanée peut se faire après un seul choc électrique externe`,
+          correct: true,
+          justification: `Une défibrillation efficace peut permettre une récupération de la circulation spontanée après un seul choc.`
+        },
+        {
+          label: "B",
+          text: `L’adrénaline tire son efficacité de son effet β-mimétique`,
+          correct: false,
+          justification: `L'effet principal recherché pendant la RCP est l'effet alpha-adrénergique vasoconstricteur.`
+        },
+        {
+          label: "C",
+          text: `L’adrénaline améliore le débit sanguin coronarien`,
+          correct: true,
+          justification: `L'effet vasoconstricteur alpha-adrénergique augmente la pression de perfusion coronaire pendant la RCP.`
+        },
+        {
+          label: "D",
+          text: `Certains produits vasopresseurs non catécholaminergiques pourraient être plus efficaces que l’adrénaline`,
+          correct: false,
+          justification: `Les données disponibles ne démontrent pas de supériorité clinique des vasopresseurs non catécholaminergiques.`
+        },
+        {
+          label: "E",
+          text: `La décompression active réalisée à l’aide d’une cardiopompe permet d’améliorer le remplissage du cœur droit entre chaque compression thoracique`,
+          correct: true,
+          justification: `La décompression active peut favoriser le retour veineux et le remplissage cardiaque entre les compressions.`
+        }
+      ]
+    },
+
+    {
+      question: `44. Les états cardiaques suivants donnent lieu à un tableau clinique d’arrêt circulatoire :`,
+      choices: [
+        {
+          label: "A",
+          text: `Fibrillation ventriculaire`,
+          correct: true,
+          justification: `La fibrillation ventriculaire entraîne l'absence de débit cardiaque efficace.`
+        },
+        {
+          label: "B",
+          text: `Asystolie`,
+          correct: true,
+          justification: `L'asystolie constitue un rythme d'arrêt cardiaque non choquable.`
+        },
+        {
+          label: "C",
+          text: `Dissociation électromécanique`,
+          correct: true,
+          justification: `La dissociation électromécanique correspond à une activité électrique sans circulation efficace.`
+        },
+        {
+          label: "D",
+          text: `Torsades de pointes`,
+          correct: false,
+          justification: `Les torsades de pointes ne sont pas nécessairement associées à un arrêt circulatoire.`
+        },
+        {
+          label: "E",
+          text: `Tachycardie ventriculaire sans pouls`,
+          correct: true,
+          justification: `La tachycardie ventriculaire sans pouls est un rythme d'arrêt cardiaque choquable.`
+        }
+      ]
+    },
+
+    {
+      question: `Quels sont les signes suffisants et nécessaires pour diagnostiquer un arrêt cardio-respiratoire ?`,
+      choices: [
+        {
+          label: "A",
+          text: `Mydriase`,
+          correct: false,
+          justification: `La mydriase n'est ni nécessaire ni suffisante pour diagnostiquer un arrêt cardio-respiratoire.`
+        },
+        {
+          label: "B",
+          text: `Cyanose`,
+          correct: false,
+          justification: `La cyanose n'est pas un critère nécessaire ou suffisant.`
+        },
+        {
+          label: "C",
+          text: `Perte de connaissance`,
+          correct: true,
+          justification: `La perte de connaissance brutale est un élément majeur de la reconnaissance d'un arrêt cardiaque.`
+        },
+        {
+          label: "D",
+          text: `Absence de pouls`,
+          correct: true,
+          justification: `Chez un professionnel de santé, l'absence de pouls central est un signe important permettant de confirmer l'arrêt cardiaque.`
+        },
+        {
+          label: "E",
+          text: `Arrêt respiratoire`,
+          correct: true,
+          justification: `L'absence de respiration normale, incluant la respiration agonique, fait partie des signes permettant de reconnaître un arrêt cardiaque.`
+        }
+      ]
+    }
+
+  ];
+
+  const container = document.getElementById('quiz-container');
+
+  let currentQuestion = 0;
+
+  /*
+   * Stockage des réponses de l'utilisateur.
+   * Chaque élément contient les indices des réponses sélectionnées.
+   */
+  const userAnswers = new Array(questions.length).fill(null);
+
+  /*
+   * Indique si la question a déjà été corrigée.
+   */
+  const validated = new Array(questions.length).fill(false);
+
+
+  function shuffleArray(array) {
+
+    const arr = array.slice();
+
+    for (let i = arr.length - 1; i > 0; i--) {
+
+      const j = Math.floor(Math.random() * (i + 1));
+
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+
+    return arr;
+  }
+
+
+  function replaceDoubleQuotesWithSingle(str) {
+
+    return String(str).replace(/"/g, "'");
+
+  }
+
+
+  function decodeHTML(html) {
+
+    const txt = document.createElement("textarea");
+
+    txt.innerHTML = html;
+
+    return replaceDoubleQuotesWithSingle(txt.value);
+
+  }
+
+
+  function renderQuestion() {
+
+    container.innerHTML = '';
+
+    const q = questions[currentQuestion];
+
+    /*
+     * Progression
+     */
+    const progress = document.createElement('div');
+
+    progress.className = 'progress';
+
+    progress.textContent =
+      `Question ${currentQuestion + 1} / ${questions.length}`;
+
+    container.appendChild(progress);
+
+
+    /*
+     * Question
+     */
+    const questionTitle = document.createElement('div');
+
+    questionTitle.className = 'question-title';
+
+    questionTitle.textContent =
+      decodeHTML(q.question);
+
+    container.appendChild(questionTitle);
+
+
+    /*
+     * Formulaire
+     */
+    const form = document.createElement('form');
+
+    form.id = 'qcm-form';
+
+
+    /*
+     * Randomisation des réponses
+     */
+    const shuffledChoices = shuffleArray(q.choices);
+
+
+    shuffledChoices.forEach((choice) => {
+
+      const originalIndex =
+        q.choices.indexOf(choice);
+
+      const label =
+        document.createElement('label');
+
+      label.className = 'choice';
+
+
+      const input =
+        document.createElement('input');
+
+      input.type = 'checkbox';
+
+      input.name = 'choice';
+
+      input.value = originalIndex;
+
+
+      /*
+       * Restaurer les réponses précédentes
+       */
+      if (
+        userAnswers[currentQuestion] &&
+        userAnswers[currentQuestion].includes(originalIndex)
+      ) {
+
+        input.checked = true;
+
+      }
+
+
+      const choiceLabel =
+        document.createElement('span');
+
+      choiceLabel.className =
+        'choice-label';
+
+      choiceLabel.textContent =
+        choice.label + '.';
+
+
+      label.appendChild(input);
+
+      label.appendChild(choiceLabel);
+
+      label.appendChild(
+        document.createTextNode(
+          ' ' + decodeHTML(choice.text)
+        )
+      );
+
+
+      form.appendChild(label);
+
+    });
+
+
+    container.appendChild(form);
+
+
+    /*
+     * Si la question a déjà été corrigée,
+     * afficher directement la correction.
+     */
+    if (validated[currentQuestion]) {
+
+      showCorrection(q, form);
+
+    }
+
+
+    /*
+     * Navigation
+     */
+    const navigation =
+      document.createElement('div');
+
+    navigation.className =
+      'navigation';
+
+
+    /*
+     * Bouton Previous
+     */
+    const btnPrevious =
+      document.createElement('button');
+
+    btnPrevious.type = 'button';
+
+    btnPrevious.textContent =
+      'Previous';
+
+    btnPrevious.disabled =
+      currentQuestion === 0;
+
+    btnPrevious.addEventListener(
+      'click',
+      () => {
+
+        saveCurrentAnswer(form);
+
+        currentQuestion--;
+
+        renderQuestion();
+
+      }
+    );
+
+
+    /*
+     * Bouton Valider
+     */
+    const btnValidate =
+      document.createElement('button');
+
+    btnValidate.type = 'button';
+
+    btnValidate.textContent =
+      validated[currentQuestion]
+        ? 'Validé'
+        : 'Valider';
+
+    btnValidate.disabled =
+      validated[currentQuestion];
+
+    btnValidate.addEventListener(
+      'click',
+      () => {
+
+        validateCurrentQuestion(
+          q,
+          form,
+          btnValidate
+        );
+
+      }
+    );
+
+
+    /*
+     * Bouton Next
+     */
+    const btnNext =
+      document.createElement('button');
+
+    btnNext.type = 'button';
+
+    btnNext.textContent =
+      currentQuestion === questions.length - 1
+        ? 'Terminer'
+        : 'Next';
+
+
+    btnNext.addEventListener(
+      'click',
+      () => {
+
+        /*
+         * Il faut valider avant de passer
+         * à la question suivante.
+         */
+        if (!validated[currentQuestion]) {
+
+          alert(
+            "Veuillez valider cette question avant de continuer."
+          );
+
+          return;
+
+        }
+
+
+        if (
+          currentQuestion <
+          questions.length - 1
+        ) {
+
+          currentQuestion++;
+
+          renderQuestion();
+
+        } else {
+
+          showFinalScore();
+
+        }
+
+      }
+    );
+
+
+    navigation.appendChild(btnPrevious);
+
+    navigation.appendChild(btnValidate);
+
+    navigation.appendChild(btnNext);
+
+    container.appendChild(navigation);
+
+  }
+
+
+  /*
+   * Sauvegarder les réponses cochées
+   */
+  function saveCurrentAnswer(form) {
+
+    const checked =
+      [
+        ...form.querySelectorAll(
+          'input[type="checkbox"]:checked'
+        )
+      ];
+
+    userAnswers[currentQuestion] =
+      checked.map(
+        input => parseInt(input.value)
+      );
+
+  }
+
+
+  /*
+   * Valider la question actuelle
+   */
+  function validateCurrentQuestion(
+    q,
+    form,
+    btnValidate
+  ) {
+
+    const checkedBoxes =
+      [
+        ...form.querySelectorAll(
+          'input[type="checkbox"]:checked'
+        )
+      ];
+
+
+    if (checkedBoxes.length === 0) {
+
+      alert(
+        "Veuillez choisir au moins une réponse."
+      );
+
+      return;
+
+    }
+
+
+    /*
+     * Sauvegarder les réponses
+     */
+    userAnswers[currentQuestion] =
+      checkedBoxes.map(
+        input => parseInt(input.value)
+      );
+
+
+    /*
+     * Marquer comme validée
+     */
+    validated[currentQuestion] =
+      true;
+
+
+    /*
+     * Désactiver les cases
+     */
+    const checkboxes =
+      [
+        ...form.querySelectorAll(
+          'input[type="checkbox"]'
+        )
+      ];
+
+
+    checkboxes.forEach(
+      input => {
+        input.disabled = true;
+      }
+    );
+
+
+    btnValidate.disabled = true;
+
+    btnValidate.textContent =
+      'Validé';
+
+
+    showCorrection(q, form);
+
+  }
+
+
+  /*
+   * Afficher la correction
+   */
+  function showCorrection(q, form) {
+
+    /*
+     * Empêcher la correction d'être
+     * ajoutée plusieurs fois.
+     */
+    if (
+      form.querySelector(
+        '.correction-container'
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    const correctionContainer =
+      document.createElement('div');
+
+    correctionContainer.className =
+      'correction-container';
+
+
+    const checkboxes =
+      [
+        ...form.querySelectorAll(
+          'input[type="checkbox"]'
+        )
+      ];
+
+
+    checkboxes.forEach(input => {
+
+      const originalIndex =
+        parseInt(input.value);
+
+      const choiceData =
+        q.choices[originalIndex];
+
+      const label =
+        input.parentElement;
+
+
+      /*
+       * Vérification de la réponse
+       */
+      if (
+        input.checked &&
+        choiceData.correct
+      ) {
+
+        label.classList.add(
+          'correct-checked'
+        );
+
+      }
+
+      else if (
+        input.checked &&
+        !choiceData.correct
+      ) {
+
+        label.classList.add(
+          'incorrect-checked'
+        );
+
+      }
+
+      else if (
+        !input.checked &&
+        choiceData.correct
+      ) {
+
+        label.classList.add(
+          'missed-correct'
+        );
+
+      }
+
+
+      /*
+       * Justification
+       */
+      const justification =
+        document.createElement('div');
+
+      justification.className =
+        'justification';
+
+
+      const symbol =
+        choiceData.correct
+          ? '✓'
+          : '✗';
+
+
+      justification.textContent =
+        `${symbol} : ${decodeHTML(
+          choiceData.justification
+        )}`;
+
+
+      label.appendChild(
+        justification
+      );
+
+    });
+
+
+    form.appendChild(
+      correctionContainer
+    );
+
+  }
+
+
+  /*
+   * Calcul du score final
+   */
+  function calculateFinalScore() {
+
+    let totalPoints = 0;
+
+    let totalPossiblePoints = 0;
+
+
+    questions.forEach(
+      (q, index) => {
+
+        const answers =
+          userAnswers[index] || [];
+
+
+        const correctAnswers =
+          q.choices
+            .map(
+              (choice, i) =>
+                choice.correct
+                  ? i
+                  : null
+            )
+            .filter(
+              i => i !== null
+            );
+
+
+        /*
+         * Chaque bonne réponse sélectionnée
+         * rapporte un point.
+         */
+        answers.forEach(
+          answerIndex => {
+
+            if (
+              correctAnswers.includes(
+                answerIndex
+              )
+            ) {
+
+              totalPoints++;
+
+            }
+
+          }
+        );
+
+
+        totalPossiblePoints +=
+          correctAnswers.length;
+
+      }
+    );
+
+
+    /*
+     * Note sur 5
+     */
+    const note =
+      Math.round(
+        (
+          totalPoints /
+          totalPossiblePoints
+        ) * 5 * 100
+      ) / 100;
+
+
+    return {
+      totalPoints,
+      totalPossiblePoints,
+      note
+    };
+
+  }
+
+
+  /*
+   * Afficher le score final
+   */
+  function showFinalScore() {
+
+    const result =
+      calculateFinalScore();
+
+
+    container.innerHTML = '';
+
+
+    const title =
+      document.createElement('div');
+
+    title.className =
+      'question-title';
+
+    title.textContent =
+      'QCM terminé';
+
+    container.appendChild(title);
+
+
+    const note =
+      document.createElement('div');
+
+    note.className =
+      'note';
+
+    note.textContent =
+      `Note : ${result.note} / 5`;
+
+    container.appendChild(note);
+
+
+    const details =
+      document.createElement('p');
+
+    details.textContent =
+      `Réponses correctes : ${result.totalPoints} / ${result.totalPossiblePoints}`;
+
+    container.appendChild(details);
+
+
+    /*
+     * Bouton pour recommencer
+     */
+    const restart =
+      document.createElement('button');
+
+    restart.type = 'button';
+
+    restart.textContent =
+      'Recommencer';
+
+
+    restart.addEventListener(
+      'click',
+      () => {
+
+        currentQuestion = 0;
+
+        userAnswers.fill(null);
+
+        validated.fill(false);
+
+        renderQuestion();
+
+      }
+    );
+
+
+    container.appendChild(restart);
+
+  }
+
+
+  /*
+   * Lancement du QCM
+   */
+  renderQuestion();
+
+})();
+</script>
