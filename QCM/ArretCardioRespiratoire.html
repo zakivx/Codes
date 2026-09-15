@@ -1,7 +1,12 @@
 
 <div id="quiz-container"></div>
 
+
 <style>
+  /* =========================================
+     GENERAL
+     ========================================= */
+
   * {
     box-sizing: border-box;
   }
@@ -10,37 +15,63 @@
     width: 100%;
     max-width: 850px;
     margin: 0 auto;
-    padding: 16px;
+    padding: 24px;
     font-family: Arial, sans-serif;
     font-size: 16px;
     line-height: 1.6;
   }
 
+
+  /* =========================================
+     PROGRESS
+     ========================================= */
+
   .progress {
-    margin-bottom: 14px;
-    padding: 10px 12px;
+    margin-bottom: 18px;
+    padding: 10px 14px;
+
     border-radius: 8px;
     background: #f3f3f3;
+
+    font-size: 1rem;
     font-weight: bold;
-    font-size: 0.95rem;
+    line-height: 1.5;
   }
 
+
+  /* =========================================
+     QUESTION
+     ========================================= */
+
   .question-title {
+    margin-bottom: 20px;
+
+    font-size: 1.1rem;
     font-weight: bold;
-    margin-bottom: 18px;
-    font-size: 1.08rem;
     line-height: 1.6;
   }
 
+
+  /* =========================================
+     ANSWER CHOICES
+     ========================================= */
+
   .choice {
-    margin: 10px 0;
-    padding: 11px 12px;
-    cursor: pointer;
     display: flex;
     align-items: flex-start;
+
+    margin: 10px 0;
+    padding: 12px 14px;
+
     gap: 8px;
+
+    cursor: pointer;
+
+    font-size: 1rem;
     line-height: 1.55;
+
     border-radius: 8px;
+
     transition: background 0.15s ease;
   }
 
@@ -48,19 +79,39 @@
     background: #f7f7f7;
   }
 
+
+  /* =========================================
+     CHECKBOX
+     ========================================= */
+
   .choice input {
-    margin: 4px 4px 0 0;
-    flex: 0 0 auto;
     width: 18px;
     height: 18px;
+
+    margin: 4px 4px 0 0;
+
+    flex: 0 0 auto;
+
     cursor: pointer;
   }
 
+
+  /* =========================================
+     A / B / C / D / E
+     ========================================= */
+
   .choice-label {
-    font-weight: bold;
     margin-right: 3px;
+
     flex: 0 0 auto;
+
+    font-weight: bold;
   }
+
+
+  /* =========================================
+     CORRECTION COLORS
+     ========================================= */
 
   .correct-checked {
     color: green;
@@ -80,37 +131,64 @@
     background: #eef6ff;
   }
 
+
+  /* =========================================
+     JUSTIFICATION
+     ========================================= */
+
   .justification {
     width: 100%;
-    font-size: 0.9rem;
+
     margin: 8px 0 4px 0;
     padding-left: 26px;
+
     color: #555;
+
+    font-size: 0.9rem;
     font-weight: normal;
     line-height: 1.5;
   }
 
+
+  /* =========================================
+     NAVIGATION
+     ========================================= */
+
   .navigation {
     display: flex;
-    gap: 8px;
-    margin-top: 22px;
+
     width: 100%;
+    max-width: 600px;
+
+    gap: 8px;
+
+    margin-top: 22px;
   }
 
   .navigation button {
     flex: 1;
-    min-height: 46px;
   }
 
+
+  /* =========================================
+     BUTTONS
+     ========================================= */
+
   button {
+    min-height: 44px;
+
+    padding: 10px 16px;
+
     border: 1px solid #ccc;
     border-radius: 8px;
-    padding: 10px 16px;
-    font-size: 1rem;
-    cursor: pointer;
+
     background: #f5f5f5;
     color: #222;
-    min-height: 44px;
+
+    font-size: 1rem;
+
+    cursor: pointer;
+
     touch-action: manipulation;
   }
 
@@ -123,150 +201,197 @@
     opacity: 0.55;
   }
 
+
+  /* =========================================
+     FINAL SCORE / NOTE
+     ========================================= */
+
   .note {
     margin-top: 20px;
     padding: 14px;
+
     border-radius: 8px;
-    font-weight: bold;
-    font-size: 1.2rem;
+
     background: #f3f3f3;
-  }
 
-
-
-/* ================================
-   MOBILE VERSION
-   ================================ */
-
-@media (max-width: 768px) {
-
-  #quiz-container {
-    width: 100%;
-    max-width: 100%;
-    padding: 16px 12px;
-    font-size: 2rem;
+    font-size: 1.2rem;
+    font-weight: bold;
     line-height: 1.6;
   }
 
-  /* Question counter */
-  .progress {
-    font-size: 1.5rem;
-    padding: 12px 14px;
-    margin-bottom: 20px;
-    line-height: 1.5;
-  }
 
-  /* Question */
-  .question-title {
-    font-size: 2rem;
-    line-height: 1.6;
-    margin-bottom: 24px;
-    font-weight: 700;
-  }
+  /* =========================================
+     TABLET + MOBILE
+     ========================================= */
 
-  /* Answers */
-  .choice {
-    display: flex;
-    align-items: flex-start;
-
-    margin: 14px 0;
-    padding: 14px 10px;
-
-    gap: 12px;
-
-    font-size: 2rem;
-    line-height: 1.6;
-
-    border-radius: 10px;
-  }
-
-  /* Checkbox */
-  .choice input {
-    width: 30px;
-    height: 30px;
-
-    margin-top: 7px;
-
-    flex-shrink: 0;
-    cursor: pointer;
-  }
-
-  /* A / B / C / D / E */
-  .choice-label {
-    min-width: 30px;
-
-    font-size: 2rem;
-    font-weight: 700;
-  }
-
-  /* Explanation */
-  .justification {
-    font-size: 1.5rem;
-    line-height: 1.6;
-
-    padding-left: 42px;
-    margin-top: 10px;
-  }
-
-  /* Navigation */
-  .navigation {
-    position: sticky;
-    bottom: 0;
-    z-index: 10;
-
-    width: 100%;
-
-    margin-left: -12px;
-    margin-right: -12px;
-
-    padding: 12px;
-
-    background: white;
-    border-top: 1px solid #ccc;
-  }
-
-  /* Navigation buttons */
-  .navigation button {
-    min-height: 60px;
-
-    padding: 10px 8px;
-
-    font-size: 1.5rem;
-    font-weight: 600;
-
-    border-radius: 10px;
-  }
-
-  /* Score */
-  .note {
-    font-size: 1.7rem;
-    line-height: 1.6;
-    padding: 18px;
-  }
-}
-
-
-  /* =========================
-     TABLETS / DESKTOP
-     ========================= */
-
-  @media (min-width: 601px) {
+  @media (max-width: 768px) {
 
     #quiz-container {
-      padding: 24px;
+      width: 100%;
+      max-width: 100%;
+
+      padding: 16px 12px;
+
+      font-size: 2rem;
+      line-height: 1.6;
+    }
+
+
+    /* Progress */
+
+    .progress {
+      padding: 12px 14px;
+      margin-bottom: 20px;
+
+      font-size: 1.5rem;
+      line-height: 1.5;
+    }
+
+
+    /* Question */
+
+    .question-title {
+      margin-bottom: 24px;
+
+      font-size: 2rem;
+      line-height: 1.6;
+
+      font-weight: 700;
+    }
+
+
+    /* Answers */
+
+    .choice {
+      display: flex;
+      align-items: flex-start;
+
+      margin: 14px 0;
+      padding: 14px 10px;
+
+      gap: 12px;
+
+      font-size: 2rem;
+      line-height: 1.6;
+
+      border-radius: 10px;
+    }
+
+
+    /* Checkbox */
+
+    .choice input {
+      width: 30px;
+      height: 30px;
+
+      margin-top: 7px;
+
+      flex-shrink: 0;
+    }
+
+
+    /* A / B / C / D / E */
+
+    .choice-label {
+      min-width: 30px;
+
+      margin-right: 0;
+
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+
+    /* Justification */
+
+    .justification {
+      margin-top: 10px;
+
+      padding-left: 42px;
+
+      font-size: 1.5rem;
+      line-height: 1.6;
+    }
+
+
+    /* Navigation */
+
+    .navigation {
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
+
+      width: 100%;
+      max-width: none;
+
+      margin-left: -12px;
+      margin-right: -12px;
+
+      padding: 12px;
+
+      background: white;
+
+      border-top: 1px solid #ccc;
+    }
+
+
+    /* Navigation buttons */
+
+    .navigation button {
+      min-height: 60px;
+
+      padding: 10px 8px;
+
+      font-size: 1.5rem;
+      font-weight: 600;
+
+      border-radius: 10px;
+    }
+
+
+    /* Score */
+
+    .note {
+      padding: 18px;
+
+      font-size: 1.7rem;
+      line-height: 1.6;
+    }
+  }
+
+
+  /* =========================================
+     VERY SMALL SCREENS
+     ========================================= */
+
+  @media (max-width: 360px) {
+
+    #quiz-container {
+      padding: 14px 10px;
     }
 
     .choice {
-      padding: 12px 14px;
+      padding: 13px 8px;
+      gap: 10px;
     }
 
-    .navigation {
-      max-width: 600px;
+    .choice input {
+      width: 28px;
+      height: 28px;
     }
 
+    .choice-label {
+      min-width: 28px;
+    }
+
+    .navigation button {
+      padding: 8px 5px;
+      font-size: 1.4rem;
+    }
   }
-
 </style>
+
+
 
 <script>
 (() => {
