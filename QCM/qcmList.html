@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liste des QCM</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  #search {
+    width: -webkit-fill-available;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+  }
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  li {
+    background: #fff;
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<h1>Medical Tools</h1>
+
+<input type="text" id="search" placeholder="Search tools...">
+
+<ul id="toolList">
+  
+  <li><a href="https://zakivx.github.io/Codes/QCM/ArretCardioRespiratoire.html" target="_blank">Arrêt Cardio Respiratoire</a></li>
+
+
+
+</ul>
+
+<script>
+const searchInput = document.getElementById('search');
+const toolList = document.getElementById('toolList');
+const items = toolList.getElementsByTagName('li');
+
+searchInput.addEventListener('input', function() {
+  const filter = this.value.toLowerCase();
+  for (let i = 0; i < items.length; i++) {
+    const text = items[i].innerText.toLowerCase();
+    items[i].style.display = text.includes(filter) ? '' : 'none';
+  }
+});
+</script>
+
+</body>
+</html>
