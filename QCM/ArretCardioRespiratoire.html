@@ -1,307 +1,546 @@
-<div id="quiz-container"></div>
-
-<style>
-  .question-title {
-    font-weight: bold;
-    margin-bottom: 0.8em;
-  }
-
-  .question-number {
-    font-weight: bold;
-    margin-bottom: 0.5em;
-  }
-
-  .choice {
-    margin: 0.4em 0;
-    cursor: pointer;
-    display: block;
-    line-height: 1.5;
-  }
-
-  .choice input {
-    margin-right: 0.4em;
-  }
-
-  .choice-label {
-    font-weight: bold;
-    margin-right: 0.3em;
-  }
-
-  .correct-checked {
-    color: green;
-    font-weight: bold;
-  }
-
-  .incorrect-checked {
-    color: red;
-    font-weight: bold;
-  }
-
-  .missed-correct {
-    color: blue;
-    font-weight: bold;
-  }
-
-  .justification {
-    font-size: 0.9em;
-    margin: 0.25em 0 0.5em 1.8em;
-    color: #555;
-    font-weight: normal;
-  }
-
-  .note {
-    margin-top: 1em;
-    font-weight: bold;
-    font-size: 1.2em;
-  }
-
-  .navigation {
-    display: flex;
-    gap: 0.5em;
-    margin-top: 1em;
-    flex-wrap: wrap;
-  }
-
-  button {
-    padding: 0.5em 1em;
-    font-size: 1em;
-    cursor: pointer;
-  }
-
-  button:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-
-  .progress {
-    margin-bottom: 1em;
-    font-weight: bold;
-  }
-
-  /* Mobile Font Size Adjustment */
-  @media (max-width: 768px) {
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QCM</title>
+  <style>
     #quiz-container {
-      font-size: 1.15rem; /* Scales up all relative text sizes */
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1em;
+    }
+
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 0.8em;
+    }
+
+    .question-number {
+      font-weight: bold;
+      margin-bottom: 0.5em;
+    }
+
+    .choice {
+      margin: 0.4em 0;
+      cursor: pointer;
+      display: block;
+      line-height: 1.5;
+    }
+
+    .choice input {
+      margin-right: 0.4em;
+    }
+
+    .choice-label {
+      font-weight: bold;
+      margin-right: 0.3em;
+    }
+
+    .correct-checked {
+      color: green;
+      font-weight: bold;
+    }
+
+    .incorrect-checked {
+      color: red;
+      font-weight: bold;
+    }
+
+    .missed-correct {
+      color: blue;
+      font-weight: bold;
+    }
+
+    .justification {
+      font-size: 0.9em;
+      margin: 0.25em 0 0.5em 1.8em;
+      color: #555;
+      font-weight: normal;
+    }
+
+    .note {
+      margin-top: 1em;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    .navigation {
+      display: flex;
+      gap: 0.5em;
+      margin-top: 1em;
+      flex-wrap: wrap;
     }
 
     button {
-      font-size: 1.1em;
-      padding: 0.6em 1.2em;
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
     }
 
-    .choice input[type="checkbox"] {
-      transform: scale(1.25); /* Enlarges checkboxes for easier tapping */
-      margin-right: 0.5em;
-    }
-  }
-</style>
-
-<script>
-(() => {
-
-  const questions = [
-
-    {
-      question: `Concernant le bilan ophtalmologique du patient diabétique`,
-      choices: [
-        {
-          label: "A",
-          text: `L'OCT permet l’exploration de la rétine`,
-          correct: true,
-          justification: `L'OCT fournit une image en coupe de la rétine et permet notamment d'évaluer l'œdème maculaire.`
-        },
-        {
-          label: "B",
-          text: `L'OCT permet l'exploration du vitré`,
-          correct: false,
-          justification: `L'OCT est principalement utilisé pour l'exploration de la rétine et de l'interface vitréo-rétinienne.`
-        },
-        {
-          label: "C",
-          text: `Le fond d'œil à 3 miroirs permet de détecter l'œdème maculaire`,
-          correct: true,
-          justification: `L'examen du fond d'œil permet notamment l'évaluation de la macula et la recherche de complications de la rétinopathie diabétique.`
-        },
-        {
-          label: "D",
-          text: `La cataracte est recherchée à l'examen du fond d'œil à 3 miroirs`,
-          correct: false,
-          justification: `La cataracte est principalement évaluée à la lampe à fente.`
-        },
-        {
-          label: "E",
-          text: `La cataracte est recherchée à l'examen à la lampe à fente`,
-          correct: true,
-          justification: `La lampe à fente permet l'examen du cristallin et le diagnostic d'une cataracte.`
-        }
-      ]
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
     }
 
-  ];
-
-  const container = document.getElementById('quiz-container');
-
-  let currentQuestion = 0;
-
-  /*
-   * Stockage des réponses de l'utilisateur.
-   * Chaque élément contient les indices des réponses sélectionnées.
-   */
-  const userAnswers = new Array(questions.length).fill(null);
-
-  /*
-   * Indique si la question a déjà été corrigée.
-   */
-  const validated = new Array(questions.length).fill(false);
-
-
-  function shuffleArray(array) {
-
-    const arr = array.slice();
-
-    for (let i = arr.length - 1; i > 0; i--) {
-
-      const j = Math.floor(Math.random() * (i + 1));
-
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+    .progress {
+      margin-bottom: 1em;
+      font-weight: bold;
     }
 
-    return arr;
-  }
+    /* Mobile Font Size Adjustment */
+    @media (max-width: 768px) {
+      #quiz-container {
+        font-size: 1.15rem; /* Scales up all relative text sizes */
+      }
 
+      button {
+        font-size: 1.1em;
+        padding: 0.6em 1.2em;
+      }
 
-  function replaceDoubleQuotesWithSingle(str) {
+      .choice input[type="checkbox"] {
+        transform: scale(1.25); /* Enlarges checkboxes for easier tapping */
+        margin-right: 0.5em;
+      }
+    }
+  </style>
+</head>
+<body>
 
-    return String(str).replace(/"/g, "'");
+  <div id="quiz-container"></div>
 
-  }
+  <script>
+  (() => {
 
+    const questions = [
 
-  function decodeHTML(html) {
+      {
+        question: `Concernant le bilan ophtalmologique du patient diabétique`,
+        choices: [
+          {
+            label: "A",
+            text: `L'OCT permet l’exploration de la rétine`,
+            correct: true,
+            justification: `L'OCT fournit une image en coupe de la rétine et permet notamment d'évaluer l'œdème maculaire.`
+          },
+          {
+            label: "B",
+            text: `L'OCT permet l'exploration du vitré`,
+            correct: false,
+            justification: `L'OCT est principalement utilisé pour l'exploration de la rétine et de l'interface vitréo-rétinienne.`
+          },
+          {
+            label: "C",
+            text: `Le fond d'œil à 3 miroirs permet de détecter l'œdème maculaire`,
+            correct: true,
+            justification: `L'examen du fond d'œil permet notamment l'évaluation de la macula et la recherche de complications de la rétinopathie diabétique.`
+          },
+          {
+            label: "D",
+            text: `La cataracte est recherchée à l'examen du fond d'œil à 3 miroirs`,
+            correct: false,
+            justification: `La cataracte est principalement évaluée à la lampe à fente.`
+          },
+          {
+            label: "E",
+            text: `La cataracte est recherchée à l'examen à la lampe à fente`,
+            correct: true,
+            justification: `La lampe à fente permet l'examen du cristallin et le diagnostic d'une cataracte.`
+          }
+        ]
+      }
 
-    const txt = document.createElement("textarea");
+    ];
 
-    txt.innerHTML = html;
+    const container = document.getElementById('quiz-container');
 
-    return replaceDoubleQuotesWithSingle(txt.value);
-
-  }
-
-
-  function renderQuestion() {
-
-    container.innerHTML = '';
-
-    const q = questions[currentQuestion];
+    let currentQuestion = 0;
 
     /*
-     * Progression
+     * Stockage des réponses de l'utilisateur.
+     * Chaque élément contient les indices des réponses sélectionnées.
      */
-    const progress = document.createElement('div');
-
-    progress.className = 'progress';
-
-    progress.textContent =
-      `Question ${currentQuestion + 1} / ${questions.length}`;
-
-    container.appendChild(progress);
-
+    const userAnswers = new Array(questions.length).fill(null);
 
     /*
-     * Question
+     * Indique si la question a déjà été corrigée.
      */
-    const questionTitle = document.createElement('div');
-
-    questionTitle.className = 'question-title';
-
-    questionTitle.textContent =
-      decodeHTML(q.question);
-
-    container.appendChild(questionTitle);
+    const validated = new Array(questions.length).fill(false);
 
 
-    /*
-     * Formulaire
-     */
-    const form = document.createElement('form');
+    function shuffleArray(array) {
 
-    form.id = 'qcm-form';
+      const arr = array.slice();
 
+      for (let i = arr.length - 1; i > 0; i--) {
 
-    /*
-     * Randomisation des réponses
-     */
-    const shuffledChoices = shuffleArray(q.choices);
+        const j = Math.floor(Math.random() * (i + 1));
 
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
 
-    shuffledChoices.forEach((choice) => {
-
-      const originalIndex =
-        q.choices.indexOf(choice);
-
-      const label =
-        document.createElement('label');
-
-      label.className = 'choice';
+      return arr;
+    }
 
 
-      const input =
-        document.createElement('input');
+    function replaceDoubleQuotesWithSingle(str) {
 
-      input.type = 'checkbox';
+      return String(str).replace(/"/g, "'");
 
-      input.name = 'choice';
+    }
 
-      input.value = originalIndex;
+
+    function decodeHTML(html) {
+
+      const txt = document.createElement("textarea");
+
+      txt.innerHTML = html;
+
+      return replaceDoubleQuotesWithSingle(txt.value);
+
+    }
+
+
+    function renderQuestion() {
+
+      container.innerHTML = '';
+
+      const q = questions[currentQuestion];
+
+      /*
+       * Progression
+       */
+      const progress = document.createElement('div');
+
+      progress.className = 'progress';
+
+      progress.textContent =
+        `Question ${currentQuestion + 1} / ${questions.length}`;
+
+      container.appendChild(progress);
 
 
       /*
-       * Restaurer les réponses précédentes
+       * Question
        */
-      if (
-        userAnswers[currentQuestion] &&
-        userAnswers[currentQuestion].includes(originalIndex)
-      ) {
+      const questionTitle = document.createElement('div');
 
-        input.checked = true;
+      questionTitle.className = 'question-title';
+
+      questionTitle.textContent =
+        decodeHTML(q.question);
+
+      container.appendChild(questionTitle);
+
+
+      /*
+       * Formulaire
+       */
+      const form = document.createElement('form');
+
+      form.id = 'qcm-form';
+
+
+      /*
+       * Randomisation des réponses
+       */
+      const shuffledChoices = shuffleArray(q.choices);
+
+
+      shuffledChoices.forEach((choice) => {
+
+        const originalIndex =
+          q.choices.indexOf(choice);
+
+        const label =
+          document.createElement('label');
+
+        label.className = 'choice';
+
+
+        const input =
+          document.createElement('input');
+
+        input.type = 'checkbox';
+
+        input.name = 'choice';
+
+        input.value = originalIndex;
+
+
+        /*
+         * Restaurer les réponses précédentes
+         */
+        if (
+          userAnswers[currentQuestion] &&
+          userAnswers[currentQuestion].includes(originalIndex)
+        ) {
+
+          input.checked = true;
+
+        }
+
+
+        const choiceLabel =
+          document.createElement('span');
+
+        choiceLabel.className =
+          'choice-label';
+
+        choiceLabel.textContent =
+          choice.label + '.';
+
+
+        label.appendChild(input);
+
+        label.appendChild(choiceLabel);
+
+        label.appendChild(
+          document.createTextNode(
+            ' ' + decodeHTML(choice.text)
+          )
+        );
+
+
+        form.appendChild(label);
+
+      });
+
+
+      container.appendChild(form);
+
+
+      /*
+       * Si la question a déjà été corrigée,
+       * afficher directement la correction.
+       */
+      if (validated[currentQuestion]) {
+
+        showCorrection(q, form);
 
       }
 
 
-      const choiceLabel =
-        document.createElement('span');
+      /*
+       * Navigation
+       */
+      const navigation =
+        document.createElement('div');
 
-      choiceLabel.className =
-        'choice-label';
-
-      choiceLabel.textContent =
-        choice.label + '.';
+      navigation.className =
+        'navigation';
 
 
-      label.appendChild(input);
+      /*
+       * Bouton Previous
+       */
+      const btnPrevious =
+        document.createElement('button');
 
-      label.appendChild(choiceLabel);
+      btnPrevious.type = 'button';
 
-      label.appendChild(
-        document.createTextNode(
-          ' ' + decodeHTML(choice.text)
-        )
+      btnPrevious.textContent =
+        'Previous';
+
+      btnPrevious.disabled =
+        currentQuestion === 0;
+
+      btnPrevious.addEventListener(
+        'click',
+        () => {
+
+          saveCurrentAnswer(form);
+
+          currentQuestion--;
+
+          renderQuestion();
+
+        }
       );
 
 
-      form.appendChild(label);
+      /*
+       * Bouton Valider
+       */
+      const btnValidate =
+        document.createElement('button');
 
-    });
+      btnValidate.type = 'button';
+
+      btnValidate.textContent =
+        validated[currentQuestion]
+          ? 'Validé'
+          : 'Valider';
+
+      btnValidate.disabled =
+        validated[currentQuestion];
+
+      btnValidate.addEventListener(
+        'click',
+        () => {
+
+          validateCurrentQuestion(
+            q,
+            form,
+            btnValidate
+          );
+
+        }
+      );
 
 
-    container.appendChild(form);
+      /*
+       * Bouton Next
+       */
+      const btnNext =
+        document.createElement('button');
+
+      btnNext.type = 'button';
+
+      btnNext.textContent =
+        currentQuestion === questions.length - 1
+          ? 'Terminer'
+          : 'Next';
+
+
+      btnNext.addEventListener(
+        'click',
+        () => {
+
+          /*
+           * Il faut valider avant de passer
+           * à la question suivante.
+           */
+          if (!validated[currentQuestion]) {
+
+            alert(
+              "Veuillez valider cette question avant de continuer."
+            );
+
+            return;
+
+          }
+
+
+          if (
+            currentQuestion <
+            questions.length - 1
+          ) {
+
+            currentQuestion++;
+
+            renderQuestion();
+
+          } else {
+
+            showFinalScore();
+
+          }
+
+        }
+      );
+
+
+      navigation.appendChild(btnPrevious);
+
+      navigation.appendChild(btnValidate);
+
+      navigation.appendChild(btnNext);
+
+      container.appendChild(navigation);
+
+    }
 
 
     /*
-     * Si la question a déjà été corrigée,
-     * afficher directement la correction.
+     * Sauvegarder les réponses cochées
      */
-    if (validated[currentQuestion]) {
+    function saveCurrentAnswer(form) {
+
+      const checked =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+      userAnswers[currentQuestion] =
+        checked.map(
+          input => parseInt(input.value)
+        );
+
+    }
+
+
+    /*
+     * Valider la question actuelle
+     */
+    function validateCurrentQuestion(
+      q,
+      form,
+      btnValidate
+    ) {
+
+      const checkedBoxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+
+      if (checkedBoxes.length === 0) {
+
+        alert(
+          "Veuillez choisir au moins une réponse."
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * Sauvegarder les réponses
+       */
+      userAnswers[currentQuestion] =
+        checkedBoxes.map(
+          input => parseInt(input.value)
+        );
+
+
+      /*
+       * Marquer comme validée
+       */
+      validated[currentQuestion] =
+        true;
+
+
+      /*
+       * Désactiver les cases
+       */
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(
+        input => {
+          input.disabled = true;
+        }
+      );
+
+
+      btnValidate.disabled = true;
+
+      btnValidate.textContent =
+        'Validé';
+
 
       showCorrection(q, form);
 
@@ -309,510 +548,289 @@
 
 
     /*
-     * Navigation
+     * Afficher la correction
      */
-    const navigation =
-      document.createElement('div');
+    function showCorrection(q, form) {
 
-    navigation.className =
-      'navigation';
+      /*
+       * Empêcher la correction d'être
+       * ajoutée plusieurs fois.
+       */
+      if (
+        form.querySelector(
+          '.correction-container'
+        )
+      ) {
 
-
-    /*
-     * Bouton Previous
-     */
-    const btnPrevious =
-      document.createElement('button');
-
-    btnPrevious.type = 'button';
-
-    btnPrevious.textContent =
-      'Previous';
-
-    btnPrevious.disabled =
-      currentQuestion === 0;
-
-    btnPrevious.addEventListener(
-      'click',
-      () => {
-
-        saveCurrentAnswer(form);
-
-        currentQuestion--;
-
-        renderQuestion();
+        return;
 
       }
-    );
 
 
-    /*
-     * Bouton Valider
-     */
-    const btnValidate =
-      document.createElement('button');
+      const correctionContainer =
+        document.createElement('div');
 
-    btnValidate.type = 'button';
-
-    btnValidate.textContent =
-      validated[currentQuestion]
-        ? 'Validé'
-        : 'Valider';
-
-    btnValidate.disabled =
-      validated[currentQuestion];
-
-    btnValidate.addEventListener(
-      'click',
-      () => {
-
-        validateCurrentQuestion(
-          q,
-          form,
-          btnValidate
-        );
-
-      }
-    );
+      correctionContainer.className =
+        'correction-container';
 
 
-    /*
-     * Bouton Next
-     */
-    const btnNext =
-      document.createElement('button');
-
-    btnNext.type = 'button';
-
-    btnNext.textContent =
-      currentQuestion === questions.length - 1
-        ? 'Terminer'
-        : 'Next';
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
 
 
-    btnNext.addEventListener(
-      'click',
-      () => {
+      checkboxes.forEach(input => {
+
+        const originalIndex =
+          parseInt(input.value);
+
+        const choiceData =
+          q.choices[originalIndex];
+
+        const label =
+          input.parentElement;
+
 
         /*
-         * Il faut valider avant de passer
-         * à la question suivante.
+         * Vérification de la réponse
          */
-        if (!validated[currentQuestion]) {
+        if (
+          input.checked &&
+          choiceData.correct
+        ) {
 
-          alert(
-            "Veuillez valider cette question avant de continuer."
+          label.classList.add(
+            'correct-checked'
           );
 
-          return;
+        }
+
+        else if (
+          input.checked &&
+          !choiceData.correct
+        ) {
+
+          label.classList.add(
+            'incorrect-checked'
+          );
+
+        }
+
+        else if (
+          !input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'missed-correct'
+          );
 
         }
 
 
-        if (
-          currentQuestion <
-          questions.length - 1
-        ) {
+        /*
+         * Justification
+         */
+        const justification =
+          document.createElement('div');
 
-          currentQuestion++;
+        justification.className =
+          'justification';
+
+
+        const symbol =
+          choiceData.correct
+            ? '✓'
+            : '✗';
+
+
+        justification.textContent =
+          `${symbol} : ${decodeHTML(
+            choiceData.justification
+          )}`;
+
+
+        label.appendChild(
+          justification
+        );
+
+      });
+
+
+      form.appendChild(
+        correctionContainer
+      );
+
+    }
+
+
+    /*
+     * Calcul du score final
+     */
+    function calculateFinalScore() {
+
+      let totalPoints = 0;
+
+      let totalPossiblePoints = 0;
+
+
+      questions.forEach(
+        (q, index) => {
+
+          const answers =
+            userAnswers[index] || [];
+
+
+          const correctAnswers =
+            q.choices
+              .map(
+                (choice, i) =>
+                  choice.correct
+                    ? i
+                    : null
+              )
+              .filter(
+                i => i !== null
+              );
+
+
+          /*
+           * Chaque bonne réponse sélectionnée
+           * rapporte un point.
+           */
+          answers.forEach(
+            answerIndex => {
+
+              if (
+                correctAnswers.includes(
+                  answerIndex
+                )
+              ) {
+
+                totalPoints++;
+
+              }
+
+            }
+          );
+
+
+          totalPossiblePoints +=
+            correctAnswers.length;
+
+        }
+      );
+
+
+      /*
+       * Note sur 5
+       */
+      const note =
+        Math.round(
+          (
+            totalPoints /
+            totalPossiblePoints
+          ) * 5 * 100
+        ) / 100;
+
+
+      return {
+        totalPoints,
+        totalPossiblePoints,
+        note
+      };
+
+    }
+
+
+    /*
+     * Afficher le score final
+     */
+    function showFinalScore() {
+
+      const result =
+        calculateFinalScore();
+
+
+      container.innerHTML = '';
+
+
+      const title =
+        document.createElement('div');
+
+      title.className =
+        'question-title';
+
+      title.textContent =
+        'QCM terminé';
+
+      container.appendChild(title);
+
+
+      const note =
+        document.createElement('div');
+
+      note.className =
+        'note';
+
+      note.textContent =
+        `Note : ${result.note} / 5`;
+
+      container.appendChild(note);
+
+
+      const details =
+        document.createElement('p');
+
+      details.textContent =
+        `Réponses correctes : ${result.totalPoints} / ${result.totalPossiblePoints}`;
+
+      container.appendChild(details);
+
+
+      /*
+       * Bouton pour recommencer
+       */
+      const restart =
+        document.createElement('button');
+
+      restart.type = 'button';
+
+      restart.textContent =
+        'Recommencer';
+
+
+      restart.addEventListener(
+        'click',
+        () => {
+
+          currentQuestion = 0;
+
+          userAnswers.fill(null);
+
+          validated.fill(false);
 
           renderQuestion();
 
-        } else {
-
-          showFinalScore();
-
         }
-
-      }
-    );
-
-
-    navigation.appendChild(btnPrevious);
-
-    navigation.appendChild(btnValidate);
-
-    navigation.appendChild(btnNext);
-
-    container.appendChild(navigation);
-
-  }
-
-
-  /*
-   * Sauvegarder les réponses cochées
-   */
-  function saveCurrentAnswer(form) {
-
-    const checked =
-      [
-        ...form.querySelectorAll(
-          'input[type="checkbox"]:checked'
-        )
-      ];
-
-    userAnswers[currentQuestion] =
-      checked.map(
-        input => parseInt(input.value)
       );
 
-  }
 
-
-  /*
-   * Valider la question actuelle
-   */
-  function validateCurrentQuestion(
-    q,
-    form,
-    btnValidate
-  ) {
-
-    const checkedBoxes =
-      [
-        ...form.querySelectorAll(
-          'input[type="checkbox"]:checked'
-        )
-      ];
-
-
-    if (checkedBoxes.length === 0) {
-
-      alert(
-        "Veuillez choisir au moins une réponse."
-      );
-
-      return;
+      container.appendChild(restart);
 
     }
 
 
     /*
-     * Sauvegarder les réponses
+     * Lancement du QCM
      */
-    userAnswers[currentQuestion] =
-      checkedBoxes.map(
-        input => parseInt(input.value)
-      );
+    renderQuestion();
 
+  })();
+  </script>
 
-    /*
-     * Marquer comme validée
-     */
-    validated[currentQuestion] =
-      true;
-
-
-    /*
-     * Désactiver les cases
-     */
-    const checkboxes =
-      [
-        ...form.querySelectorAll(
-          'input[type="checkbox"]'
-        )
-      ];
-
-
-    checkboxes.forEach(
-      input => {
-        input.disabled = true;
-      }
-    );
-
-
-    btnValidate.disabled = true;
-
-    btnValidate.textContent =
-      'Validé';
-
-
-    showCorrection(q, form);
-
-  }
-
-
-  /*
-   * Afficher la correction
-   */
-  function showCorrection(q, form) {
-
-    /*
-     * Empêcher la correction d'être
-     * ajoutée plusieurs fois.
-     */
-    if (
-      form.querySelector(
-        '.correction-container'
-      )
-    ) {
-
-      return;
-
-    }
-
-
-    const correctionContainer =
-      document.createElement('div');
-
-    correctionContainer.className =
-      'correction-container';
-
-
-    const checkboxes =
-      [
-        ...form.querySelectorAll(
-          'input[type="checkbox"]'
-        )
-      ];
-
-
-    checkboxes.forEach(input => {
-
-      const originalIndex =
-        parseInt(input.value);
-
-      const choiceData =
-        q.choices[originalIndex];
-
-      const label =
-        input.parentElement;
-
-
-      /*
-       * Vérification de la réponse
-       */
-      if (
-        input.checked &&
-        choiceData.correct
-      ) {
-
-        label.classList.add(
-          'correct-checked'
-        );
-
-      }
-
-      else if (
-        input.checked &&
-        !choiceData.correct
-      ) {
-
-        label.classList.add(
-          'incorrect-checked'
-        );
-
-      }
-
-      else if (
-        !input.checked &&
-        choiceData.correct
-      ) {
-
-        label.classList.add(
-          'missed-correct'
-        );
-
-      }
-
-
-      /*
-       * Justification
-       */
-      const justification =
-        document.createElement('div');
-
-      justification.className =
-        'justification';
-
-
-      const symbol =
-        choiceData.correct
-          ? '✓'
-          : '✗';
-
-
-      justification.textContent =
-        `${symbol} : ${decodeHTML(
-          choiceData.justification
-        )}`;
-
-
-      label.appendChild(
-        justification
-      );
-
-    });
-
-
-    form.appendChild(
-      correctionContainer
-    );
-
-  }
-
-
-  /*
-   * Calcul du score final
-   */
-  function calculateFinalScore() {
-
-    let totalPoints = 0;
-
-    let totalPossiblePoints = 0;
-
-
-    questions.forEach(
-      (q, index) => {
-
-        const answers =
-          userAnswers[index] || [];
-
-
-        const correctAnswers =
-          q.choices
-            .map(
-              (choice, i) =>
-                choice.correct
-                  ? i
-                  : null
-            )
-            .filter(
-              i => i !== null
-            );
-
-
-        /*
-         * Chaque bonne réponse sélectionnée
-         * rapporte un point.
-         */
-        answers.forEach(
-          answerIndex => {
-
-            if (
-              correctAnswers.includes(
-                answerIndex
-              )
-            ) {
-
-              totalPoints++;
-
-            }
-
-          }
-        );
-
-
-        totalPossiblePoints +=
-          correctAnswers.length;
-
-      }
-    );
-
-
-    /*
-     * Note sur 5
-     */
-    const note =
-      Math.round(
-        (
-          totalPoints /
-          totalPossiblePoints
-        ) * 5 * 100
-      ) / 100;
-
-
-    return {
-      totalPoints,
-      totalPossiblePoints,
-      note
-    };
-
-  }
-
-
-  /*
-   * Afficher le score final
-   */
-  function showFinalScore() {
-
-    const result =
-      calculateFinalScore();
-
-
-    container.innerHTML = '';
-
-
-    const title =
-      document.createElement('div');
-
-    title.className =
-      'question-title';
-
-    title.textContent =
-      'QCM terminé';
-
-    container.appendChild(title);
-
-
-    const note =
-      document.createElement('div');
-
-    note.className =
-      'note';
-
-    note.textContent =
-      `Note : ${result.note} / 5`;
-
-    container.appendChild(note);
-
-
-    const details =
-      document.createElement('p');
-
-    details.textContent =
-      `Réponses correctes : ${result.totalPoints} / ${result.totalPossiblePoints}`;
-
-    container.appendChild(details);
-
-
-    /*
-     * Bouton pour recommencer
-     */
-    const restart =
-      document.createElement('button');
-
-    restart.type = 'button';
-
-    restart.textContent =
-      'Recommencer';
-
-
-    restart.addEventListener(
-      'click',
-      () => {
-
-        currentQuestion = 0;
-
-        userAnswers.fill(null);
-
-        validated.fill(false);
-
-        renderQuestion();
-
-      }
-    );
-
-
-    container.appendChild(restart);
-
-  }
-
-
-  /*
-   * Lancement du QCM
-   */
-  renderQuestion();
-
-})();
-</script>
+</body>
+</html>
