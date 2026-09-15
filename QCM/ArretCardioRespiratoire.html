@@ -133,26 +133,30 @@
   }
 
 
-  /* =========================
-     MOBILE
-     ========================= */
 
+/* ================================
+   MOBILE VERSION
+   ================================ */
 
-
-@media (max-width: 600px) {
+@media (max-width: 768px) {
 
   #quiz-container {
-    padding: 14px 12px;
+    width: 100%;
+    max-width: 100%;
+    padding: 16px 12px;
     font-size: 2rem;
     line-height: 1.6;
   }
 
+  /* Question counter */
   .progress {
     font-size: 1.5rem;
-    padding: 12px;
+    padding: 12px 14px;
     margin-bottom: 20px;
+    line-height: 1.5;
   }
 
+  /* Question */
   .question-title {
     font-size: 2rem;
     line-height: 1.6;
@@ -160,61 +164,86 @@
     font-weight: 700;
   }
 
+  /* Answers */
   .choice {
+    display: flex;
+    align-items: flex-start;
+
     margin: 14px 0;
     padding: 14px 10px;
+
     gap: 12px;
+
     font-size: 2rem;
     line-height: 1.6;
+
     border-radius: 10px;
   }
 
+  /* Checkbox */
   .choice input {
     width: 30px;
     height: 30px;
-    margin-top: 6px;
+
+    margin-top: 7px;
+
     flex-shrink: 0;
+    cursor: pointer;
   }
 
+  /* A / B / C / D / E */
   .choice-label {
     min-width: 30px;
+
     font-size: 2rem;
     font-weight: 700;
   }
 
+  /* Explanation */
   .justification {
     font-size: 1.5rem;
     line-height: 1.6;
+
     padding-left: 42px;
+    margin-top: 10px;
   }
 
+  /* Navigation */
   .navigation {
     position: sticky;
     bottom: 0;
     z-index: 10;
+
+    width: 100%;
+
     margin-left: -12px;
     margin-right: -12px;
+
     padding: 12px;
+
     background: white;
     border-top: 1px solid #ccc;
   }
 
+  /* Navigation buttons */
   .navigation button {
     min-height: 60px;
+
     padding: 10px 8px;
+
     font-size: 1.5rem;
     font-weight: 600;
+
     border-radius: 10px;
   }
 
+  /* Score */
   .note {
     font-size: 1.7rem;
     line-height: 1.6;
     padding: 18px;
   }
 }
-
-
 
 
   /* =========================
