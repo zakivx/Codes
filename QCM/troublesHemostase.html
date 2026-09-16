@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Troubles de l’hémostase et de la coagulation</title>
+  <style>
+    #quiz-container {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1em;
+    }
+
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 0.8em;
+    }
+
+    .question-number {
+      font-weight: bold;
+      margin-bottom: 0.5em;
+    }
+
+    .choice {
+      margin: 0.4em 0;
+      cursor: pointer;
+      display: block;
+      line-height: 1.5;
+    }
+
+    .choice input {
+      margin-right: 0.4em;
+    }
+
+    .choice-label {
+      font-weight: bold;
+      margin-right: 0.3em;
+    }
+
+    .correct-checked {
+      color: green;
+      font-weight: bold;
+    }
+
+    .incorrect-checked {
+      color: red;
+      font-weight: bold;
+    }
+
+    .missed-correct {
+      color: blue;
+      font-weight: bold;
+    }
+
+    .justification {
+      font-size: 0.9em;
+      margin: 0.25em 0 0.5em 1.8em;
+      color: #555;
+      font-weight: normal;
+    }
+
+    .note {
+      margin-top: 1em;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    .navigation {
+      display: flex;
+      gap: 0.5em;
+      margin-top: 1em;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .progress {
+      margin-bottom: 1em;
+      font-weight: bold;
+    }
+
+    /* Mobile Font Size Adjustment */
+    @media (max-width: 768px) {
+      #quiz-container {
+        font-size: 1rem; /* Base size adjusted to 1rem */
+      }
+
+      button {
+        font-size: 1em;
+        padding: 0.5em 1em;
+      }
+
+      .choice input[type="checkbox"] {
+        transform: scale(1.1); /* Slightly adjusted checkbox scale for 1rem target */
+        margin-right: 0.4em;
+      }
+    }
+  </style>
+</head>
+<body>
+    <header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
+  <a href="https://zakivx.github.io/Codes/QCM/qcmList.html" 
+      style="color:#fff; text-decoration:none; font-weight:bold;">
+    ← Retour à la liste des QCM
+  </a>
+</header>
+  <div id="quiz-container"></div>
+
+  <script>
+  (() => {
+
+    const questions = [
+
+{
+  question: `13. Dans la forme typique de CIVD, on observe :`,
+  choices: [
+    {
+      label: "A",
+      text: `Une thrombopénie`,
+      correct: true,
+      justification: `La consommation plaquettaire au cours de la CIVD entraîne fréquemment une thrombopénie.`
+    },
+    {
+      label: "B",
+      text: `Un abaissement du facteur V (proaccélérine)`,
+      correct: true,
+      justification: `Le facteur V est consommé au cours de la CIVD et son activité peut être diminuée.`
+    },
+    {
+      label: "C",
+      text: `Un abaissement du facteur IX (facteur antihémophilique B)`,
+      correct: true,
+      justification: `Les facteurs de coagulation peuvent être consommés au cours d'une CIVD, entraînant notamment une diminution du facteur IX.`
+    },
+    {
+      label: "D",
+      text: `Une diminution du facteur I (fibrinogène)`,
+      correct: true,
+      justification: `Le fibrinogène peut être consommé au cours de la CIVD et être diminué dans les formes typiques, bien qu'il puisse rester normal ou élevé au début d'une CIVD associée à une inflammation.`
+    },
+    {
+      label: "E",
+      text: `Une augmentation des PDF`,
+      correct: true,
+      justification: `La formation et la lyse de fibrine entraînent une augmentation des produits de dégradation de la fibrine/fibrinogène et des D-dimères.`
+    }
+  ]
+},
+
+{
+  question: `14. L'un des facteurs suivants de la coagulation n'est pas vitamine K-dépendant. Lequel ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Prothrombine (II)`,
+      correct: false,
+      justification: `Le facteur II est un facteur vitamine K-dépendant.`
+    },
+    {
+      label: "B",
+      text: `Proconvertine (VII)`,
+      correct: false,
+      justification: `Le facteur VII est un facteur vitamine K-dépendant.`
+    },
+    {
+      label: "C",
+      text: `Proaccélérine (V)`,
+      correct: true,
+      justification: `Le facteur V n'est pas vitamine K-dépendant. Les facteurs II, VII, IX et X, ainsi que les protéines C et S, sont vitamine K-dépendants.`
+    },
+    {
+      label: "D",
+      text: `Globuline antihémophilique B (IX)`,
+      correct: false,
+      justification: `Le facteur IX est vitamine K-dépendant.`
+    },
+    {
+      label: "E",
+      text: `Facteur Stuart (X)`,
+      correct: false,
+      justification: `Le facteur X est vitamine K-dépendant.`
+    }
+  ]
+},
+
+{
+  question: `15. Le temps de Quick explore l'activité de plusieurs facteurs de l'hémostase. Parmi les séries suivantes de facteurs, indiquez laquelle correspond au temps de Quick. De quelle voie de la coagulation s'agit-il ?`,
+  choices: [
+    {
+      label: "A",
+      text: `II – VII – IX – X`,
+      correct: false,
+      justification: `Le facteur IX appartient à la voie intrinsèque ; cette série ne correspond donc pas à l'ensemble exploré par le temps de Quick.`
+    },
+    {
+      label: "B",
+      text: `I – II – V – VII – Plaquettes`,
+      correct: false,
+      justification: `Les plaquettes ne sont pas explorées par le temps de Quick.`
+    },
+    {
+      label: "C",
+      text: `VIII – IX – XI – XII`,
+      correct: false,
+      justification: `Ces facteurs appartiennent à la voie intrinsèque, explorée principalement par le TCA.`
+    },
+    {
+      label: "D",
+      text: `I – V – VII – X`,
+      correct: true,
+      justification: `Le temps de Quick explore la voie extrinsèque et la voie commune : facteurs VII, X, V, II et fibrinogène (I).`
+    },
+    {
+      label: "E",
+      text: `VII – IX – XI – XII`,
+      correct: false,
+      justification: `Les facteurs IX, XI et XII appartiennent à la voie intrinsèque.`
+    }
+  ]
+},
+
+{
+  question: `16. Un allongement du temps de Quick peut s'observer dans :`,
+  choices: [
+    {
+      label: "A",
+      text: `Maladie de von Willebrand (TS et TCA allongés)`,
+      correct: false,
+      justification: `La maladie de von Willebrand affecte principalement l'hémostase primaire et peut entraîner un allongement du TCA par diminution du facteur VIII, mais le temps de Quick est habituellement normal.`
+    },
+    {
+      label: "B",
+      text: `Hémophilie A majeure (TCA allongé)`,
+      correct: false,
+      justification: `Le déficit en facteur VIII affecte la voie intrinsèque et allonge le TCA, tandis que le temps de Quick reste habituellement normal.`
+    },
+    {
+      label: "C",
+      text: `Hémophilie B majeure (TCA allongé)`,
+      correct: false,
+      justification: `Le déficit en facteur IX allonge le TCA mais ne modifie habituellement pas le temps de Quick.`
+    },
+    {
+      label: "D",
+      text: `Héparinothérapie à dose curative (TCA et TP allongés)`,
+      correct: false,
+      justification: `L'héparine non fractionnée allonge principalement le TCA ; le TP/temps de Quick n'est pas le test de surveillance de référence.`
+    },
+    {
+      label: "E",
+      text: `Aucune`,
+      correct: false,
+      justification: `Le temps de Quick peut notamment être allongé en cas de déficit en facteurs de la voie extrinsèque ou commune, de traitement par antivitamines K ou d'insuffisance hépatique.`
+    }
+  ]
+},
+
+{
+  question: `17. Concernant la coagulation intravasculaire disséminée (CIVD), quelle est la réponse vraie ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Une CIVD ne se complique pas d'hémorragie`,
+      correct: false,
+      justification: `La consommation des plaquettes et des facteurs de coagulation peut entraîner des manifestations hémorragiques importantes.`
+    },
+    {
+      label: "B",
+      text: `Une CIVD ne se complique pas de thromboses`,
+      correct: false,
+      justification: `La formation diffuse de microthrombi est caractéristique de la CIVD et peut provoquer des complications thrombotiques et ischémiques.`
+    },
+    {
+      label: "C",
+      text: `Un sepsis peut se compliquer de CIVD`,
+      correct: true,
+      justification: `Le sepsis est une cause fréquente de CIVD par activation systémique de la coagulation.`
+    },
+    {
+      label: "D",
+      text: `Le bilan biologique de l'hémostase est souvent normal`,
+      correct: false,
+      justification: `La CIVD s'accompagne typiquement d'anomalies biologiques telles que thrombopénie, allongement du TP/TCA, augmentation des D-dimères et diminution variable du fibrinogène.`
+    },
+    {
+      label: "E",
+      text: `La thrombopénie isolée est spécifique du diagnostic de CIVD`,
+      correct: false,
+      justification: `La thrombopénie est fréquente mais non spécifique de la CIVD ; elle doit être interprétée avec le contexte et les autres paramètres de l'hémostase.`
+    }
+  ]
+},
+
+{
+  question: `QCM 6. Parmi ces différents bilans d'hémostase, lequel évoque un traitement efficace par héparine ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Plaquettes : 20 000/mm³ ; TCA > 150 s (TCAr > 5) ; TP < 10 % ; V < 10 %`,
+      correct: false,
+      justification: `Ce bilan évoque une coagulopathie majeure, notamment une CIVD, plutôt qu'un traitement anticoagulant efficace isolé.`
+    },
+    {
+      label: "B",
+      text: `Plaquettes : 250 000/mm³ ; TCA : 35 s (TCAr : 1) ; TP : 90 % ; V : 85 %`,
+      correct: false,
+      justification: `Le TCA n'est pas prolongé ; il n'y a donc pas d'effet anticoagulant significatif d'une héparine non fractionnée.`
+    },
+    {
+      label: "C",
+      text: `Plaquettes : 250 000/mm³ ; TCA : 70 s (TCAr : 2) ; TP : 95 % ; V : 90 %`,
+      correct: true,
+      justification: `Un TCA environ deux fois le témoin avec des plaquettes et un TP conservés est compatible avec un traitement efficace par héparine non fractionnée, selon la cible du laboratoire.`
+    },
+    {
+      label: "D",
+      text: `Plaquettes : 250 000/mm³ ; TCA : 35 s (TCAr : 1) ; TP : 25 % ; V : 90 %`,
+      correct: false,
+      justification: `Le TCA est normal malgré un TP très abaissé ; ce profil n'évoque pas une anticoagulation efficace par héparine non fractionnée.`
+    },
+    {
+      label: "E",
+      text: `Plaquettes : 200 000/mm³ ; TCA : 45 s (TCAr : 1,3) ; TP : 40 % ; V : 30 %`,
+      correct: false,
+      justification: `Le TCA est insuffisamment prolongé et l'abaissement du TP et du facteur V n'est pas le profil attendu d'un traitement isolé par héparine.`
+    }
+  ]
+},
+
+{
+  question: `QCM 7. Parmi ces différents bilans d'hémostase, lequel évoque une CIVD ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Plaquettes : 20 000/mm³ ; TCA > 150 s (TCAr > 5) ; TP < 10 % ; V < 10 % ; D-dimères > 20 000 μg/L`,
+      correct: true,
+      justification: `Thrombopénie profonde, allongement majeur du TCA, effondrement du TP et du facteur V et élévation massive des D-dimères constituent un profil très évocateur de CIVD sévère.`
+    },
+    {
+      label: "B",
+      text: `Plaquettes : 250 000/mm³ ; TCA : 35 s (TCAr : 1) ; TP : 90 % ; V : 85 % ; D-dimères < 500 μg/L`,
+      correct: false,
+      justification: `Le bilan est globalement normal et n'évoque pas une CIVD.`
+    },
+    {
+      label: "C",
+      text: `Plaquettes : 250 000/mm³ ; TCA : 70 s (TCAr : 2) ; TP : 95 % ; V : 90 % ; D-dimères < 500 μg/L`,
+      correct: false,
+      justification: `Ce profil évoque plutôt un effet d'héparine avec TCA prolongé et paramètres de consommation conservés.`
+    },
+    {
+      label: "D",
+      text: `Plaquettes : 250 000/mm³ ; TCA : 35 s (TCAr : 1) ; TP : 25 % ; V : 90 % ; D-dimères < 500 μg/L`,
+      correct: false,
+      justification: `Un TP abaissé isolément avec plaquettes et D-dimères normaux n'est pas typique d'une CIVD.`
+    },
+    {
+      label: "E",
+      text: `Plaquettes : 200 000/mm³ ; TCA : 45 s (TCAr : 1,3) ; TP : 40 % ; V : 30 % ; D-dimères < 500 μg/L`,
+      correct: false,
+      justification: `La thrombopénie et l'élévation des marqueurs de fibrinolyse attendues dans une CIVD ne sont pas présentes.`
+    }
+  ]
+},
+
+{
+  question: `QCM 15. À l'occasion d'un accident hémorragique sévère au cours d'un surdosage thérapeutique par l'héparine, indiquez la mesure qui vous paraît la plus appropriée :`,
+  choices: [
+    {
+      label: "A",
+      text: `Demander en urgence un taux de prothrombine`,
+      correct: false,
+      justification: `Le TP n'est pas le test de référence pour évaluer un surdosage par héparine non fractionnée. En cas d'hémorragie sévère, le traitement ne doit pas être retardé par ce dosage.`
+    },
+    {
+      label: "B",
+      text: `Injecter en urgence du PPSB à la dose de 20 U/kg`,
+      correct: false,
+      justification: `Les concentrés de complexe prothrombinique sont utilisés principalement pour antagoniser les antivitamines K et ne neutralisent pas directement l'héparine.`
+    },
+    {
+      label: "C",
+      text: `Injecter du sulfate de protamine par voie intraveineuse à la même dose en unités que celle de la dernière injection d'héparine`,
+      correct: false,
+      justification: `La protamine est l'antidote de l'héparine non fractionnée, mais sa dose doit être calculée selon la quantité d'héparine encore active, classiquement environ 1 mg de protamine pour 100 unités d'héparine à neutraliser, avec adaptation au délai depuis l'administration.`
+    },
+    {
+      label: "D",
+      text: `Injecter 20 mg de vitamine K par voie intraveineuse`,
+      correct: false,
+      justification: `La vitamine K antagonise les antivitamines K et n'est pas l'antidote de l'héparine.`
+    },
+    {
+      label: "E",
+      text: `Transfuser du plasma frais congelé pour neutraliser l'héparine circulante`,
+      correct: false,
+      justification: `Le plasma frais congelé ne neutralise pas spécifiquement l'héparine. En cas d'hémorragie sévère liée à une héparine non fractionnée, la protamine est l'antidote spécifique.`
+    }
+  ]
+},
+
+    ];
+
+    const container = document.getElementById('quiz-container');
+
+    let currentQuestion = 0;
+
+    /*
+     * Stockage des réponses de l'utilisateur.
+     * Chaque élément contient les indices des réponses sélectionnées.
+     */
+    const userAnswers = new Array(questions.length).fill(null);
+
+    /*
+     * Indique si la question a déjà été corrigée.
+     */
+    const validated = new Array(questions.length).fill(false);
+
+
+    function shuffleArray(array) {
+
+      const arr = array.slice();
+
+      for (let i = arr.length - 1; i > 0; i--) {
+
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+
+      return arr;
+    }
+
+
+    function replaceDoubleQuotesWithSingle(str) {
+
+      return String(str).replace(/"/g, "'");
+
+    }
+
+
+    function decodeHTML(html) {
+
+      const txt = document.createElement("textarea");
+
+      txt.innerHTML = html;
+
+      return replaceDoubleQuotesWithSingle(txt.value);
+
+    }
+
+
+    function renderQuestion() {
+
+      container.innerHTML = '';
+
+      const q = questions[currentQuestion];
+
+      /*
+       * Progression
+       */
+      const progress = document.createElement('div');
+
+      progress.className = 'progress';
+
+      progress.textContent =
+        `Question ${currentQuestion + 1} / ${questions.length}`;
+
+      container.appendChild(progress);
+
+
+      /*
+       * Question
+       */
+      const questionTitle = document.createElement('div');
+
+      questionTitle.className = 'question-title';
+
+      questionTitle.textContent =
+        decodeHTML(q.question);
+
+      container.appendChild(questionTitle);
+
+
+      /*
+       * Formulaire
+       */
+      const form = document.createElement('form');
+
+      form.id = 'qcm-form';
+
+
+      /*
+       * Randomisation des réponses
+       */
+      const shuffledChoices = shuffleArray(q.choices);
+
+
+      shuffledChoices.forEach((choice) => {
+
+        const originalIndex =
+          q.choices.indexOf(choice);
+
+        const label =
+          document.createElement('label');
+
+        label.className = 'choice';
+
+
+        const input =
+          document.createElement('input');
+
+        input.type = 'checkbox';
+
+        input.name = 'choice';
+
+        input.value = originalIndex;
+
+
+        /*
+         * Restaurer les réponses précédentes
+         */
+        if (
+          userAnswers[currentQuestion] &&
+          userAnswers[currentQuestion].includes(originalIndex)
+        ) {
+
+          input.checked = true;
+
+        }
+
+
+        const choiceLabel =
+          document.createElement('span');
+
+        choiceLabel.className =
+          'choice-label';
+
+        choiceLabel.textContent =
+          choice.label + '.';
+
+
+        label.appendChild(input);
+
+        label.appendChild(choiceLabel);
+
+        label.appendChild(
+          document.createTextNode(
+            ' ' + decodeHTML(choice.text)
+          )
+        );
+
+
+        form.appendChild(label);
+
+      });
+
+
+      container.appendChild(form);
+
+
+      /*
+       * Si la question a déjà été corrigée,
+       * afficher directement la correction.
+       */
+      if (validated[currentQuestion]) {
+
+        showCorrection(q, form);
+
+      }
+
+
+      /*
+       * Navigation
+       */
+      const navigation =
+        document.createElement('div');
+
+      navigation.className =
+        'navigation';
+
+
+      /*
+       * Bouton Previous
+       */
+      const btnPrevious =
+        document.createElement('button');
+
+      btnPrevious.type = 'button';
+
+      btnPrevious.textContent =
+        'Previous';
+
+      btnPrevious.disabled =
+        currentQuestion === 0;
+
+      btnPrevious.addEventListener(
+        'click',
+        () => {
+
+          saveCurrentAnswer(form);
+
+          currentQuestion--;
+
+          renderQuestion();
+
+        }
+      );
+
+
+      /*
+       * Bouton Valider
+       */
+      const btnValidate =
+        document.createElement('button');
+
+      btnValidate.type = 'button';
+
+      btnValidate.textContent =
+        validated[currentQuestion]
+          ? 'Validé'
+          : 'Valider';
+
+      btnValidate.disabled =
+        validated[currentQuestion];
+
+      btnValidate.addEventListener(
+        'click',
+        () => {
+
+          validateCurrentQuestion(
+            q,
+            form,
+            btnValidate
+          );
+
+        }
+      );
+
+
+      /*
+       * Bouton Next
+       */
+      const btnNext =
+        document.createElement('button');
+
+      btnNext.type = 'button';
+
+      btnNext.textContent =
+        currentQuestion === questions.length - 1
+          ? 'Terminer'
+          : 'Next';
+
+
+      btnNext.addEventListener(
+        'click',
+        () => {
+
+          /*
+           * Il faut valider avant de passer
+           * à la question suivante.
+           */
+          if (!validated[currentQuestion]) {
+
+            alert(
+              "Veuillez valider cette question avant de continuer."
+            );
+
+            return;
+
+          }
+
+
+          if (
+            currentQuestion <
+            questions.length - 1
+          ) {
+
+            currentQuestion++;
+
+            renderQuestion();
+
+          } else {
+
+            showFinalScore();
+
+          }
+
+        }
+      );
+
+
+      navigation.appendChild(btnPrevious);
+
+      navigation.appendChild(btnValidate);
+
+      navigation.appendChild(btnNext);
+
+      container.appendChild(navigation);
+
+    }
+
+
+    /*
+     * Sauvegarder les réponses cochées
+     */
+    function saveCurrentAnswer(form) {
+
+      const checked =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+      userAnswers[currentQuestion] =
+        checked.map(
+          input => parseInt(input.value)
+        );
+
+    }
+
+
+    /*
+     * Valider la question actuelle
+     */
+    function validateCurrentQuestion(
+      q,
+      form,
+      btnValidate
+    ) {
+
+      const checkedBoxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+
+      if (checkedBoxes.length === 0) {
+
+        alert(
+          "Veuillez choisir au moins une réponse."
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * Sauvegarder les réponses
+       */
+      userAnswers[currentQuestion] =
+        checkedBoxes.map(
+          input => parseInt(input.value)
+        );
+
+
+      /*
+       * Marquer comme validée
+       */
+      validated[currentQuestion] =
+        true;
+
+
+      /*
+       * Désactiver les cases
+       */
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(
+        input => {
+          input.disabled = true;
+        }
+      );
+
+
+      btnValidate.disabled = true;
+
+      btnValidate.textContent =
+        'Validé';
+
+
+      showCorrection(q, form);
+
+    }
+
+
+    /*
+     * Afficher la correction
+     */
+    function showCorrection(q, form) {
+
+      /*
+       * Empêcher la correction d'être
+       * ajoutée plusieurs fois.
+       */
+      if (
+        form.querySelector(
+          '.correction-container'
+        )
+      ) {
+
+        return;
+
+      }
+
+
+      const correctionContainer =
+        document.createElement('div');
+
+      correctionContainer.className =
+        'correction-container';
+
+
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(input => {
+
+        const originalIndex =
+          parseInt(input.value);
+
+        const choiceData =
+          q.choices[originalIndex];
+
+        const label =
+          input.parentElement;
+
+
+        /*
+         * Vérification de la réponse
+         */
+        if (
+          input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'correct-checked'
+          );
+
+        }
+
+        else if (
+          input.checked &&
+          !choiceData.correct
+        ) {
+
+          label.classList.add(
+            'incorrect-checked'
+          );
+
+        }
+
+        else if (
+          !input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'missed-correct'
+          );
+
+        }
+
+
+        /*
+         * Justification
+         */
+        const justification =
+          document.createElement('div');
+
+        justification.className =
+          'justification';
+
+
+        const symbol =
+          choiceData.correct
+            ? '✓'
+            : '✗';
+
+
+        justification.textContent =
+          `${symbol} : ${decodeHTML(
+            choiceData.justification
+          )}`;
+
+
+        label.appendChild(
+          justification
+        );
+
+      });
+
+
+      form.appendChild(
+        correctionContainer
+      );
+
+    }
+
+
+    /*
+     * Calcul du score final
+     */
+    function calculateFinalScore() {
+
+      let totalPoints = 0;
+
+      let totalPossiblePoints = 0;
+
+
+      questions.forEach(
+        (q, index) => {
+
+          const answers =
+            userAnswers[index] || [];
+
+
+          const correctAnswers =
+            q.choices
+              .map(
+                (choice, i) =>
+                  choice.correct
+                    ? i
+                    : null
+              )
+              .filter(
+                i => i !== null
+              );
+
+
+          /*
+           * Chaque bonne réponse sélectionnée
+           * rapporte un point.
+           */
+          answers.forEach(
+            answerIndex => {
+
+              if (
+                correctAnswers.includes(
+                  answerIndex
+                )
+              ) {
+
+                totalPoints++;
+
+              }
+
+            }
+          );
+
+
+          totalPossiblePoints +=
+            correctAnswers.length;
+
+        }
+      );
+
+
+      /*
+       * Note sur 5
+       */
+      const note =
+        Math.round(
+          (
+            totalPoints /
+            totalPossiblePoints
+          ) * 5 * 100
+        ) / 100;
+
+
+      return {
+        totalPoints,
+        totalPossiblePoints,
+        note
+      };
+
+    }
+
+
+    /*
+     * Afficher le score final
+     */
+    function showFinalScore() {
+
+      const result =
+        calculateFinalScore();
+
+
+      container.innerHTML = '';
+
+
+      const title =
+        document.createElement('div');
+
+      title.className =
+        'question-title';
+
+      title.textContent =
+        'QCM terminé';
+
+      container.appendChild(title);
+
+
+      const note =
+        document.createElement('div');
+
+      note.className =
+        'note';
+
+      note.textContent =
+        `Note : ${result.note} / 5`;
+
+      container.appendChild(note);
+
+
+      const details =
+        document.createElement('p');
+
+      details.textContent =
+        `Réponses correctes : ${result.totalPoints} / ${result.totalPossiblePoints}`;
+
+      container.appendChild(details);
+
+
+      /*
+       * Bouton pour recommencer
+       */
+      const restart =
+        document.createElement('button');
+
+      restart.type = 'button';
+
+      restart.textContent =
+        'Recommencer';
+
+
+      restart.addEventListener(
+        'click',
+        () => {
+
+          currentQuestion = 0;
+
+          userAnswers.fill(null);
+
+          validated.fill(false);
+
+          renderQuestion();
+
+        }
+      );
+
+
+      container.appendChild(restart);
+
+    }
+
+
+    /*
+     * Lancement du QCM
+     */
+    renderQuestion();
+
+  })();
+  </script>
+
+</body>
+</html>
