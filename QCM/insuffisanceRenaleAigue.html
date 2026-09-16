@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insuffisance rénale aigue</title>
+  <style>
+    #quiz-container {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1em;
+    }
+
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 0.8em;
+    }
+
+    .question-number {
+      font-weight: bold;
+      margin-bottom: 0.5em;
+    }
+
+    .choice {
+      margin: 0.4em 0;
+      cursor: pointer;
+      display: block;
+      line-height: 1.5;
+    }
+
+    .choice input {
+      margin-right: 0.4em;
+    }
+
+    .choice-label {
+      font-weight: bold;
+      margin-right: 0.3em;
+    }
+
+    .correct-checked {
+      color: green;
+      font-weight: bold;
+    }
+
+    .incorrect-checked {
+      color: red;
+      font-weight: bold;
+    }
+
+    .missed-correct {
+      color: blue;
+      font-weight: bold;
+    }
+
+    .justification {
+      font-size: 0.9em;
+      margin: 0.25em 0 0.5em 1.8em;
+      color: #555;
+      font-weight: normal;
+    }
+
+    .note {
+      margin-top: 1em;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    .navigation {
+      display: flex;
+      gap: 0.5em;
+      margin-top: 1em;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .progress {
+      margin-bottom: 1em;
+      font-weight: bold;
+    }
+
+    /* Mobile Font Size Adjustment */
+    @media (max-width: 768px) {
+      #quiz-container {
+        font-size: 1rem; /* Base size adjusted to 1rem */
+      }
+
+      button {
+        font-size: 1em;
+        padding: 0.5em 1em;
+      }
+
+      .choice input[type="checkbox"] {
+        transform: scale(1.1); /* Slightly adjusted checkbox scale for 1rem target */
+        margin-right: 0.4em;
+      }
+    }
+  </style>
+</head>
+<body>
+    <header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
+  <a href="https://zakivx.github.io/Codes/QCM/qcmList.html" 
+      style="color:#fff; text-decoration:none; font-weight:bold;">
+    ← Retour à la liste des QCM
+  </a>
+</header>
+  <div id="quiz-container"></div>
+
+  <script>
+  (() => {
+
+    const questions = [
+
+      {
+  question: `Quelle est la première étiologie à rechercher en cas de diagnostic d'insuffisance rénale aiguë ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Une sténose des artères rénales`,
+      correct: false,
+      justification: `La sténose des artères rénales n'est pas la première cause à rechercher systématiquement devant une insuffisance rénale aiguë.`
+    },
+    {
+      label: "B",
+      text: `Un syndrome hépatorénal`,
+      correct: false,
+      justification: `Le syndrome hépatorénal est une cause fonctionnelle particulière d'insuffisance rénale aiguë, mais ce n'est pas l'étiologie obstructive à rechercher en première intention.`
+    },
+    {
+      label: "C",
+      text: `Un syndrome hémolytique et urémique`,
+      correct: false,
+      justification: `Le syndrome hémolytique et urémique est une cause spécifique d'insuffisance rénale aiguë et n'est pas systématiquement la première étiologie à rechercher.`
+    },
+    {
+      label: "D",
+      text: `Une insuffisance rénale obstructive`,
+      correct: true,
+      justification: `Une cause obstructive doit être recherchée rapidement car elle est potentiellement réversible et son traitement précoce peut permettre de restaurer la fonction rénale.`
+    },
+    {
+      label: "E",
+      text: `Un syndrome de Goodpasture`,
+      correct: false,
+      justification: `Le syndrome de Goodpasture est une cause immunologique rare d'insuffisance rénale aiguë et n'est pas recherchée systématiquement en première intention.`
+    }
+  ]
+},
+
+{
+  question: `Quelles sont les trois principales complications de l'insuffisance rénale aiguë à rechercher en urgence ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Une hypercalcémie`,
+      correct: false,
+      justification: `L'insuffisance rénale aiguë peut plutôt être associée à des troubles du métabolisme phosphocalcique, notamment une hypocalcémie, mais l'hypercalcémie n'est pas une complication urgente typique.`
+    },
+    {
+      label: "B",
+      text: `Une hyperkaliémie`,
+      correct: true,
+      justification: `La diminution de l'excrétion rénale du potassium peut entraîner une hyperkaliémie sévère, susceptible de provoquer des troubles du rythme cardiaque.`
+    },
+    {
+      label: "C",
+      text: `Un œdème aigu pulmonaire`,
+      correct: true,
+      justification: `La rétention hydrosodée liée à l'IRA peut provoquer une surcharge volémique et un œdème aigu pulmonaire menaçant.`
+    },
+    {
+      label: "D",
+      text: `Une alcalose métabolique`,
+      correct: false,
+      justification: `L'IRA est plutôt associée à une acidose métabolique en raison de la diminution de l'excrétion des acides.`
+    },
+    {
+      label: "E",
+      text: `Une acidose métabolique`,
+      correct: true,
+      justification: `La diminution de l'excrétion rénale des acides et des ions H+ peut entraîner une acidose métabolique, parfois sévère.`
+    }
+  ]
+},
+
+{
+  question: `L’insuffisance rénale aiguë :`,
+  choices: [
+    {
+      label: "A",
+      text: `Est toujours symptomatique.`,
+      correct: false,
+      justification: `Une insuffisance rénale aiguë peut être asymptomatique et découverte uniquement sur les examens biologiques.`
+    },
+    {
+      label: "B",
+      text: `Est toujours réversible.`,
+      correct: false,
+      justification: `L'IRA peut être réversible, mais certaines formes entraînent des lésions rénales persistantes ou évoluent vers une maladie rénale chronique.`
+    },
+    {
+      label: "C",
+      text: `Nécessite toujours la recherche d’un obstacle sur les voies excrétrices urinaires.`,
+      correct: true,
+      justification: `Une cause obstructive, potentiellement réversible, doit être recherchée devant une IRA, notamment par une imagerie des voies urinaires selon le contexte clinique.`
+    },
+    {
+      label: "D",
+      text: `S’accompagne toujours d’une hypocalcémie.`,
+      correct: false,
+      justification: `L'hypocalcémie n'est pas constante au cours de l'IRA.`
+    },
+    {
+      label: "E",
+      text: `Justifie toujours le recours à l’épuration extrarénale.`,
+      correct: false,
+      justification: `La majorité des IRA ne nécessitent pas systématiquement une épuration extrarénale. Celle-ci est indiquée en présence de complications ou de situations spécifiques.`
+    }
+  ]
+},
+
+{
+  question: `Quelles sont les trois principales complications de l’IRA à rechercher en urgence ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Une hypercalcémie.`,
+      correct: false,
+      justification: `L'hypercalcémie n'est pas une complication urgente typique de l'insuffisance rénale aiguë.`
+    },
+    {
+      label: "B",
+      text: `Une hyperkaliémie.`,
+      correct: true,
+      justification: `L'hyperkaliémie peut être sévère au cours de l'IRA et entraîner des troubles de conduction et du rythme cardiaque.`
+    },
+    {
+      label: "C",
+      text: `Un œdème aigu pulmonaire.`,
+      correct: true,
+      justification: `La surcharge hydrosodée peut provoquer un œdème aigu pulmonaire, qui constitue une complication potentiellement vitale.`
+    },
+    {
+      label: "D",
+      text: `Une alcalose métabolique.`,
+      correct: false,
+      justification: `L'IRA favorise plutôt l'apparition d'une acidose métabolique par défaut d'excrétion des acides.`
+    },
+    {
+      label: "E",
+      text: `Une acidose métabolique.`,
+      correct: true,
+      justification: `L'accumulation d'acides liée à la diminution de la fonction rénale peut provoquer une acidose métabolique sévère.`
+    }
+  ]
+},
+
+{
+  question: `Quelles sont les indications de l’épuration extrarénale dans le cadre d’une IRA ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Hyperkaliémie menaçante.`,
+      correct: true,
+      justification: `Une hyperkaliémie sévère ou menaçante, notamment avec des anomalies électriques, constitue une indication d'épuration extrarénale lorsqu'elle ne répond pas suffisamment au traitement médical.`
+    },
+    {
+      label: "B",
+      text: `Élévation de l’urée plasmatique > 1 g/L.`,
+      correct: false,
+      justification: `Une valeur isolée d'urée ne constitue pas à elle seule une indication systématique de dialyse. La décision repose sur le contexte clinique et les complications de l'IRA.`
+    },
+    {
+      label: "C",
+      text: `Œdème aigu pulmonaire.`,
+      correct: true,
+      justification: `Un œdème aigu pulmonaire lié à une surcharge hydrique réfractaire au traitement médical constitue une indication d'épuration extrarénale.`
+    },
+    {
+      label: "D",
+      text: `Acidose métabolique sévère.`,
+      correct: true,
+      justification: `Une acidose métabolique sévère et réfractaire au traitement médical peut nécessiter une épuration extrarénale.`
+    },
+    {
+      label: "E",
+      text: `Protéinurie abondante.`,
+      correct: false,
+      justification: `Une protéinurie abondante peut orienter vers certaines néphropathies mais ne constitue pas, à elle seule, une indication d'épuration extrarénale urgente.`
+    }
+  ]
+},
+
+{
+  question: `Quelles situations médicales obligent à une dialyse dans le cadre de l’urgence ? (Les RJ)`,
+  choices: [
+    {
+      label: "A",
+      text: `HTA maligne`,
+      correct: false,
+      justification: `L'HTA maligne nécessite un traitement antihypertenseur urgent, mais elle ne constitue pas en elle-même une indication systématique de dialyse.`
+    },
+    {
+      label: "B",
+      text: `Acidose métabolique décompensée`,
+      correct: true,
+      justification: `Une acidose métabolique sévère et réfractaire au traitement médical peut constituer une indication urgente d'épuration extrarénale.`
+    },
+    {
+      label: "C",
+      text: `OAP menaçant`,
+      correct: true,
+      justification: `Un œdème aigu pulmonaire menaçant lié à une surcharge hydrique et réfractaire au traitement médical constitue une indication urgente de dialyse.`
+    },
+    {
+      label: "D",
+      text: `Hypokaliémie avec alcalose métabolique`,
+      correct: false,
+      justification: `L'hypokaliémie et l'alcalose métabolique ne constituent pas des indications de dialyse en urgence dans ce contexte.`
+    },
+    {
+      label: "E",
+      text: `Hyperkaliémie avec des signes électriques cardiaques de type élargissement des QRS et ondes T amples`,
+      correct: true,
+      justification: `Une hyperkaliémie sévère avec des anomalies électriques cardiaques constitue une urgence vitale et peut nécessiter une épuration extrarénale si le traitement médical ne permet pas une correction rapide et durable.`
+    }
+  ]
+}
+
+    ];
+
+    const container = document.getElementById('quiz-container');
+
+    let currentQuestion = 0;
+
+    /*
+     * Stockage des réponses de l'utilisateur.
+     * Chaque élément contient les indices des réponses sélectionnées.
+     */
+    const userAnswers = new Array(questions.length).fill(null);
+
+    /*
+     * Indique si la question a déjà été corrigée.
+     */
+    const validated = new Array(questions.length).fill(false);
+
+
+    function shuffleArray(array) {
+
+      const arr = array.slice();
+
+      for (let i = arr.length - 1; i > 0; i--) {
+
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+
+      return arr;
+    }
+
+
+    function replaceDoubleQuotesWithSingle(str) {
+
+      return String(str).replace(/"/g, "'");
+
+    }
+
+
+    function decodeHTML(html) {
+
+      const txt = document.createElement("textarea");
+
+      txt.innerHTML = html;
+
+      return replaceDoubleQuotesWithSingle(txt.value);
+
+    }
+
+
+    function renderQuestion() {
+
+      container.innerHTML = '';
+
+      const q = questions[currentQuestion];
+
+      /*
+       * Progression
+       */
+      const progress = document.createElement('div');
+
+      progress.className = 'progress';
+
+      progress.textContent =
+        `Question ${currentQuestion + 1} / ${questions.length}`;
+
+      container.appendChild(progress);
+
+
+      /*
+       * Question
+       */
+      const questionTitle = document.createElement('div');
+
+      questionTitle.className = 'question-title';
+
+      questionTitle.textContent =
+        decodeHTML(q.question);
+
+      container.appendChild(questionTitle);
+
+
+      /*
+       * Formulaire
+       */
+      const form = document.createElement('form');
+
+      form.id = 'qcm-form';
+
+
+      /*
+       * Randomisation des réponses
+       */
+      const shuffledChoices = shuffleArray(q.choices);
+
+
+      shuffledChoices.forEach((choice) => {
+
+        const originalIndex =
+          q.choices.indexOf(choice);
+
+        const label =
+          document.createElement('label');
+
+        label.className = 'choice';
+
+
+        const input =
+          document.createElement('input');
+
+        input.type = 'checkbox';
+
+        input.name = 'choice';
+
+        input.value = originalIndex;
+
+
+        /*
+         * Restaurer les réponses précédentes
+         */
+        if (
+          userAnswers[currentQuestion] &&
+          userAnswers[currentQuestion].includes(originalIndex)
+        ) {
+
+          input.checked = true;
+
+        }
+
+
+        const choiceLabel =
+          document.createElement('span');
+
+        choiceLabel.className =
+          'choice-label';
+
+        choiceLabel.textContent =
+          choice.label + '.';
+
+
+        label.appendChild(input);
+
+        label.appendChild(choiceLabel);
+
+        label.appendChild(
+          document.createTextNode(
+            ' ' + decodeHTML(choice.text)
+          )
+        );
+
+
+        form.appendChild(label);
+
+      });
+
+
+      container.appendChild(form);
+
+
+      /*
+       * Si la question a déjà été corrigée,
+       * afficher directement la correction.
+       */
+      if (validated[currentQuestion]) {
+
+        showCorrection(q, form);
+
+      }
+
+
+      /*
+       * Navigation
+       */
+      const navigation =
+        document.createElement('div');
+
+      navigation.className =
+        'navigation';
+
+
+      /*
+       * Bouton Previous
+       */
+      const btnPrevious =
+        document.createElement('button');
+
+      btnPrevious.type = 'button';
+
+      btnPrevious.textContent =
+        'Previous';
+
+      btnPrevious.disabled =
+        currentQuestion === 0;
+
+      btnPrevious.addEventListener(
+        'click',
+        () => {
+
+          saveCurrentAnswer(form);
+
+          currentQuestion--;
+
+          renderQuestion();
+
+        }
+      );
+
+
+      /*
+       * Bouton Valider
+       */
+      const btnValidate =
+        document.createElement('button');
+
+      btnValidate.type = 'button';
+
+      btnValidate.textContent =
+        validated[currentQuestion]
+          ? 'Validé'
+          : 'Valider';
+
+      btnValidate.disabled =
+        validated[currentQuestion];
+
+      btnValidate.addEventListener(
+        'click',
+        () => {
+
+          validateCurrentQuestion(
+            q,
+            form,
+            btnValidate
+          );
+
+        }
+      );
+
+
+      /*
+       * Bouton Next
+       */
+      const btnNext =
+        document.createElement('button');
+
+      btnNext.type = 'button';
+
+      btnNext.textContent =
+        currentQuestion === questions.length - 1
+          ? 'Terminer'
+          : 'Next';
+
+
+      btnNext.addEventListener(
+        'click',
+        () => {
+
+          /*
+           * Il faut valider avant de passer
+           * à la question suivante.
+           */
+          if (!validated[currentQuestion]) {
+
+            alert(
+              "Veuillez valider cette question avant de continuer."
+            );
+
+            return;
+
+          }
+
+
+          if (
+            currentQuestion <
+            questions.length - 1
+          ) {
+
+            currentQuestion++;
+
+            renderQuestion();
+
+          } else {
+
+            showFinalScore();
+
+          }
+
+        }
+      );
+
+
+      navigation.appendChild(btnPrevious);
+
+      navigation.appendChild(btnValidate);
+
+      navigation.appendChild(btnNext);
+
+      container.appendChild(navigation);
+
+    }
+
+
+    /*
+     * Sauvegarder les réponses cochées
+     */
+    function saveCurrentAnswer(form) {
+
+      const checked =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+      userAnswers[currentQuestion] =
+        checked.map(
+          input => parseInt(input.value)
+        );
+
+    }
+
+
+    /*
+     * Valider la question actuelle
+     */
+    function validateCurrentQuestion(
+      q,
+      form,
+      btnValidate
+    ) {
+
+      const checkedBoxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+
+      if (checkedBoxes.length === 0) {
+
+        alert(
+          "Veuillez choisir au moins une réponse."
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * Sauvegarder les réponses
+       */
+      userAnswers[currentQuestion] =
+        checkedBoxes.map(
+          input => parseInt(input.value)
+        );
+
+
+      /*
+       * Marquer comme validée
+       */
+      validated[currentQuestion] =
+        true;
+
+
+      /*
+       * Désactiver les cases
+       */
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(
+        input => {
+          input.disabled = true;
+        }
+      );
+
+
+      btnValidate.disabled = true;
+
+      btnValidate.textContent =
+        'Validé';
+
+
+      showCorrection(q, form);
+
+    }
+
+
+    /*
+     * Afficher la correction
+     */
+    function showCorrection(q, form) {
+
+      /*
+       * Empêcher la correction d'être
+       * ajoutée plusieurs fois.
+       */
+      if (
+        form.querySelector(
+          '.correction-container'
+        )
+      ) {
+
+        return;
+
+      }
+
+
+      const correctionContainer =
+        document.createElement('div');
+
+      correctionContainer.className =
+        'correction-container';
+
+
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(input => {
+
+        const originalIndex =
+          parseInt(input.value);
+
+        const choiceData =
+          q.choices[originalIndex];
+
+        const label =
+          input.parentElement;
+
+
+        /*
+         * Vérification de la réponse
+         */
+        if (
+          input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'correct-checked'
+          );
+
+        }
+
+        else if (
+          input.checked &&
+          !choiceData.correct
+        ) {
+
+          label.classList.add(
+            'incorrect-checked'
+          );
+
+        }
+
+        else if (
+          !input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'missed-correct'
+          );
+
+        }
+
+
+        /*
+         * Justification
+         */
+        const justification =
+          document.createElement('div');
+
+        justification.className =
+          'justification';
+
+
+        const symbol =
+          choiceData.correct
+            ? '✓'
+            : '✗';
+
+
+        justification.textContent =
+          `${symbol} : ${decodeHTML(
+            choiceData.justification
+          )}`;
+
+
+        label.appendChild(
+          justification
+        );
+
+      });
+
+
+      form.appendChild(
+        correctionContainer
+      );
+
+    }
+
+
+    /*
+     * Calcul du score final
+     */
+    function calculateFinalScore() {
+
+      let totalPoints = 0;
+
+      let totalPossiblePoints = 0;
+
+
+      questions.forEach(
+        (q, index) => {
+
+          const answers =
+            userAnswers[index] || [];
+
+
+          const correctAnswers =
+            q.choices
+              .map(
+                (choice, i) =>
+                  choice.correct
+                    ? i
+                    : null
+              )
+              .filter(
+                i => i !== null
+              );
+
+
+          /*
+           * Chaque bonne réponse sélectionnée
+           * rapporte un point.
+           */
+          answers.forEach(
+            answerIndex => {
+
+              if (
+                correctAnswers.includes(
+                  answerIndex
+                )
+              ) {
+
+                totalPoints++;
+
+              }
+
+            }
+          );
+
+
+          totalPossiblePoints +=
+            correctAnswers.length;
+
+        }
+      );
+
+
+      /*
+       * Note sur 5
+       */
+      const note =
+        Math.round(
+          (
+            totalPoints /
+            totalPossiblePoints
+          ) * 5 * 100
+        ) / 100;
+
+
+      return {
+        totalPoints,
+        totalPossiblePoints,
+        note
+      };
+
+    }
+
+
+    /*
+     * Afficher le score final
+     */
+    function showFinalScore() {
+
+      const result =
+        calculateFinalScore();
+
+
+      container.innerHTML = '';
+
+
+      const title =
+        document.createElement('div');
+
+      title.className =
+        'question-title';
+
+      title.textContent =
+        'QCM terminé';
+
+      container.appendChild(title);
+
+
+      const note =
+        document.createElement('div');
+
+      note.className =
+        'note';
+
+      note.textContent =
+        `Note : ${result.note} / 5`;
+
+      container.appendChild(note);
+
+
+      const details =
+        document.createElement('p');
+
+      details.textContent =
+        `Réponses correctes : ${result.totalPoints} / ${result.totalPossiblePoints}`;
+
+      container.appendChild(details);
+
+
+      /*
+       * Bouton pour recommencer
+       */
+      const restart =
+        document.createElement('button');
+
+      restart.type = 'button';
+
+      restart.textContent =
+        'Recommencer';
+
+
+      restart.addEventListener(
+        'click',
+        () => {
+
+          currentQuestion = 0;
+
+          userAnswers.fill(null);
+
+          validated.fill(false);
+
+          renderQuestion();
+
+        }
+      );
+
+
+      container.appendChild(restart);
+
+    }
+
+
+    /*
+     * Lancement du QCM
+     */
+    renderQuestion();
+
+  })();
+  </script>
+
+</body>
+</html>
