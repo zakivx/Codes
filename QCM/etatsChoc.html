@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Les états de choc</title>
+  <style>
+    #quiz-container {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1em;
+    }
+
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 0.8em;
+    }
+
+    .question-number {
+      font-weight: bold;
+      margin-bottom: 0.5em;
+    }
+
+    .choice {
+      margin: 0.4em 0;
+      cursor: pointer;
+      display: block;
+      line-height: 1.5;
+    }
+
+    .choice input {
+      margin-right: 0.4em;
+    }
+
+    .choice-label {
+      font-weight: bold;
+      margin-right: 0.3em;
+    }
+
+    .correct-checked {
+      color: green;
+      font-weight: bold;
+    }
+
+    .incorrect-checked {
+      color: red;
+      font-weight: bold;
+    }
+
+    .missed-correct {
+      color: blue;
+      font-weight: bold;
+    }
+
+    .justification {
+      font-size: 0.9em;
+      margin: 0.25em 0 0.5em 1.8em;
+      color: #555;
+      font-weight: normal;
+    }
+
+    .note {
+      margin-top: 1em;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    .navigation {
+      display: flex;
+      gap: 0.5em;
+      margin-top: 1em;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .progress {
+      margin-bottom: 1em;
+      font-weight: bold;
+    }
+
+    /* Mobile Font Size Adjustment */
+    @media (max-width: 768px) {
+      #quiz-container {
+        font-size: 1rem; /* Base size adjusted to 1rem */
+      }
+
+      button {
+        font-size: 1em;
+        padding: 0.5em 1em;
+      }
+
+      .choice input[type="checkbox"] {
+        transform: scale(1.1); /* Slightly adjusted checkbox scale for 1rem target */
+        margin-right: 0.4em;
+      }
+    }
+  </style>
+</head>
+<body>
+    <header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
+  <a href="https://zakivx.github.io/Codes/QCM/qcmList.html" 
+      style="color:#fff; text-decoration:none; font-weight:bold;">
+    ← Retour à la liste des QCM
+  </a>
+</header>
+  <div id="quiz-container"></div>
+
+  <script>
+  (() => {
+
+    const questions = [
+
+{
+  question: `5. Au cours des états de choc, la présence de signes d'insuffisance cardiaque droite oriente vers :`,
+  choices: [
+    {
+      label: "A",
+      text: `Un choc anaphylactique`,
+      correct: false,
+      justification: `Le choc anaphylactique est principalement distributif avec vasodilatation systémique.`
+    },
+    {
+      label: "B",
+      text: `Un choc septique`,
+      correct: false,
+      justification: `Le choc septique est principalement caractérisé par une vasoplégie, même si une dysfonction ventriculaire droite peut parfois survenir.`
+    },
+    {
+      label: "C",
+      text: `Une embolie pulmonaire`,
+      correct: true,
+      justification: `Une embolie pulmonaire grave augmente brutalement la post-charge du ventricule droit et peut provoquer une insuffisance ventriculaire droite aiguë.`
+    },
+    {
+      label: "D",
+      text: `Une hémorragie aiguë`,
+      correct: false,
+      justification: `L'hémorragie aiguë provoque principalement une diminution de la précharge par hypovolémie.`
+    }
+  ]
+},
+{
+  question: `13. Chez un patient en état de choc, quel paramètre biologique traduit le mieux l'hypoperfusion tissulaire ?`,
+  choices: [
+    {
+      label: "A",
+      text: `CRP`,
+      correct: false,
+      justification: `La CRP est un marqueur inflammatoire et ne constitue pas un marqueur direct de l'hypoperfusion tissulaire.`
+    },
+    {
+      label: "B",
+      text: `Urée augmentée`,
+      correct: false,
+      justification: `Une augmentation de l'urée peut notamment refléter une hypovolémie ou une insuffisance rénale, mais elle est moins spécifique de l'hypoperfusion tissulaire.`
+    },
+    {
+      label: "C",
+      text: `Lactates élevés`,
+      correct: true,
+      justification: `L'hyperlactatémie est un marqueur important d'hypoperfusion et de stress métabolique dans les états de choc.`
+    },
+    {
+      label: "D",
+      text: `Hémoglobine basse`,
+      correct: false,
+      justification: `Une anémie peut contribuer à une mauvaise délivrance d'oxygène, mais l'hémoglobine basse ne traduit pas directement l'hypoperfusion tissulaire.`
+    },
+    {
+      label: "E",
+      text: `Hyperleucocytose`,
+      correct: false,
+      justification: `L'hyperleucocytose traduit principalement une réponse inflammatoire ou infectieuse.`
+    }
+  ]
+},
+{
+  question: `15. Au cours de l'état de choc, quelle est l'affirmation vraie ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Au cours du choc hypovolémique, le débit cardiaque est augmenté.`,
+      correct: false,
+      justification: `La diminution du retour veineux et de la précharge entraîne généralement une diminution du débit cardiaque.`
+    },
+    {
+      label: "B",
+      text: `Le choc cardiogénique se définit principalement par des résistances vasculaires diminuées.`,
+      correct: false,
+      justification: `Le choc cardiogénique est caractérisé par une diminution du débit cardiaque, avec des résistances vasculaires systémiques généralement augmentées par vasoconstriction compensatrice.`
+    },
+    {
+      label: "C",
+      text: `Au cours du choc septique, les résistances vasculaires sont diminuées.`,
+      correct: true,
+      justification: `La vasoplégie systémique est une caractéristique majeure du choc septique et entraîne une diminution des résistances vasculaires systémiques.`
+    },
+    {
+      label: "D",
+      text: `Au cours du choc cardiogénique, le débit cardiaque est augmenté.`,
+      correct: false,
+      justification: `Le choc cardiogénique est caractérisé par une insuffisance de débit cardiaque liée à une défaillance de la pompe cardiaque.`
+    },
+    {
+      label: "E",
+      text: `Au cours du choc septique, le débit cardiaque est toujours diminué.`,
+      correct: false,
+      justification: `Le débit cardiaque peut être élevé ou normal au début du choc septique, notamment dans les formes hyperdynamiques.`
+    }
+  ]
+},
+{
+  question: `1. Les objectifs hémodynamiques de la réanimation de l'état de choc sont :`,
+  choices: [
+    {
+      label: "A",
+      text: `Une PAS ≥ 90 mmHg`,
+      correct: false,
+      justification: `La pression artérielle systolique seule n'est pas l'objectif hémodynamique principal ; la PAM est généralement utilisée.`
+    },
+    {
+      label: "B",
+      text: `Une PAM ≥ 65 mmHg`,
+      correct: true,
+      justification: `Une PAM initiale d'environ 65 mmHg constitue un objectif usuel de perfusion chez l'adulte en état de choc, notamment dans le choc septique.`
+    },
+    {
+      label: "C",
+      text: `Un débit cardiaque normal`,
+      correct: false,
+      justification: `L'objectif est une perfusion tissulaire adéquate et non nécessairement la normalisation d'une valeur isolée de débit cardiaque.`
+    },
+    {
+      label: "D",
+      text: `Une diurèse ≥ 0,5 mL/kg/h`,
+      correct: true,
+      justification: `Une diurèse d'au moins environ 0,5 mL/kg/h constitue un objectif pratique de perfusion rénale chez l'adulte.`
+    },
+    {
+      label: "E",
+      text: `Une diminution de 50 % du taux de lactates`,
+      correct: false,
+      justification: `La tendance à la diminution des lactates est importante, mais une réduction fixe de 50 % n'est pas un objectif universel obligatoire.`
+    }
+  ]
+},
+{
+  question: `2. Le choc septique se distingue des autres chocs par :`,
+  choices: [
+    {
+      label: "A",
+      text: `Une réaction vasomotrice faible`,
+      correct: false,
+      justification: `Le choc septique est caractérisé par une vasoplégie importante et une perte de la régulation vasomotrice normale.`
+    },
+    {
+      label: "B",
+      text: `Un taux de lactates modérément élevé`,
+      correct: false,
+      justification: `Une hyperlactatémie peut être présente mais n'est ni constante ni spécifique du choc septique.`
+    },
+    {
+      label: "C",
+      text: `Une atteinte microcirculatoire très marquée`,
+      correct: true,
+      justification: `Les anomalies microcirculatoires et de la distribution du débit sanguin sont particulièrement importantes dans le choc septique.`
+    },
+    {
+      label: "D",
+      text: `Une réaction sympathique faible`,
+      correct: false,
+      justification: `La réponse sympathique est généralement activée lors du choc, notamment avec tachycardie et vasoconstriction compensatrice, même si la vasoplégie septique persiste.`
+    },
+    {
+      label: "E",
+      text: `Une atteinte cardiaque survenant très précocement`,
+      correct: false,
+      justification: `Une dysfonction myocardique peut survenir dans le sepsis, mais elle n'est pas nécessairement précoce ni spécifique du choc septique.`
+    }
+  ]
+},
+{
+  question: `6. Devant une tachycardie ventriculaire associée à un état de choc, le premier geste à faire est :`,
+  choices: [
+    {
+      label: "A",
+      text: `Donner de la lidocaïne en IV directe`,
+      correct: false,
+      justification: `Une tachycardie ventriculaire mal tolérée nécessite une cardioversion électrique synchronisée urgente plutôt qu'une administration préalable de lidocaïne.`
+    },
+    {
+      label: "B",
+      text: `Perfuser des macromolécules`,
+      correct: false,
+      justification: `Le remplissage ne constitue pas le traitement immédiat de la tachycardie ventriculaire responsable d'une instabilité hémodynamique.`
+    },
+    {
+      label: "C",
+      text: `Réaliser un choc électrique externe`,
+      correct: true,
+      justification: `Une tachycardie ventriculaire avec instabilité hémodynamique est une indication de cardioversion électrique synchronisée urgente.`
+    },
+    {
+      label: "D",
+      text: `Donner des inotropes positifs en IV`,
+      correct: false,
+      justification: `Les inotropes ne traitent pas directement la tachycardie ventriculaire instable et peuvent aggraver certaines arythmies.`
+    },
+    {
+      label: "E",
+      text: `Réaliser un massage cardiaque externe`,
+      correct: false,
+      justification: `Le massage cardiaque est indiqué en cas d'arrêt cardiaque avec absence de circulation efficace, et non chez un patient présentant une TV avec circulation spontanée.`
+    }
+  ]
+},
+{
+  question: `7. Au cours des états de choc, l'agent vasoconstricteur de première intention est :`,
+  choices: [
+    {
+      label: "A",
+      text: `La dobutamine`,
+      correct: false,
+      justification: `La dobutamine est principalement un inotrope positif et n'est pas le vasopresseur de première intention.`
+    },
+    {
+      label: "B",
+      text: `La noradrénaline`,
+      correct: true,
+      justification: `La noradrénaline est le vasopresseur de première intention dans le choc septique et est largement utilisée dans les états de choc avec vasoplégie.`
+    },
+    {
+      label: "C",
+      text: `L'adrénaline`,
+      correct: false,
+      justification: `L'adrénaline peut être utilisée dans certaines situations, notamment l'anaphylaxie et certains chocs réfractaires, mais n'est généralement pas le premier vasopresseur du choc septique.`
+    },
+    {
+      label: "D",
+      text: `La dopamine`,
+      correct: false,
+      justification: `La dopamine n'est plus recommandée comme vasopresseur de première intention dans le choc septique.`
+    },
+    {
+      label: "E",
+      text: `Le lévosimendan`,
+      correct: false,
+      justification: `Le lévosimendan est un agent inotrope/sensibilisateur au calcium et n'est pas un vasoconstricteur de première intention.`
+    }
+  ]
+},
+{
+  question: `10. Concernant le choc septique, quelle proposition est correcte ?`,
+  choices: [
+    {
+      label: "A",
+      text: `La catécholamine de référence est la dobutamine.`,
+      correct: false,
+      justification: `La noradrénaline est le vasopresseur de première intention. La dobutamine peut être ajoutée en cas de dysfonction cardiaque avec hypoperfusion persistante malgré une pression artérielle adéquate.`
+    },
+    {
+      label: "B",
+      text: `Les solutés de référence pour le remplissage sont les solutés glucosés, plutôt G30 % que G5 %.`,
+      correct: false,
+      justification: `Le remplissage repose principalement sur des cristalloïdes isotoniques et non sur des solutions glucosées hypertoniques.`
+    },
+    {
+      label: "C",
+      text: `L'initiation d'une antibiothérapie n'est jamais une urgence.`,
+      correct: false,
+      justification: `Dans le choc septique, l'antibiothérapie doit être administrée rapidement après la reconnaissance du choc, sans retard inutile lié aux prélèvements microbiologiques.`
+    },
+    {
+      label: "D",
+      text: `L'objectif de PAM est > 65 mmHg.`,
+      correct: true,
+      justification: `Une PAM initiale d'environ 65 mmHg constitue l'objectif usuel chez l'adulte présentant un choc septique, avec individualisation selon le patient.`
+    },
+    {
+      label: "E",
+      text: `La PAD est souvent élevée, ce qui reflète des résistances vasculaires périphériques augmentées.`,
+      correct: false,
+      justification: `La vasoplégie septique entraîne généralement une diminution des résistances vasculaires et une pression diastolique souvent basse.`
+    }
+  ]
+},
+{
+  question: `Concernant le choc anaphylactique, quelle(s) proposition(s) est (sont) correcte(s) ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Il faut d'abord procéder à un remplissage vasculaire suffisant avant d'introduire de l'adrénaline.`,
+      correct: false,
+      justification: `L'adrénaline doit être administrée rapidement en cas d'anaphylaxie avec atteinte systémique ; le remplissage ne doit pas retarder son administration.`
+    },
+    {
+      label: "B",
+      text: `La PAD est souvent basse, ce qui reflète des résistances vasculaires périphériques effondrées.`,
+      correct: true,
+      justification: `La vasodilatation systémique et l'augmentation de la perméabilité capillaire entraînent une diminution des résistances vasculaires et du volume circulant efficace.`
+    },
+    {
+      label: "C",
+      text: `L'adrénaline permet de diminuer les signes de bronchospasme par son action bronchodilatatrice au niveau des récepteurs β2-adrénergiques.`,
+      correct: true,
+      justification: `L'activation des récepteurs β2 par l'adrénaline entraîne une bronchodilatation et contribue au traitement du bronchospasme anaphylactique.`
+    },
+    {
+      label: "D",
+      text: `Parfois il se manifeste par un arrêt cardiaque d'emblée sans prodrome, faisant suite par exemple à l'exposition intraveineuse d'un médicament auquel le patient est allergique.`,
+      correct: true,
+      justification: `Une anaphylaxie sévère peut évoluer très rapidement vers un collapsus cardiovasculaire ou un arrêt cardiaque, notamment après une exposition intraveineuse.`
+    },
+    {
+      label: "E",
+      text: `La catécholamine de référence est la noradrénaline.`,
+      correct: false,
+      justification: `L'adrénaline est le traitement de référence de l'anaphylaxie sévère.`
+    }
+  ]
+},
+{
+  question: `Au cours des états de choc, le premier objectif du traitement hémodynamique est :`,
+  choices: [
+    {
+      label: "A",
+      text: `Normalisation de la fréquence cardiaque`,
+      correct: false,
+      justification: `La fréquence cardiaque est un paramètre de surveillance mais sa normalisation n'est pas le premier objectif universel.`
+    },
+    {
+      label: "B",
+      text: `Normalisation de la diurèse`,
+      correct: false,
+      justification: `La diurèse est un marqueur important de perfusion, mais sa normalisation n'est pas l'objectif hémodynamique initial prioritaire.`
+    },
+    {
+      label: "C",
+      text: `La restauration de la pression artérielle systolique > 100 mmHg`,
+      correct: false,
+      justification: `L'objectif est plutôt défini par une pression artérielle moyenne suffisante, classiquement autour de 65 mmHg chez l'adulte.`
+    },
+    {
+      label: "D",
+      text: `La restauration de la pression artérielle moyenne > 60 mmHg`,
+      correct: true,
+      justification: `Dans les références classiques, une PAM supérieure à 60 mmHg était considérée comme un objectif initial de perfusion ; les recommandations actuelles utilisent généralement une cible initiale d'environ 65 mmHg.`
+    },
+    {
+      label: "E",
+      text: `La normalisation de la lactatémie`,
+      correct: false,
+      justification: `La diminution des lactates est un objectif de réanimation et un marqueur d'amélioration de la perfusion, mais la priorité immédiate est de restaurer une pression de perfusion adéquate.`
+    }
+  ]
+},
+{
+  question: `Lors du choc cardiogénique, les mesures hémodynamiques retrouvent :`,
+  choices: [
+    {
+      label: "A",
+      text: `Un index cardiaque (IC) < 2 L/min/m² et des pressions capillaires pulmonaires (PCP) < 18 mmHg`,
+      correct: false,
+      justification: `Dans le choc cardiogénique gauche classique, l'index cardiaque est diminué et les pressions de remplissage gauches sont généralement augmentées.`
+    },
+    {
+      label: "B",
+      text: `IC < 2 L/min/m² et PCP > 18 mmHg`,
+      correct: true,
+      justification: `Le profil classique associe un débit cardiaque diminué à une élévation des pressions de remplissage gauches, notamment de la PCP.`
+    },
+    {
+      label: "C",
+      text: `IC > 2 L/min/m² et PCP < 18 mmHg`,
+      correct: false,
+      justification: `Ce profil ne correspond pas au profil classique du choc cardiogénique.`
+    },
+    {
+      label: "D",
+      text: `IC > 2 L/min/m² et PCP > 18 mmHg`,
+      correct: false,
+      justification: `Une PCP élevée peut être observée, mais le choc cardiogénique est caractérisé par un débit cardiaque diminué.`
+    },
+    {
+      label: "E",
+      text: `IC < 2 L/min/m² et PCP entre 10 et 18 mmHg`,
+      correct: false,
+      justification: `Une pression de remplissage gauche élevée, classiquement >18 mmHg, est caractéristique du profil cardiogénique gauche classique.`
+    }
+  ]
+},
+{
+  question: `Un choc cardiogénique peut résulter :`,
+  choices: [
+    {
+      label: "A",
+      text: `D'une augmentation de la précharge cardiaque`,
+      correct: false,
+      justification: `Une augmentation isolée de la précharge n'est pas une cause habituelle de choc cardiogénique.`
+    },
+    {
+      label: "B",
+      text: `D'une augmentation de la post-charge cardiaque`,
+      correct: true,
+      justification: `Une augmentation importante de la post-charge peut entraîner une défaillance de la pompe ventriculaire et participer à un état de choc cardiogénique.`
+    },
+    {
+      label: "C",
+      text: `D'une diminution de la post-charge cardiaque`,
+      correct: false,
+      justification: `Une diminution de la post-charge tend à faciliter l'éjection ventriculaire et n'est pas une cause typique de choc cardiogénique.`
+    },
+    {
+      label: "D",
+      text: `D'une diminution de la contractilité myocardique`,
+      correct: true,
+      justification: `La diminution de la contractilité est un mécanisme majeur du choc cardiogénique, notamment après un infarctus myocardique étendu.`
+    },
+    {
+      label: "E",
+      text: `D'un trouble du rythme`,
+      correct: true,
+      justification: `Une tachyarythmie ou une bradyarythmie sévère peut réduire le débit cardiaque et provoquer un choc cardiogénique.`
+    }
+  ]
+},
+{
+  question: `Au cours du choc cardiogénique, on observe une baisse de la pression artérielle par :`,
+  choices: [
+    {
+      label: "A",
+      text: `Baisse des résistances vasculaires systémiques`,
+      correct: false,
+      justification: `Les résistances vasculaires systémiques sont généralement augmentées par activation sympathique compensatrice.`
+    },
+    {
+      label: "B",
+      text: `Baisse des résistances vasculaires pulmonaires`,
+      correct: false,
+      justification: `La baisse de pression artérielle est principalement liée à la défaillance du débit cardiaque, et non à une diminution des résistances pulmonaires.`
+    },
+    {
+      label: "C",
+      text: `Incompétence myocardique`,
+      correct: true,
+      justification: `La défaillance de la pompe myocardique diminue le volume d'éjection et le débit cardiaque, entraînant une hypotension.`
+    },
+    {
+      label: "D",
+      text: `Augmentation de la diurèse`,
+      correct: false,
+      justification: `Le choc cardiogénique entraîne plutôt une diminution de la perfusion rénale et une oligurie.`
+    },
+    {
+      label: "E",
+      text: `Hypovolémie relative`,
+      correct: false,
+      justification: `L'hypovolémie relative est davantage caractéristique des états distributifs ; le mécanisme principal du choc cardiogénique est la défaillance de la pompe.`
+    }
+  ]
+},
+{
+  question: `Le profil hémodynamique du choc cardiogénique correspond à :`,
+  choices: [
+    {
+      label: "A",
+      text: `Un débit cardiaque élevé, des pressions de remplissage vasculaires élevées et des résistances artérielles systémiques augmentées`,
+      correct: false,
+      justification: `Le débit cardiaque est diminué dans le choc cardiogénique.`
+    },
+    {
+      label: "B",
+      text: `Un débit cardiaque diminué, des pressions de remplissage vasculaires élevées et des résistances artérielles systémiques augmentées`,
+      correct: true,
+      justification: `Le profil classique associe bas débit, élévation des pressions de remplissage et vasoconstriction systémique compensatrice.`
+    },
+    {
+      label: "C",
+      text: `Un débit cardiaque diminué, des pressions de remplissage vasculaires et des résistances artérielles systémiques diminuées`,
+      correct: false,
+      justification: `Les résistances artérielles systémiques sont généralement augmentées par activation sympathique.`
+    },
+    {
+      label: "D",
+      text: `Un débit cardiaque élevé, des pressions de remplissage vasculaires et des résistances artérielles systémiques diminuées`,
+      correct: false,
+      justification: `Ce profil correspond davantage à un état hyperdynamique/distributif qu'à un choc cardiogénique classique.`
+    },
+    {
+      label: "E",
+      text: `Un débit cardiaque diminué, des pressions de remplissage vasculaires élevées et des résistances artérielles systémiques diminuées`,
+      correct: false,
+      justification: `Dans le choc cardiogénique classique, les résistances systémiques sont généralement augmentées.`
+    }
+  ]
+},
+{
+  question: `QCM 1. Au cours de l'état de choc, quelle est l'affirmation vraie ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Au cours du choc hypovolémique, le débit cardiaque est augmenté`,
+      correct: false,
+      justification: `La diminution du retour veineux et de la précharge entraîne généralement une diminution du débit cardiaque.`
+    },
+    {
+      label: "B",
+      text: `Le choc cardiogénique se définit principalement par des résistances vasculaires diminuées`,
+      correct: false,
+      justification: `Le choc cardiogénique est principalement caractérisé par une défaillance de la pompe avec diminution du débit cardiaque.`
+    },
+    {
+      label: "C",
+      text: `Au cours du choc septique, les résistances vasculaires sont diminuées`,
+      correct: true,
+      justification: `La vasoplégie et la diminution des résistances vasculaires systémiques sont caractéristiques du choc septique.`
+    },
+    {
+      label: "D",
+      text: `Au cours du choc cardiogénique, le débit cardiaque est augmenté`,
+      correct: false,
+      justification: `Le débit cardiaque est diminué dans le choc cardiogénique.`
+    },
+    {
+      label: "E",
+      text: `Au cours du choc septique, le débit cardiaque est toujours diminué`,
+      correct: false,
+      justification: `Le débit cardiaque peut être augmenté dans la phase hyperdynamique initiale du choc septique.`
+    }
+  ]
+},
+{
+  question: `QCM 2. Au cours de l'embolie pulmonaire grave, quelle est l'affirmation vraie ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Les signes cliniques et paracliniques sont toujours les mêmes, d'un cas à l'autre`,
+      correct: false,
+      justification: `La présentation de l'embolie pulmonaire est très variable selon l'importance de l'obstruction, la fonction cardiaque et les comorbidités.`
+    },
+    {
+      label: "B",
+      text: `Si un état de choc est associé, le mécanisme en est généralement cardiogénique`,
+      correct: false,
+      justification: `Le choc de l'embolie pulmonaire grave est principalement obstructif, par défaillance aiguë du ventricule droit, et non un choc cardiogénique primaire.`
+    },
+    {
+      label: "C",
+      text: `L'électrocardiogramme (ECG) affirme le diagnostic à chaque fois`,
+      correct: false,
+      justification: `L'ECG est souvent anormal mais ses anomalies sont peu spécifiques et ne permettent pas à elles seules d'affirmer une embolie pulmonaire.`
+    },
+    {
+      label: "D",
+      text: `L'angioscanner spiralé n'est pas un très bon examen complémentaire`,
+      correct: false,
+      justification: `L'angioscanner thoracique est l'examen d'imagerie de référence dans de nombreuses situations pour confirmer une embolie pulmonaire.`
+    },
+    {
+      label: "E",
+      text: `L'échographie cardiaque n'est que de très faible intérêt`,
+      correct: false,
+      justification: `L'échocardiographie est particulièrement utile dans les formes graves pour rechercher une dysfonction ou une dilatation du ventricule droit et évaluer le retentissement hémodynamique.`
+    }
+  ]
+},
+{
+  question: `QCM 3. Dans la prise en charge de l'embolie pulmonaire grave, quelle affirmation est vraie ?`,
+  choices: [
+    {
+      label: "A",
+      text: `La fibrinolyse est formellement indiquée dans tous les cas puisqu'elle lyse le thrombus`,
+      correct: false,
+      justification: `La thrombolyse est principalement indiquée dans l'embolie pulmonaire à haut risque avec instabilité hémodynamique, en tenant compte des contre-indications et du rapport bénéfice-risque.`
+    },
+    {
+      label: "B",
+      text: `L'embolectomie chirurgicale est très fréquemment mise en œuvre`,
+      correct: false,
+      justification: `L'embolectomie chirurgicale est réservée à certaines situations, notamment lorsque la thrombolyse est contre-indiquée ou inefficace.`
+    },
+    {
+      label: "C",
+      text: `Le traitement symptomatique associe oxygène, expansion volémique prudente et éventuel support vasopresseur`,
+      correct: true,
+      justification: `Le traitement de support comprend notamment l'oxygénation, une expansion volémique prudente et des vasopresseurs si nécessaire, en complément du traitement spécifique de l'embolie.`
+    },
+    {
+      label: "D",
+      text: `Le filtre cave améliore vite la situation`,
+      correct: false,
+      justification: `Le filtre cave ne traite pas l'obstruction pulmonaire aiguë et n'améliore pas rapidement l'état hémodynamique.`
+    },
+    {
+      label: "E",
+      text: `Il n'existe pas de contre-indications aux anticoagulants`,
+      correct: false,
+      justification: `Les anticoagulants comportent notamment des contre-indications liées au risque hémorragique.`
+    }
+  ]
+},
+{
+  question: `QCM 9. À propos de l'embolie pulmonaire, laquelle de ces affirmations est vraie ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Un dosage des D-dimères par méthode ELISA inférieur à 500 ng/mL élimine formellement le diagnostic`,
+      correct: false,
+      justification: `Un résultat négatif peut permettre d'exclure une embolie pulmonaire chez certains patients à probabilité clinique faible ou intermédiaire, mais il ne l'exclut pas formellement dans toutes les situations.`
+    },
+    {
+      label: "B",
+      text: `La PaCO2 est classiquement augmentée`,
+      correct: false,
+      justification: `L'embolie pulmonaire provoque classiquement une hypocapnie par hyperventilation réflexe, même si une hypercapnie peut survenir dans certaines formes graves ou chez certains patients.`
+    },
+    {
+      label: "C",
+      text: `L'examen clinique peut être strictement normal`,
+      correct: true,
+      justification: `Une embolie pulmonaire peut avoir une présentation clinique pauvre, notamment dans certaines formes peu étendues.`
+    },
+    {
+      label: "D",
+      text: `La thrombolyse est toujours indiquée`,
+      correct: false,
+      justification: `La thrombolyse est principalement indiquée dans les formes à haut risque avec instabilité hémodynamique et n'est pas systématique.`
+    },
+    {
+      label: "E",
+      text: `L'échographie Doppler veineuse des membres inférieurs est utile dans les formes graves`,
+      correct: true,
+      justification: `La recherche d'une thrombose veineuse profonde peut être utile dans l'évaluation d'une embolie pulmonaire, notamment lorsque l'angioscanner est difficile ou contre-indiqué.`
+    }
+  ]
+},
+{
+  question: `QCM 26. Un état de choc septique à la phase initiale comporte habituellement le profil hémodynamique suivant :`,
+  choices: [
+    {
+      label: "A",
+      text: `Pression artérielle moyenne systémique à 100 mmHg`,
+      correct: false,
+      justification: `La PAM est généralement diminuée dans le choc septique avant correction, en raison de la vasoplégie et de la diminution des résistances systémiques.`
+    },
+    {
+      label: "B",
+      text: `Index cardiaque supérieur à 2,5 L/min/m²`,
+      correct: true,
+      justification: `Dans la phase hyperdynamique initiale du choc septique, le débit cardiaque peut être élevé, notamment après restauration de la précharge.`
+    },
+    {
+      label: "C",
+      text: `Résistances artérielles systémiques élevées`,
+      correct: false,
+      justification: `Le choc septique est caractérisé par une diminution des résistances vasculaires systémiques liée à la vasoplégie.`
+    },
+    {
+      label: "D",
+      text: `Pression artérielle pulmonaire d'occlusion ≤ 12 mmHg`,
+      correct: true,
+      justification: `Le profil distributif classique du choc septique comporte des pressions de remplissage souvent basses ou normales, notamment en cas d'hypovolémie associée.`
+    },
+    {
+      label: "E",
+      text: `Pression artérielle pulmonaire d'occlusion à 20 mmHg`,
+      correct: false,
+      justification: `Une PCP élevée évoque plutôt une augmentation des pressions de remplissage gauches, comme dans le choc cardiogénique gauche.`
+    }
+  ]
+},
+
+    ];
+
+    const container = document.getElementById('quiz-container');
+
+    let currentQuestion = 0;
+
+    /*
+     * Stockage des réponses de l'utilisateur.
+     * Chaque élément contient les indices des réponses sélectionnées.
+     */
+    const userAnswers = new Array(questions.length).fill(null);
+
+    /*
+     * Indique si la question a déjà été corrigée.
+     */
+    const validated = new Array(questions.length).fill(false);
+
+
+    function shuffleArray(array) {
+
+      const arr = array.slice();
+
+      for (let i = arr.length - 1; i > 0; i--) {
+
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+
+      return arr;
+    }
+
+
+    function replaceDoubleQuotesWithSingle(str) {
+
+      return String(str).replace(/"/g, "'");
+
+    }
+
+
+    function decodeHTML(html) {
+
+      const txt = document.createElement("textarea");
+
+      txt.innerHTML = html;
+
+      return replaceDoubleQuotesWithSingle(txt.value);
+
+    }
+
+
+    function renderQuestion() {
+
+      container.innerHTML = '';
+
+      const q = questions[currentQuestion];
+
+      /*
+       * Progression
+       */
+      const progress = document.createElement('div');
+
+      progress.className = 'progress';
+
+      progress.textContent =
+        `Question ${currentQuestion + 1} / ${questions.length}`;
+
+      container.appendChild(progress);
+
+
+      /*
+       * Question
+       */
+      const questionTitle = document.createElement('div');
+
+      questionTitle.className = 'question-title';
+
+      questionTitle.textContent =
+        decodeHTML(q.question);
+
+      container.appendChild(questionTitle);
+
+
+      /*
+       * Formulaire
+       */
+      const form = document.createElement('form');
+
+      form.id = 'qcm-form';
+
+
+      /*
+       * Randomisation des réponses
+       */
+      const shuffledChoices = shuffleArray(q.choices);
+
+
+      shuffledChoices.forEach((choice) => {
+
+        const originalIndex =
+          q.choices.indexOf(choice);
+
+        const label =
+          document.createElement('label');
+
+        label.className = 'choice';
+
+
+        const input =
+          document.createElement('input');
+
+        input.type = 'checkbox';
+
+        input.name = 'choice';
+
+        input.value = originalIndex;
+
+
+        /*
+         * Restaurer les réponses précédentes
+         */
+        if (
+          userAnswers[currentQuestion] &&
+          userAnswers[currentQuestion].includes(originalIndex)
+        ) {
+
+          input.checked = true;
+
+        }
+
+
+        const choiceLabel =
+          document.createElement('span');
+
+        choiceLabel.className =
+          'choice-label';
+
+        choiceLabel.textContent =
+          choice.label + '.';
+
+
+        label.appendChild(input);
+
+        label.appendChild(choiceLabel);
+
+        label.appendChild(
+          document.createTextNode(
+            ' ' + decodeHTML(choice.text)
+          )
+        );
+
+
+        form.appendChild(label);
+
+      });
+
+
+      container.appendChild(form);
+
+
+      /*
+       * Si la question a déjà été corrigée,
+       * afficher directement la correction.
+       */
+      if (validated[currentQuestion]) {
+
+        showCorrection(q, form);
+
+      }
+
+
+      /*
+       * Navigation
+       */
+      const navigation =
+        document.createElement('div');
+
+      navigation.className =
+        'navigation';
+
+
+      /*
+       * Bouton Previous
+       */
+      const btnPrevious =
+        document.createElement('button');
+
+      btnPrevious.type = 'button';
+
+      btnPrevious.textContent =
+        'Previous';
+
+      btnPrevious.disabled =
+        currentQuestion === 0;
+
+      btnPrevious.addEventListener(
+        'click',
+        () => {
+
+          saveCurrentAnswer(form);
+
+          currentQuestion--;
+
+          renderQuestion();
+
+        }
+      );
+
+
+      /*
+       * Bouton Valider
+       */
+      const btnValidate =
+        document.createElement('button');
+
+      btnValidate.type = 'button';
+
+      btnValidate.textContent =
+        validated[currentQuestion]
+          ? 'Validé'
+          : 'Valider';
+
+      btnValidate.disabled =
+        validated[currentQuestion];
+
+      btnValidate.addEventListener(
+        'click',
+        () => {
+
+          validateCurrentQuestion(
+            q,
+            form,
+            btnValidate
+          );
+
+        }
+      );
+
+
+      /*
+       * Bouton Next
+       */
+      const btnNext =
+        document.createElement('button');
+
+      btnNext.type = 'button';
+
+      btnNext.textContent =
+        currentQuestion === questions.length - 1
+          ? 'Terminer'
+          : 'Next';
+
+
+      btnNext.addEventListener(
+        'click',
+        () => {
+
+          /*
+           * Il faut valider avant de passer
+           * à la question suivante.
+           */
+          if (!validated[currentQuestion]) {
+
+            alert(
+              "Veuillez valider cette question avant de continuer."
+            );
+
+            return;
+
+          }
+
+
+          if (
+            currentQuestion <
+            questions.length - 1
+          ) {
+
+            currentQuestion++;
+
+            renderQuestion();
+
+          } else {
+
+            showFinalScore();
+
+          }
+
+        }
+      );
+
+
+      navigation.appendChild(btnPrevious);
+
+      navigation.appendChild(btnValidate);
+
+      navigation.appendChild(btnNext);
+
+      container.appendChild(navigation);
+
+    }
+
+
+    /*
+     * Sauvegarder les réponses cochées
+     */
+    function saveCurrentAnswer(form) {
+
+      const checked =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+      userAnswers[currentQuestion] =
+        checked.map(
+          input => parseInt(input.value)
+        );
+
+    }
+
+
+    /*
+     * Valider la question actuelle
+     */
+    function validateCurrentQuestion(
+      q,
+      form,
+      btnValidate
+    ) {
+
+      const checkedBoxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+
+      if (checkedBoxes.length === 0) {
+
+        alert(
+          "Veuillez choisir au moins une réponse."
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * Sauvegarder les réponses
+       */
+      userAnswers[currentQuestion] =
+        checkedBoxes.map(
+          input => parseInt(input.value)
+        );
+
+
+      /*
+       * Marquer comme validée
+       */
+      validated[currentQuestion] =
+        true;
+
+
+      /*
+       * Désactiver les cases
+       */
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(
+        input => {
+          input.disabled = true;
+        }
+      );
+
+
+      btnValidate.disabled = true;
+
+      btnValidate.textContent =
+        'Validé';
+
+
+      showCorrection(q, form);
+
+    }
+
+
+    /*
+     * Afficher la correction
+     */
+    function showCorrection(q, form) {
+
+      /*
+       * Empêcher la correction d'être
+       * ajoutée plusieurs fois.
+       */
+      if (
+        form.querySelector(
+          '.correction-container'
+        )
+      ) {
+
+        return;
+
+      }
+
+
+      const correctionContainer =
+        document.createElement('div');
+
+      correctionContainer.className =
+        'correction-container';
+
+
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(input => {
+
+        const originalIndex =
+          parseInt(input.value);
+
+        const choiceData =
+          q.choices[originalIndex];
+
+        const label =
+          input.parentElement;
+
+
+        /*
+         * Vérification de la réponse
+         */
+        if (
+          input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'correct-checked'
+          );
+
+        }
+
+        else if (
+          input.checked &&
+          !choiceData.correct
+        ) {
+
+          label.classList.add(
+            'incorrect-checked'
+          );
+
+        }
+
+        else if (
+          !input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'missed-correct'
+          );
+
+        }
+
+
+        /*
+         * Justification
+         */
+        const justification =
+          document.createElement('div');
+
+        justification.className =
+          'justification';
+
+
+        const symbol =
+          choiceData.correct
+            ? '✓'
+            : '✗';
+
+
+        justification.textContent =
+          `${symbol} : ${decodeHTML(
+            choiceData.justification
+          )}`;
+
+
+        label.appendChild(
+          justification
+        );
+
+      });
+
+
+      form.appendChild(
+        correctionContainer
+      );
+
+    }
+
+
+    /*
+     * Calcul du score final
+     */
+    function calculateFinalScore() {
+
+      let totalPoints = 0;
+
+      let totalPossiblePoints = 0;
+
+
+      questions.forEach(
+        (q, index) => {
+
+          const answers =
+            userAnswers[index] || [];
+
+
+          const correctAnswers =
+            q.choices
+              .map(
+                (choice, i) =>
+                  choice.correct
+                    ? i
+                    : null
+              )
+              .filter(
+                i => i !== null
+              );
+
+
+          /*
+           * Chaque bonne réponse sélectionnée
+           * rapporte un point.
+           */
+          answers.forEach(
+            answerIndex => {
+
+              if (
+                correctAnswers.includes(
+                  answerIndex
+                )
+              ) {
+
+                totalPoints++;
+
+              }
+
+            }
+          );
+
+
+          totalPossiblePoints +=
+            correctAnswers.length;
+
+        }
+      );
+
+
+      /*
+       * Note sur 5
+       */
+      const note =
+        Math.round(
+          (
+            totalPoints /
+            totalPossiblePoints
+          ) * 5 * 100
+        ) / 100;
+
+
+      return {
+        totalPoints,
+        totalPossiblePoints,
+        note
+      };
+
+    }
+
+
+    /*
+     * Afficher le score final
+     */
+    function showFinalScore() {
+
+      const result =
+        calculateFinalScore();
+
+
+      container.innerHTML = '';
+
+
+      const title =
+        document.createElement('div');
+
+      title.className =
+        'question-title';
+
+      title.textContent =
+        'QCM terminé';
+
+      container.appendChild(title);
+
+
+      const note =
+        document.createElement('div');
+
+      note.className =
+        'note';
+
+      note.textContent =
+        `Note : ${result.note} / 5`;
+
+      container.appendChild(note);
+
+
+      const details =
+        document.createElement('p');
+
+      details.textContent =
+        `Réponses correctes : ${result.totalPoints} / ${result.totalPossiblePoints}`;
+
+      container.appendChild(details);
+
+
+      /*
+       * Bouton pour recommencer
+       */
+      const restart =
+        document.createElement('button');
+
+      restart.type = 'button';
+
+      restart.textContent =
+        'Recommencer';
+
+
+      restart.addEventListener(
+        'click',
+        () => {
+
+          currentQuestion = 0;
+
+          userAnswers.fill(null);
+
+          validated.fill(false);
+
+          renderQuestion();
+
+        }
+      );
+
+
+      container.appendChild(restart);
+
+    }
+
+
+    /*
+     * Lancement du QCM
+     */
+    renderQuestion();
+
+  })();
+  </script>
+
+</body>
+</html>
