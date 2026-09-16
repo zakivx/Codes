@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Les états de choc hypovolémiques et  remplissage vasculaire</title>
+  <style>
+    #quiz-container {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1em;
+    }
+
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 0.8em;
+    }
+
+    .question-number {
+      font-weight: bold;
+      margin-bottom: 0.5em;
+    }
+
+    .choice {
+      margin: 0.4em 0;
+      cursor: pointer;
+      display: block;
+      line-height: 1.5;
+    }
+
+    .choice input {
+      margin-right: 0.4em;
+    }
+
+    .choice-label {
+      font-weight: bold;
+      margin-right: 0.3em;
+    }
+
+    .correct-checked {
+      color: green;
+      font-weight: bold;
+    }
+
+    .incorrect-checked {
+      color: red;
+      font-weight: bold;
+    }
+
+    .missed-correct {
+      color: blue;
+      font-weight: bold;
+    }
+
+    .justification {
+      font-size: 0.9em;
+      margin: 0.25em 0 0.5em 1.8em;
+      color: #555;
+      font-weight: normal;
+    }
+
+    .note {
+      margin-top: 1em;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    .navigation {
+      display: flex;
+      gap: 0.5em;
+      margin-top: 1em;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .progress {
+      margin-bottom: 1em;
+      font-weight: bold;
+    }
+
+    /* Mobile Font Size Adjustment */
+    @media (max-width: 768px) {
+      #quiz-container {
+        font-size: 1rem; /* Base size adjusted to 1rem */
+      }
+
+      button {
+        font-size: 1em;
+        padding: 0.5em 1em;
+      }
+
+      .choice input[type="checkbox"] {
+        transform: scale(1.1); /* Slightly adjusted checkbox scale for 1rem target */
+        margin-right: 0.4em;
+      }
+    }
+  </style>
+</head>
+<body>
+    <header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
+  <a href="https://zakivx.github.io/Codes/QCM/qcmList.html" 
+      style="color:#fff; text-decoration:none; font-weight:bold;">
+    ← Retour à la liste des QCM
+  </a>
+</header>
+  <div id="quiz-container"></div>
+
+  <script>
+  (() => {
+
+    const questions = [
+
+{
+  question: `3. L'effet du remplissage vasculaire est :`,
+  choices: [
+    {
+      label: "A",
+      text: `De restaurer la microcirculation`,
+      correct: true,
+      justification: `Le remplissage peut améliorer la perfusion microcirculatoire en restaurant un volume circulant efficace suffisant.`
+    },
+    {
+      label: "B",
+      text: `D'augmenter le capital artériel`,
+      correct: false,
+      justification: `Le remplissage augmente principalement le volume intravasculaire et ne constitue pas une augmentation du capital artériel.`
+    },
+    {
+      label: "C",
+      text: `D'augmenter le capital veineux`,
+      correct: false,
+      justification: `Le remplissage augmente le volume circulant mais ne doit pas être considéré comme une augmentation du capital veineux structurel.`
+    },
+    {
+      label: "D",
+      text: `D'augmenter la précharge et le débit cardiaque`,
+      correct: true,
+      justification: `Chez un patient répondeur au remplissage, l'augmentation du retour veineux augmente la précharge et, selon Frank-Starling, le volume d'éjection et le débit cardiaque.`
+    },
+    {
+      label: "E",
+      text: `De restaurer la perfusion des différents organes`,
+      correct: true,
+      justification: `Lorsque l'hypovolémie est responsable de l'hypoperfusion, le remplissage permet de restaurer la pression de perfusion et la délivrance d'oxygène aux organes.`
+    }
+  ]
+},
+{
+  question: `4. Les solutés de remplissage non balancés :`,
+  choices: [
+    {
+      label: "A",
+      text: `Sont caractérisés par une forte charge chlorée`,
+      correct: true,
+      justification: `Les cristalloïdes non balancés comme le NaCl à 0,9 % contiennent une concentration élevée en chlorures par rapport au plasma.`
+    },
+    {
+      label: "B",
+      text: `Risquent d'induire une acidose hyperchlorémique`,
+      correct: true,
+      justification: `L'administration importante de solutés riches en chlorures peut provoquer une acidose métabolique hyperchlorémique.`
+    },
+    {
+      label: "C",
+      text: `Contiennent un anion organique métabolisable`,
+      correct: false,
+      justification: `Cette caractéristique concerne plutôt les solutés balancés contenant des anions métabolisables comme le lactate, l'acétate ou le malate.`
+    },
+    {
+      label: "D",
+      text: `Augmentent davantage que les solutés balancés le pouvoir d'expansion volémique`,
+      correct: false,
+      justification: `Les différences de pouvoir d'expansion volémique entre cristalloïdes balancés et non balancés ne permettent pas de retenir cette affirmation comme caractéristique des solutés non balancés.`
+    },
+    {
+      label: "E",
+      text: `Sont très riches en polypeptides`,
+      correct: false,
+      justification: `Les solutés cristalloïdes non balancés ne sont pas caractérisés par une forte teneur en polypeptides.`
+    }
+  ]
+},
+{
+  question: `19. Un état de choc hypovolémique apparaît pour une hémorragie de plus de :`,
+  choices: [
+    {
+      label: "A",
+      text: `5 % de la volémie`,
+      correct: false,
+      justification: `Une perte de 5 % de la volémie est généralement bien tolérée chez l'adulte sain.`
+    },
+    {
+      label: "B",
+      text: `10 % de la volémie`,
+      correct: false,
+      justification: `Une perte d'environ 10 % peut provoquer une réponse compensatrice mais ne correspond généralement pas au seuil classique du choc hémorragique.`
+    },
+    {
+      label: "C",
+      text: `20 % de la volémie`,
+      correct: true,
+      justification: `Une perte sanguine supérieure à environ 20 % de la volémie peut entraîner un choc hypovolémique avec altération de la perfusion tissulaire.`
+    },
+    {
+      label: "D",
+      text: `30 % de la volémie`,
+      correct: false,
+      justification: `Une perte de 30 % correspond à un choc hémorragique plus avancé, mais le choc peut apparaître dès environ 20 % de perte.`
+    },
+    {
+      label: "E",
+      text: `50 % de la volémie`,
+      correct: false,
+      justification: `Une perte de 50 % est extrêmement sévère et correspond à une hémorragie massive, bien au-delà du seuil d'apparition du choc.`
+    }
+  ]
+},
+{
+  question: `Le principal mécanisme compensateur au cours du choc hypovolémique est :`,
+  choices: [
+    {
+      label: "A",
+      text: `Hyperactivité adrénergique`,
+      correct: true,
+      justification: `L'activation sympathique entraîne tachycardie, augmentation de la contractilité et vasoconstriction afin de maintenir la pression artérielle et la perfusion des organes vitaux.`
+    },
+    {
+      label: "B",
+      text: `Baisse du débit cardiaque`,
+      correct: false,
+      justification: `La baisse du débit cardiaque est une conséquence de l'hypovolémie et non un mécanisme compensateur.`
+    },
+    {
+      label: "C",
+      text: `Libération des prostaglandines`,
+      correct: false,
+      justification: `Les prostaglandines participent à diverses réponses vasculaires mais ne constituent pas le principal mécanisme compensateur du choc hypovolémique.`
+    },
+    {
+      label: "D",
+      text: `Libération des kinines`,
+      correct: false,
+      justification: `Les kinines ne constituent pas le principal mécanisme compensateur de l'hypovolémie aiguë.`
+    },
+    {
+      label: "E",
+      text: `Action du MDF`,
+      correct: false,
+      justification: `Le facteur dépressif myocardique n'est pas le principal mécanisme compensateur du choc hypovolémique.`
+    }
+  ]
+},
+{
+  question: `Un état de choc hypovolémique apparaît pour une hémorragie de plus de :`,
+  choices: [
+    {
+      label: "A",
+      text: `5 % de la volémie`,
+      correct: false,
+      justification: `Cette perte est généralement compensée chez l'adulte sans choc manifeste.`
+    },
+    {
+      label: "B",
+      text: `10 % de la volémie`,
+      correct: false,
+      justification: `Une perte de 10 % déclenche une réponse compensatrice mais ne correspond pas au seuil classique du choc hémorragique.`
+    },
+    {
+      label: "C",
+      text: `20 % de la volémie`,
+      correct: true,
+      justification: `Le choc hémorragique peut apparaître lorsque la perte sanguine dépasse environ 20 % de la volémie.`
+    },
+    {
+      label: "D",
+      text: `30 % de la volémie`,
+      correct: false,
+      justification: `À 30 %, le choc est déjà plus important ; le seuil d'apparition est classiquement situé autour de 20 %.`
+    },
+    {
+      label: "E",
+      text: `50 % de la volémie`,
+      correct: false,
+      justification: `Une perte de 50 % représente une hémorragie extrêmement sévère et potentiellement rapidement létale.`
+    }
+  ]
+},
+{
+  question: `Le choc hypovolémique vrai :`,
+  choices: [
+    {
+      label: "A",
+      text: `S'observe au cours de l'évolution des septicémies à germes Gram négatifs`,
+      correct: false,
+      justification: `Le choc septique est principalement un choc distributif par vasoplégie, même si une hypovolémie relative ou absolue peut y être associée.`
+    },
+    {
+      label: "B",
+      text: `S'observe au cours de l'évolution des septicémies à germes Gram positifs`,
+      correct: false,
+      justification: `Comme pour les infections à Gram négatif, le mécanisme principal du choc septique est distributif et non une perte primaire de volume sanguin.`
+    },
+    {
+      label: "C",
+      text: `Résulte de la diminution brutale de la masse sanguine circulante`,
+      correct: true,
+      justification: `Le choc hypovolémique vrai correspond à une diminution du volume sanguin circulant, notamment par hémorragie aiguë.`
+    },
+    {
+      label: "D",
+      text: `Est secondaire à une défaillance de la pompe cardiaque`,
+      correct: false,
+      justification: `La défaillance de la pompe cardiaque définit le mécanisme principal du choc cardiogénique.`
+    },
+    {
+      label: "E",
+      text: `Est dû à une vasoplégie`,
+      correct: false,
+      justification: `La vasoplégie est le mécanisme principal du choc distributif, notamment septique ou anaphylactique.`
+    }
+  ]
+},
+{
+  question: `Au cours du choc hypovolémique, la redistribution du flux sanguin visant à préserver les fonctions vitales est dirigée vers :`,
+  choices: [
+    {
+      label: "A",
+      text: `Le foie`,
+      correct: false,
+      justification: `Le débit splanchnique et hépatique est réduit par la vasoconstriction sympathique.`
+    },
+    {
+      label: "B",
+      text: `Le cœur`,
+      correct: true,
+      justification: `La redistribution du débit privilégie les organes vitaux, notamment le cœur, afin de maintenir la perfusion myocardique.`
+    },
+    {
+      label: "C",
+      text: `Le cerveau`,
+      correct: true,
+      justification: `La circulation cérébrale est fortement préservée grâce à l'autorégulation et à la redistribution du débit sanguin.`
+    },
+    {
+      label: "D",
+      text: `Le rein`,
+      correct: false,
+      justification: `Le débit rénal diminue lors du choc hypovolémique en raison de la vasoconstriction et de l'activation neuro-hormonale.`
+    },
+    {
+      label: "E",
+      text: `Le poumon`,
+      correct: false,
+      justification: `Le poumon n'est pas l'un des principaux territoires privilégiés par la redistribution systémique du débit lors de l'hypovolémie.`
+    }
+  ]
+},
+
+    ];
+
+    const container = document.getElementById('quiz-container');
+
+    let currentQuestion = 0;
+
+    /*
+     * Stockage des réponses de l'utilisateur.
+     * Chaque élément contient les indices des réponses sélectionnées.
+     */
+    const userAnswers = new Array(questions.length).fill(null);
+
+    /*
+     * Indique si la question a déjà été corrigée.
+     */
+    const validated = new Array(questions.length).fill(false);
+
+
+    function shuffleArray(array) {
+
+      const arr = array.slice();
+
+      for (let i = arr.length - 1; i > 0; i--) {
+
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+
+      return arr;
+    }
+
+
+    function replaceDoubleQuotesWithSingle(str) {
+
+      return String(str).replace(/"/g, "'");
+
+    }
+
+
+    function decodeHTML(html) {
+
+      const txt = document.createElement("textarea");
+
+      txt.innerHTML = html;
+
+      return replaceDoubleQuotesWithSingle(txt.value);
+
+    }
+
+
+    function renderQuestion() {
+
+      container.innerHTML = '';
+
+      const q = questions[currentQuestion];
+
+      /*
+       * Progression
+       */
+      const progress = document.createElement('div');
+
+      progress.className = 'progress';
+
+      progress.textContent =
+        `Question ${currentQuestion + 1} / ${questions.length}`;
+
+      container.appendChild(progress);
+
+
+      /*
+       * Question
+       */
+      const questionTitle = document.createElement('div');
+
+      questionTitle.className = 'question-title';
+
+      questionTitle.textContent =
+        decodeHTML(q.question);
+
+      container.appendChild(questionTitle);
+
+
+      /*
+       * Formulaire
+       */
+      const form = document.createElement('form');
+
+      form.id = 'qcm-form';
+
+
+      /*
+       * Randomisation des réponses
+       */
+      const shuffledChoices = shuffleArray(q.choices);
+
+
+      shuffledChoices.forEach((choice) => {
+
+        const originalIndex =
+          q.choices.indexOf(choice);
+
+        const label =
+          document.createElement('label');
+
+        label.className = 'choice';
+
+
+        const input =
+          document.createElement('input');
+
+        input.type = 'checkbox';
+
+        input.name = 'choice';
+
+        input.value = originalIndex;
+
+
+        /*
+         * Restaurer les réponses précédentes
+         */
+        if (
+          userAnswers[currentQuestion] &&
+          userAnswers[currentQuestion].includes(originalIndex)
+        ) {
+
+          input.checked = true;
+
+        }
+
+
+        const choiceLabel =
+          document.createElement('span');
+
+        choiceLabel.className =
+          'choice-label';
+
+        choiceLabel.textContent =
+          choice.label + '.';
+
+
+        label.appendChild(input);
+
+        label.appendChild(choiceLabel);
+
+        label.appendChild(
+          document.createTextNode(
+            ' ' + decodeHTML(choice.text)
+          )
+        );
+
+
+        form.appendChild(label);
+
+      });
+
+
+      container.appendChild(form);
+
+
+      /*
+       * Si la question a déjà été corrigée,
+       * afficher directement la correction.
+       */
+      if (validated[currentQuestion]) {
+
+        showCorrection(q, form);
+
+      }
+
+
+      /*
+       * Navigation
+       */
+      const navigation =
+        document.createElement('div');
+
+      navigation.className =
+        'navigation';
+
+
+      /*
+       * Bouton Previous
+       */
+      const btnPrevious =
+        document.createElement('button');
+
+      btnPrevious.type = 'button';
+
+      btnPrevious.textContent =
+        'Previous';
+
+      btnPrevious.disabled =
+        currentQuestion === 0;
+
+      btnPrevious.addEventListener(
+        'click',
+        () => {
+
+          saveCurrentAnswer(form);
+
+          currentQuestion--;
+
+          renderQuestion();
+
+        }
+      );
+
+
+      /*
+       * Bouton Valider
+       */
+      const btnValidate =
+        document.createElement('button');
+
+      btnValidate.type = 'button';
+
+      btnValidate.textContent =
+        validated[currentQuestion]
+          ? 'Validé'
+          : 'Valider';
+
+      btnValidate.disabled =
+        validated[currentQuestion];
+
+      btnValidate.addEventListener(
+        'click',
+        () => {
+
+          validateCurrentQuestion(
+            q,
+            form,
+            btnValidate
+          );
+
+        }
+      );
+
+
+      /*
+       * Bouton Next
+       */
+      const btnNext =
+        document.createElement('button');
+
+      btnNext.type = 'button';
+
+      btnNext.textContent =
+        currentQuestion === questions.length - 1
+          ? 'Terminer'
+          : 'Next';
+
+
+      btnNext.addEventListener(
+        'click',
+        () => {
+
+          /*
+           * Il faut valider avant de passer
+           * à la question suivante.
+           */
+          if (!validated[currentQuestion]) {
+
+            alert(
+              "Veuillez valider cette question avant de continuer."
+            );
+
+            return;
+
+          }
+
+
+          if (
+            currentQuestion <
+            questions.length - 1
+          ) {
+
+            currentQuestion++;
+
+            renderQuestion();
+
+          } else {
+
+            showFinalScore();
+
+          }
+
+        }
+      );
+
+
+      navigation.appendChild(btnPrevious);
+
+      navigation.appendChild(btnValidate);
+
+      navigation.appendChild(btnNext);
+
+      container.appendChild(navigation);
+
+    }
+
+
+    /*
+     * Sauvegarder les réponses cochées
+     */
+    function saveCurrentAnswer(form) {
+
+      const checked =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+      userAnswers[currentQuestion] =
+        checked.map(
+          input => parseInt(input.value)
+        );
+
+    }
+
+
+    /*
+     * Valider la question actuelle
+     */
+    function validateCurrentQuestion(
+      q,
+      form,
+      btnValidate
+    ) {
+
+      const checkedBoxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+
+      if (checkedBoxes.length === 0) {
+
+        alert(
+          "Veuillez choisir au moins une réponse."
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * Sauvegarder les réponses
+       */
+      userAnswers[currentQuestion] =
+        checkedBoxes.map(
+          input => parseInt(input.value)
+        );
+
+
+      /*
+       * Marquer comme validée
+       */
+      validated[currentQuestion] =
+        true;
+
+
+      /*
+       * Désactiver les cases
+       */
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(
+        input => {
+          input.disabled = true;
+        }
+      );
+
+
+      btnValidate.disabled = true;
+
+      btnValidate.textContent =
+        'Validé';
+
+
+      showCorrection(q, form);
+
+    }
+
+
+    /*
+     * Afficher la correction
+     */
+    function showCorrection(q, form) {
+
+      /*
+       * Empêcher la correction d'être
+       * ajoutée plusieurs fois.
+       */
+      if (
+        form.querySelector(
+          '.correction-container'
+        )
+      ) {
+
+        return;
+
+      }
+
+
+      const correctionContainer =
+        document.createElement('div');
+
+      correctionContainer.className =
+        'correction-container';
+
+
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(input => {
+
+        const originalIndex =
+          parseInt(input.value);
+
+        const choiceData =
+          q.choices[originalIndex];
+
+        const label =
+          input.parentElement;
+
+
+        /*
+         * Vérification de la réponse
+         */
+        if (
+          input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'correct-checked'
+          );
+
+        }
+
+        else if (
+          input.checked &&
+          !choiceData.correct
+        ) {
+
+          label.classList.add(
+            'incorrect-checked'
+          );
+
+        }
+
+        else if (
+          !input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'missed-correct'
+          );
+
+        }
+
+
+        /*
+         * Justification
+         */
+        const justification =
+          document.createElement('div');
+
+        justification.className =
+          'justification';
+
+
+        const symbol =
+          choiceData.correct
+            ? '✓'
+            : '✗';
+
+
+        justification.textContent =
+          `${symbol} : ${decodeHTML(
+            choiceData.justification
+          )}`;
+
+
+        label.appendChild(
+          justification
+        );
+
+      });
+
+
+      form.appendChild(
+        correctionContainer
+      );
+
+    }
+
+
+    /*
+     * Calcul du score final
+     */
+    function calculateFinalScore() {
+
+      let totalPoints = 0;
+
+      let totalPossiblePoints = 0;
+
+
+      questions.forEach(
+        (q, index) => {
+
+          const answers =
+            userAnswers[index] || [];
+
+
+          const correctAnswers =
+            q.choices
+              .map(
+                (choice, i) =>
+                  choice.correct
+                    ? i
+                    : null
+              )
+              .filter(
+                i => i !== null
+              );
+
+
+          /*
+           * Chaque bonne réponse sélectionnée
+           * rapporte un point.
+           */
+          answers.forEach(
+            answerIndex => {
+
+              if (
+                correctAnswers.includes(
+                  answerIndex
+                )
+              ) {
+
+                totalPoints++;
+
+              }
+
+            }
+          );
+
+
+          totalPossiblePoints +=
+            correctAnswers.length;
+
+        }
+      );
+
+
+      /*
+       * Note sur 5
+       */
+      const note =
+        Math.round(
+          (
+            totalPoints /
+            totalPossiblePoints
+          ) * 5 * 100
+        ) / 100;
+
+
+      return {
+        totalPoints,
+        totalPossiblePoints,
+        note
+      };
+
+    }
+
+
+    /*
+     * Afficher le score final
+     */
+    function showFinalScore() {
+
+      const result =
+        calculateFinalScore();
+
+
+      container.innerHTML = '';
+
+
+      const title =
+        document.createElement('div');
+
+      title.className =
+        'question-title';
+
+      title.textContent =
+        'QCM terminé';
+
+      container.appendChild(title);
+
+
+      const note =
+        document.createElement('div');
+
+      note.className =
+        'note';
+
+      note.textContent =
+        `Note : ${result.note} / 5`;
+
+      container.appendChild(note);
+
+
+      const details =
+        document.createElement('p');
+
+      details.textContent =
+        `Réponses correctes : ${result.totalPoints} / ${result.totalPossiblePoints}`;
+
+      container.appendChild(details);
+
+
+      /*
+       * Bouton pour recommencer
+       */
+      const restart =
+        document.createElement('button');
+
+      restart.type = 'button';
+
+      restart.textContent =
+        'Recommencer';
+
+
+      restart.addEventListener(
+        'click',
+        () => {
+
+          currentQuestion = 0;
+
+          userAnswers.fill(null);
+
+          validated.fill(false);
+
+          renderQuestion();
+
+        }
+      );
+
+
+      container.appendChild(restart);
+
+    }
+
+
+    /*
+     * Lancement du QCM
+     */
+    renderQuestion();
+
+  })();
+  </script>
+
+</body>
+</html>
