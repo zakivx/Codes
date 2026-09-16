@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Déséquilibres Acide-base</title>
+  <style>
+    #quiz-container {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1em;
+    }
+
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 0.8em;
+    }
+
+    .question-number {
+      font-weight: bold;
+      margin-bottom: 0.5em;
+    }
+
+    .choice {
+      margin: 0.4em 0;
+      cursor: pointer;
+      display: block;
+      line-height: 1.5;
+    }
+
+    .choice input {
+      margin-right: 0.4em;
+    }
+
+    .choice-label {
+      font-weight: bold;
+      margin-right: 0.3em;
+    }
+
+    .correct-checked {
+      color: green;
+      font-weight: bold;
+    }
+
+    .incorrect-checked {
+      color: red;
+      font-weight: bold;
+    }
+
+    .missed-correct {
+      color: blue;
+      font-weight: bold;
+    }
+
+    .justification {
+      font-size: 0.9em;
+      margin: 0.25em 0 0.5em 1.8em;
+      color: #555;
+      font-weight: normal;
+    }
+
+    .note {
+      margin-top: 1em;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    .navigation {
+      display: flex;
+      gap: 0.5em;
+      margin-top: 1em;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .progress {
+      margin-bottom: 1em;
+      font-weight: bold;
+    }
+
+    /* Mobile Font Size Adjustment */
+    @media (max-width: 768px) {
+      #quiz-container {
+        font-size: 1rem; /* Base size adjusted to 1rem */
+      }
+
+      button {
+        font-size: 1em;
+        padding: 0.5em 1em;
+      }
+
+      .choice input[type="checkbox"] {
+        transform: scale(1.1); /* Slightly adjusted checkbox scale for 1rem target */
+        margin-right: 0.4em;
+      }
+    }
+  </style>
+</head>
+<body>
+    <header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
+  <a href="https://zakivx.github.io/Codes/QCM/qcmList.html" 
+      style="color:#fff; text-decoration:none; font-weight:bold;">
+    ← Retour à la liste des QCM
+  </a>
+</header>
+  <div id="quiz-container"></div>
+
+  <script>
+  (() => {
+
+    const questions = [
+
+{
+  question: `1. Les vomissements abondants peuvent être responsables :`,
+  choices: [
+    {
+      label: "A",
+      text: `D'une alcalose métabolique`,
+      correct: true,
+      justification: `Les vomissements entraînent une perte d'acide chlorhydrique gastrique, responsable d'une alcalose métabolique, souvent associée à une hypokaliémie.`
+    },
+    {
+      label: "B",
+      text: `D'une acidose métabolique`,
+      correct: false,
+      justification: `Les vomissements gastriques provoquent classiquement une alcalose métabolique.`
+    },
+    {
+      label: "C",
+      text: `D'une hyperchlorémie`,
+      correct: false,
+      justification: `La perte d'acide chlorhydrique entraîne plutôt une hypochlorémie.`
+    },
+    {
+      label: "D",
+      text: `D'une hyperkaliémie`,
+      correct: false,
+      justification: `Les vomissements sont classiquement associés à une hypokaliémie, notamment par pertes digestives et augmentation secondaire de l'excrétion rénale de potassium.`
+    }
+  ]
+},
+
+{
+  question: `3. Parmi les situations suivantes, quelle est la cause d'acidose métabolique à trou anionique élevé ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Déshydratation`,
+      correct: false,
+      justification: `La déshydratation isolée ne constitue pas une cause typique d'acidose métabolique à trou anionique élevé.`
+    },
+    {
+      label: "B",
+      text: `Diarrhées abondantes`,
+      correct: false,
+      justification: `Les diarrhées provoquent principalement une acidose métabolique hyperchlorémique à trou anionique normal par perte de bicarbonates.`
+    },
+    {
+      label: "C",
+      text: `Intoxication au paracétamol`,
+      correct: true,
+      justification: `Une intoxication sévère au paracétamol peut notamment provoquer une acidose métabolique à trou anionique élevé, en particulier en contexte de toxicité mitochondriale et d'acidose lactique.`
+    },
+    {
+      label: "D",
+      text: `Acidocétose`,
+      correct: true,
+      justification: `L'accumulation de corps cétoniques entraîne une acidose métabolique à trou anionique augmenté.`
+    },
+    {
+      label: "E",
+      text: `Vomissements`,
+      correct: false,
+      justification: `Les vomissements provoquent classiquement une alcalose métabolique par perte d'acide chlorhydrique gastrique.`
+    }
+  ]
+},
+
+{
+  question: `7. Concernant l'interprétation des gaz du sang suivants, quelle est la proposition exacte ? pH : 7,30 ; PaO2 : 60 mmHg ; PaCO2 : 80 mmHg ; HCO3⁻ : 42 mmol/L ; SaO2 : 85 %.`,
+  choices: [
+    {
+      label: "A",
+      text: `Acidose métabolique`,
+      correct: false,
+      justification: `Le bicarbonate est élevé et non abaissé ; l'anomalie primitive est respiratoire.`
+    },
+    {
+      label: "B",
+      text: `Alcalose respiratoire`,
+      correct: false,
+      justification: `La PaCO2 est très élevée, ce qui traduit une acidose respiratoire et non une alcalose respiratoire.`
+    },
+    {
+      label: "C",
+      text: `Acidose respiratoire`,
+      correct: true,
+      justification: `Le pH est acide avec une PaCO2 très élevée. L'HCO3⁻ élevé indique une compensation rénale importante, suggérant une acidose respiratoire chronique ou aiguë sur chronique.`
+    },
+    {
+      label: "D",
+      text: `Compensation respiratoire parfaite`,
+      correct: false,
+      justification: `La compensation d'une acidose métabolique serait une diminution de la PaCO2 ; ici la PaCO2 est très élevée.`
+    },
+    {
+      label: "E",
+      text: `Alcalose métabolique`,
+      correct: false,
+      justification: `Malgré l'élévation du bicarbonate, le pH reste acide et la PaCO2 est fortement augmentée.`
+    }
+  ]
+},
+
+{
+  question: `9. Concernant les gaz du sang artériel suivants : pH = 7,58 ; PaCO2 = 26,5 mmHg ; PaO2 = 168 mmHg ; HCO3⁻ = 25 mmol/L, quelle affirmation est vraie ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Il existe une hypoxémie`,
+      correct: false,
+      justification: `La PaO2 à 168 mmHg n'est pas compatible avec une hypoxémie.`
+    },
+    {
+      label: "B",
+      text: `Il existe une alcalose respiratoire`,
+      correct: true,
+      justification: `Le pH est élevé et la PaCO2 est abaissée, ce qui caractérise une alcalose respiratoire.`
+    },
+    {
+      label: "C",
+      text: `Il existe une acidose respiratoire`,
+      correct: false,
+      justification: `Une acidose respiratoire est caractérisée par une augmentation de la PaCO2.`
+    },
+    {
+      label: "D",
+      text: `Il existe une acidose métabolique à trou anionique augmenté`,
+      correct: false,
+      justification: `Le bicarbonate est normal et le profil gazométrique indique une alcalose respiratoire.`
+    },
+    {
+      label: "E",
+      text: `Il existe une acidose métabolique à trou anionique normal`,
+      correct: false,
+      justification: `Le profil est celui d'une alcalose respiratoire et non d'une acidose métabolique.`
+    }
+  ]
+},
+
+{
+  question: `18. On peut faire le diagnostic d'hypoventilation alvéolaire devant l'association :`,
+  choices: [
+    {
+      label: "A",
+      text: `Hypoxémie - hypocapnie`,
+      correct: false,
+      justification: `L'hypocapnie traduit plutôt une hyperventilation alvéolaire.`
+    },
+    {
+      label: "B",
+      text: `Hypoxémie - normocapnie`,
+      correct: false,
+      justification: `Cette association peut être observée dans plusieurs mécanismes d'hypoxémie mais ne définit pas l'hypoventilation alvéolaire.`
+    },
+    {
+      label: "C",
+      text: `Hypoxémie - hypercapnie`,
+      correct: true,
+      justification: `L'hypoventilation alvéolaire entraîne une rétention de CO2 et donc une hypercapnie, généralement associée à une hypoxémie.`
+    },
+    {
+      label: "D",
+      text: `Hypoxémie - normocapnie`,
+      correct: false,
+      justification: `Une PaCO2 normale n'est pas le profil caractéristique d'une hypoventilation alvéolaire.`
+    },
+    {
+      label: "E",
+      text: `Normoxémie - hypercapnie`,
+      correct: false,
+      justification: `Une hypercapnie isolée peut exceptionnellement être observée sous oxygénothérapie, mais le profil classique de l'hypoventilation associe hypercapnie et hypoxémie.`
+    }
+  ]
+},
+
+{
+  question: `7. Des vomissements abondants peuvent être responsables :`,
+  choices: [
+    {
+      label: "A",
+      text: `D'une alcalose métabolique`,
+      correct: true,
+      justification: `La perte d'acide chlorhydrique gastrique provoque une alcalose métabolique.`
+    },
+    {
+      label: "B",
+      text: `D'une acidose métabolique`,
+      correct: false,
+      justification: `Les vomissements gastriques provoquent habituellement une alcalose métabolique.`
+    },
+    {
+      label: "C",
+      text: `D'une hyperchlorémie`,
+      correct: false,
+      justification: `La perte de chlorures gastriques favorise une hypochlorémie.`
+    },
+    {
+      label: "D",
+      text: `D'une hyperkaliémie`,
+      correct: false,
+      justification: `Les vomissements prolongés sont classiquement responsables d'une hypokaliémie.`
+    },
+    {
+      label: "E",
+      text: `D'une hypokaliémie`,
+      correct: true,
+      justification: `Les vomissements favorisent l'hypokaliémie par pertes digestives et augmentation de l'excrétion rénale de potassium liée à l'alcalose et à la déplétion volémique.`
+    }
+  ]
+},
+
+{
+  question: `9. À quelle occasion peut-on faire le diagnostic d'une acidose métabolique à trou anionique normal ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Une intoxication par l'acide acétylsalicylique`,
+      correct: false,
+      justification: `L'intoxication aux salicylés peut provoquer une acidose métabolique à trou anionique augmenté, souvent associée à une alcalose respiratoire.`
+    },
+    {
+      label: "B",
+      text: `Une diarrhée aiguë`,
+      correct: true,
+      justification: `La diarrhée entraîne une perte digestive de bicarbonates, compensée par une augmentation relative du chlorure, donnant une acidose métabolique hyperchlorémique à trou anionique normal.`
+    },
+    {
+      label: "C",
+      text: `Une intoxication par l'éthylène glycol`,
+      correct: false,
+      justification: `L'éthylène glycol provoque une acidose métabolique à trou anionique augmenté.`
+    },
+    {
+      label: "D",
+      text: `Une acidose lactique`,
+      correct: false,
+      justification: `L'accumulation de lactate provoque une acidose métabolique à trou anionique augmenté.`
+    },
+    {
+      label: "E",
+      text: `Une intoxication par le méthanol`,
+      correct: false,
+      justification: `Le méthanol provoque une acidose métabolique à trou anionique augmenté par accumulation de formate.`
+    }
+  ]
+},
+
+{
+  question: `10. Un patient de 70 ans, sans antécédents, admis aux urgences pour traumatisme thoracique. La gazométrie montre : pH = 7,22 ; PaCO₂ = 70 mmHg ; PaO₂ = 60 mmHg ; HCO₃⁻ = 28 mmol/L. L'interprétation de la gazométrie est :`,
+  choices: [
+    {
+      label: "A",
+      text: `Alcalose métabolique`,
+      correct: false,
+      justification: `Le pH est abaissé et la PaCO2 est fortement augmentée.`
+    },
+    {
+      label: "B",
+      text: `Acidose métabolique`,
+      correct: false,
+      justification: `Le bicarbonate est légèrement augmenté et non diminué ; l'anomalie primitive est respiratoire.`
+    },
+    {
+      label: "C",
+      text: `Alcalose respiratoire`,
+      correct: false,
+      justification: `La PaCO2 est élevée, ce qui indique une acidose respiratoire.`
+    },
+    {
+      label: "D",
+      text: `Acidose respiratoire`,
+      correct: true,
+      justification: `Le pH est acide avec une PaCO2 à 70 mmHg. L'HCO3⁻ légèrement élevé suggère une compensation métabolique partielle.`
+    }
+  ]
+},
+
+{
+  question: `11. Un homme de 55 ans se présente aux urgences pour diarrhées profuses. La gazométrie montre : pH = 7,28 ; PaCO₂ = 24 mmHg ; HCO₃⁻ = 10 mmol/L. L'interprétation de la gazométrie est :`,
+  choices: [
+    {
+      label: "A",
+      text: `Alcalose métabolique`,
+      correct: false,
+      justification: `Le bicarbonate est fortement diminué et le pH est acide.`
+    },
+    {
+      label: "B",
+      text: `Acidose métabolique`,
+      correct: true,
+      justification: `Le pH est abaissé et le bicarbonate est très bas. La PaCO2 diminuée correspond à une compensation respiratoire.`
+    },
+    {
+      label: "C",
+      text: `Alcalose respiratoire`,
+      correct: false,
+      justification: `La diminution de la PaCO2 est compensatoire ; l'anomalie primaire est l'acidose métabolique.`
+    },
+    {
+      label: "D",
+      text: `Acidose respiratoire`,
+      correct: false,
+      justification: `Une acidose respiratoire entraîne une augmentation de la PaCO2, et non une diminution.`
+    }
+  ]
+},
+
+{
+  question: `Interprétez la gazométrie : pH = 7,25 ; PaCO₂ = 58 mmHg ; HCO₃⁻ = 26 mmol/L.`,
+  choices: [
+    {
+      label: "A",
+      text: `Acidose métabolique avec compensation respiratoire`,
+      correct: false,
+      justification: `Le bicarbonate n'est pas diminué ; la PaCO2 est élevée.`
+    },
+    {
+      label: "B",
+      text: `Alcalose métabolique avec compensation respiratoire`,
+      correct: false,
+      justification: `Le pH est acide et non alcalin.`
+    },
+    {
+      label: "C",
+      text: `Acidose respiratoire chronique avec compensation rénale`,
+      correct: false,
+      justification: `L'HCO3⁻ n'est que légèrement augmenté à 26 mmol/L, ce qui ne correspond pas à la compensation rénale attendue d'une hypercapnie chronique importante.`
+    },
+    {
+      label: "D",
+      text: `Alcalose respiratoire chronique avec compensation rénale`,
+      correct: false,
+      justification: `La PaCO2 est augmentée et le pH est acide, ce qui exclut une alcalose respiratoire.`
+    },
+    {
+      label: "E",
+      text: `Acidose respiratoire aiguë non compensée`,
+      correct: true,
+      justification: `Le pH est acide, la PaCO2 est élevée et l'HCO3⁻ est presque normal. L'augmentation de la PaCO2 est donc l'anomalie primaire, compatible avec une acidose respiratoire aiguë.`
+    }
+  ]
+},
+
+{
+  question: `En ce qui concerne l'acidocétose, quelle est la réponse exacte ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Il existe une acidose métabolique à trou anionique augmenté`,
+      correct: true,
+      justification: `L'accumulation de corps cétoniques entraîne une acidose métabolique à trou anionique augmenté.`
+    },
+    {
+      label: "B",
+      text: `Il existe une acidose métabolique à trou anionique normal`,
+      correct: false,
+      justification: `L'acidocétose est classiquement responsable d'une augmentation du trou anionique.`
+    },
+    {
+      label: "C",
+      text: `Il existe une acidose respiratoire`,
+      correct: false,
+      justification: `L'anomalie primaire de l'acidocétose est métabolique ; une compensation respiratoire est généralement présente.`
+    },
+    {
+      label: "D",
+      text: `Le diabète est l'unique cause connue d'acidocétose`,
+      correct: false,
+      justification: `Une acidocétose peut également survenir lors d'un jeûne prolongé, d'une consommation excessive d'alcool et dans d'autres situations métaboliques.`
+    },
+    {
+      label: "E",
+      text: `Le principal traitement est le glucagon`,
+      correct: false,
+      justification: `Dans l'acidocétose diabétique, le traitement repose notamment sur la réhydratation, l'insulinothérapie et la correction des troubles électrolytiques selon le contexte.`
+    }
+  ]
+},
+
+{
+  question: `Un patient présente des vomissements incoercibles. Cinq propositions de gaz du sang sont disponibles. Un seul correspond au malade. Lequel est le plus probable ?`,
+  choices: [
+    {
+      label: "A",
+      text: `pH 7,46 ; PaCO₂ 28 mmHg ; HCO₃⁻ 20 mmol/L ; PaO₂ 89 mmHg ; lactatémie 1,2 mmol/L`,
+      correct: false,
+      justification: `Ce profil évoque plutôt une alcalose respiratoire avec compensation métabolique, et non l'alcalose métabolique attendue après des vomissements incoercibles.`
+    },
+    {
+      label: "B",
+      text: `pH 7,27 ; PaCO₂ 26 mmHg ; HCO₃⁻ 12 mmol/L ; PaO₂ 120 mmHg ; lactatémie 4 mmol/L`,
+      correct: false,
+      justification: `Il s'agit principalement d'une acidose métabolique, avec lactate élevé, ce qui n'est pas le profil attendu de vomissements isolés.`
+    },
+    {
+      label: "C",
+      text: `pH 7,06 ; PaCO₂ 35 mmHg ; HCO₃⁻ 10 mmol/L ; PaO₂ 63 mmHg ; lactatémie 4 mmol/L`,
+      correct: false,
+      justification: `Ce profil correspond à une acidose métabolique sévère, avec hyperlactatémie, et non à l'alcalose métabolique typique des vomissements.`
+    },
+    {
+      label: "D",
+      text: `pH 7,29 ; PaCO₂ 58 mmHg ; HCO₃⁻ 28 mmol/L ; PaO₂ 73 mmHg ; lactatémie 2,3 mmol/L`,
+      correct: false,
+      justification: `Ce profil évoque une acidose respiratoire avec compensation métabolique et ne correspond pas au trouble primaire attendu.`
+    },
+    {
+      label: "E",
+      text: `pH 7,59 ; PaCO₂ 38 mmHg ; HCO₃⁻ 36 mmol/L ; PaO₂ 90 mmHg ; lactatémie 1,2 mmol/L`,
+      correct: true,
+      justification: `Le pH est alcalin et le bicarbonate est élevé, avec une PaCO₂ proche de la normale : il s'agit d'une alcalose métabolique, compatible avec des vomissements importants.`
+    }
+  ]
+},
+
+    ];
+
+    const container = document.getElementById('quiz-container');
+
+    let currentQuestion = 0;
+
+    /*
+     * Stockage des réponses de l'utilisateur.
+     * Chaque élément contient les indices des réponses sélectionnées.
+     */
+    const userAnswers = new Array(questions.length).fill(null);
+
+    /*
+     * Indique si la question a déjà été corrigée.
+     */
+    const validated = new Array(questions.length).fill(false);
+
+
+    function shuffleArray(array) {
+
+      const arr = array.slice();
+
+      for (let i = arr.length - 1; i > 0; i--) {
+
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+
+      return arr;
+    }
+
+
+    function replaceDoubleQuotesWithSingle(str) {
+
+      return String(str).replace(/"/g, "'");
+
+    }
+
+
+    function decodeHTML(html) {
+
+      const txt = document.createElement("textarea");
+
+      txt.innerHTML = html;
+
+      return replaceDoubleQuotesWithSingle(txt.value);
+
+    }
+
+
+    function renderQuestion() {
+
+      container.innerHTML = '';
+
+      const q = questions[currentQuestion];
+
+      /*
+       * Progression
+       */
+      const progress = document.createElement('div');
+
+      progress.className = 'progress';
+
+      progress.textContent =
+        `Question ${currentQuestion + 1} / ${questions.length}`;
+
+      container.appendChild(progress);
+
+
+      /*
+       * Question
+       */
+      const questionTitle = document.createElement('div');
+
+      questionTitle.className = 'question-title';
+
+      questionTitle.textContent =
+        decodeHTML(q.question);
+
+      container.appendChild(questionTitle);
+
+
+      /*
+       * Formulaire
+       */
+      const form = document.createElement('form');
+
+      form.id = 'qcm-form';
+
+
+      /*
+       * Randomisation des réponses
+       */
+      const shuffledChoices = shuffleArray(q.choices);
+
+
+      shuffledChoices.forEach((choice) => {
+
+        const originalIndex =
+          q.choices.indexOf(choice);
+
+        const label =
+          document.createElement('label');
+
+        label.className = 'choice';
+
+
+        const input =
+          document.createElement('input');
+
+        input.type = 'checkbox';
+
+        input.name = 'choice';
+
+        input.value = originalIndex;
+
+
+        /*
+         * Restaurer les réponses précédentes
+         */
+        if (
+          userAnswers[currentQuestion] &&
+          userAnswers[currentQuestion].includes(originalIndex)
+        ) {
+
+          input.checked = true;
+
+        }
+
+
+        const choiceLabel =
+          document.createElement('span');
+
+        choiceLabel.className =
+          'choice-label';
+
+        choiceLabel.textContent =
+          choice.label + '.';
+
+
+        label.appendChild(input);
+
+        label.appendChild(choiceLabel);
+
+        label.appendChild(
+          document.createTextNode(
+            ' ' + decodeHTML(choice.text)
+          )
+        );
+
+
+        form.appendChild(label);
+
+      });
+
+
+      container.appendChild(form);
+
+
+      /*
+       * Si la question a déjà été corrigée,
+       * afficher directement la correction.
+       */
+      if (validated[currentQuestion]) {
+
+        showCorrection(q, form);
+
+      }
+
+
+      /*
+       * Navigation
+       */
+      const navigation =
+        document.createElement('div');
+
+      navigation.className =
+        'navigation';
+
+
+      /*
+       * Bouton Previous
+       */
+      const btnPrevious =
+        document.createElement('button');
+
+      btnPrevious.type = 'button';
+
+      btnPrevious.textContent =
+        'Previous';
+
+      btnPrevious.disabled =
+        currentQuestion === 0;
+
+      btnPrevious.addEventListener(
+        'click',
+        () => {
+
+          saveCurrentAnswer(form);
+
+          currentQuestion--;
+
+          renderQuestion();
+
+        }
+      );
+
+
+      /*
+       * Bouton Valider
+       */
+      const btnValidate =
+        document.createElement('button');
+
+      btnValidate.type = 'button';
+
+      btnValidate.textContent =
+        validated[currentQuestion]
+          ? 'Validé'
+          : 'Valider';
+
+      btnValidate.disabled =
+        validated[currentQuestion];
+
+      btnValidate.addEventListener(
+        'click',
+        () => {
+
+          validateCurrentQuestion(
+            q,
+            form,
+            btnValidate
+          );
+
+        }
+      );
+
+
+      /*
+       * Bouton Next
+       */
+      const btnNext =
+        document.createElement('button');
+
+      btnNext.type = 'button';
+
+      btnNext.textContent =
+        currentQuestion === questions.length - 1
+          ? 'Terminer'
+          : 'Next';
+
+
+      btnNext.addEventListener(
+        'click',
+        () => {
+
+          /*
+           * Il faut valider avant de passer
+           * à la question suivante.
+           */
+          if (!validated[currentQuestion]) {
+
+            alert(
+              "Veuillez valider cette question avant de continuer."
+            );
+
+            return;
+
+          }
+
+
+          if (
+            currentQuestion <
+            questions.length - 1
+          ) {
+
+            currentQuestion++;
+
+            renderQuestion();
+
+          } else {
+
+            showFinalScore();
+
+          }
+
+        }
+      );
+
+
+      navigation.appendChild(btnPrevious);
+
+      navigation.appendChild(btnValidate);
+
+      navigation.appendChild(btnNext);
+
+      container.appendChild(navigation);
+
+    }
+
+
+    /*
+     * Sauvegarder les réponses cochées
+     */
+    function saveCurrentAnswer(form) {
+
+      const checked =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+      userAnswers[currentQuestion] =
+        checked.map(
+          input => parseInt(input.value)
+        );
+
+    }
+
+
+    /*
+     * Valider la question actuelle
+     */
+    function validateCurrentQuestion(
+      q,
+      form,
+      btnValidate
+    ) {
+
+      const checkedBoxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+
+      if (checkedBoxes.length === 0) {
+
+        alert(
+          "Veuillez choisir au moins une réponse."
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * Sauvegarder les réponses
+       */
+      userAnswers[currentQuestion] =
+        checkedBoxes.map(
+          input => parseInt(input.value)
+        );
+
+
+      /*
+       * Marquer comme validée
+       */
+      validated[currentQuestion] =
+        true;
+
+
+      /*
+       * Désactiver les cases
+       */
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(
+        input => {
+          input.disabled = true;
+        }
+      );
+
+
+      btnValidate.disabled = true;
+
+      btnValidate.textContent =
+        'Validé';
+
+
+      showCorrection(q, form);
+
+    }
+
+
+    /*
+     * Afficher la correction
+     */
+    function showCorrection(q, form) {
+
+      /*
+       * Empêcher la correction d'être
+       * ajoutée plusieurs fois.
+       */
+      if (
+        form.querySelector(
+          '.correction-container'
+        )
+      ) {
+
+        return;
+
+      }
+
+
+      const correctionContainer =
+        document.createElement('div');
+
+      correctionContainer.className =
+        'correction-container';
+
+
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(input => {
+
+        const originalIndex =
+          parseInt(input.value);
+
+        const choiceData =
+          q.choices[originalIndex];
+
+        const label =
+          input.parentElement;
+
+
+        /*
+         * Vérification de la réponse
+         */
+        if (
+          input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'correct-checked'
+          );
+
+        }
+
+        else if (
+          input.checked &&
+          !choiceData.correct
+        ) {
+
+          label.classList.add(
+            'incorrect-checked'
+          );
+
+        }
+
+        else if (
+          !input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'missed-correct'
+          );
+
+        }
+
+
+        /*
+         * Justification
+         */
+        const justification =
+          document.createElement('div');
+
+        justification.className =
+          'justification';
+
+
+        const symbol =
+          choiceData.correct
+            ? '✓'
+            : '✗';
+
+
+        justification.textContent =
+          `${symbol} : ${decodeHTML(
+            choiceData.justification
+          )}`;
+
+
+        label.appendChild(
+          justification
+        );
+
+      });
+
+
+      form.appendChild(
+        correctionContainer
+      );
+
+    }
+
+
+    /*
+     * Calcul du score final
+     */
+    function calculateFinalScore() {
+
+      let totalPoints = 0;
+
+      let totalPossiblePoints = 0;
+
+
+      questions.forEach(
+        (q, index) => {
+
+          const answers =
+            userAnswers[index] || [];
+
+
+          const correctAnswers =
+            q.choices
+              .map(
+                (choice, i) =>
+                  choice.correct
+                    ? i
+                    : null
+              )
+              .filter(
+                i => i !== null
+              );
+
+
+          /*
+           * Chaque bonne réponse sélectionnée
+           * rapporte un point.
+           */
+          answers.forEach(
+            answerIndex => {
+
+              if (
+                correctAnswers.includes(
+                  answerIndex
+                )
+              ) {
+
+                totalPoints++;
+
+              }
+
+            }
+          );
+
+
+          totalPossiblePoints +=
+            correctAnswers.length;
+
+        }
+      );
+
+
+      /*
+       * Note sur 5
+       */
+      const note =
+        Math.round(
+          (
+            totalPoints /
+            totalPossiblePoints
+          ) * 5 * 100
+        ) / 100;
+
+
+      return {
+        totalPoints,
+        totalPossiblePoints,
+        note
+      };
+
+    }
+
+
+    /*
+     * Afficher le score final
+     */
+    function showFinalScore() {
+
+      const result =
+        calculateFinalScore();
+
+
+      container.innerHTML = '';
+
+
+      const title =
+        document.createElement('div');
+
+      title.className =
+        'question-title';
+
+      title.textContent =
+        'QCM terminé';
+
+      container.appendChild(title);
+
+
+      const note =
+        document.createElement('div');
+
+      note.className =
+        'note';
+
+      note.textContent =
+        `Note : ${result.note} / 5`;
+
+      container.appendChild(note);
+
+
+      const details =
+        document.createElement('p');
+
+      details.textContent =
+        `Réponses correctes : ${result.totalPoints} / ${result.totalPossiblePoints}`;
+
+      container.appendChild(details);
+
+
+      /*
+       * Bouton pour recommencer
+       */
+      const restart =
+        document.createElement('button');
+
+      restart.type = 'button';
+
+      restart.textContent =
+        'Recommencer';
+
+
+      restart.addEventListener(
+        'click',
+        () => {
+
+          currentQuestion = 0;
+
+          userAnswers.fill(null);
+
+          validated.fill(false);
+
+          renderQuestion();
+
+        }
+      );
+
+
+      container.appendChild(restart);
+
+    }
+
+
+    /*
+     * Lancement du QCM
+     */
+    renderQuestion();
+
+  })();
+  </script>
+
+</body>
+</html>
