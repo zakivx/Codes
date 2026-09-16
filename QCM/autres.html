@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autres</title>
+  <style>
+    #quiz-container {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1em;
+    }
+
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 0.8em;
+    }
+
+    .question-number {
+      font-weight: bold;
+      margin-bottom: 0.5em;
+    }
+
+    .choice {
+      margin: 0.4em 0;
+      cursor: pointer;
+      display: block;
+      line-height: 1.5;
+    }
+
+    .choice input {
+      margin-right: 0.4em;
+    }
+
+    .choice-label {
+      font-weight: bold;
+      margin-right: 0.3em;
+    }
+
+    .correct-checked {
+      color: green;
+      font-weight: bold;
+    }
+
+    .incorrect-checked {
+      color: red;
+      font-weight: bold;
+    }
+
+    .missed-correct {
+      color: blue;
+      font-weight: bold;
+    }
+
+    .justification {
+      font-size: 0.9em;
+      margin: 0.25em 0 0.5em 1.8em;
+      color: #555;
+      font-weight: normal;
+    }
+
+    .note {
+      margin-top: 1em;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    .navigation {
+      display: flex;
+      gap: 0.5em;
+      margin-top: 1em;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .progress {
+      margin-bottom: 1em;
+      font-weight: bold;
+    }
+
+    /* Mobile Font Size Adjustment */
+    @media (max-width: 768px) {
+      #quiz-container {
+        font-size: 1rem; /* Base size adjusted to 1rem */
+      }
+
+      button {
+        font-size: 1em;
+        padding: 0.5em 1em;
+      }
+
+      .choice input[type="checkbox"] {
+        transform: scale(1.1); /* Slightly adjusted checkbox scale for 1rem target */
+        margin-right: 0.4em;
+      }
+    }
+  </style>
+</head>
+<body>
+    <header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
+  <a href="https://zakivx.github.io/Codes/QCM/qcmList.html" 
+      style="color:#fff; text-decoration:none; font-weight:bold;">
+    ← Retour à la liste des QCM
+  </a>
+</header>
+  <div id="quiz-container"></div>
+
+  <script>
+  (() => {
+
+    const questions = [
+
+{
+  question: `4. Quelle est, parmi les suivantes, la cause de dyspnée inspiratoire ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Crise d'asthme non compliquée`,
+      correct: false,
+      justification: `L'asthme provoque principalement une dyspnée expiratoire avec sibilants.`
+    },
+    {
+      label: "B",
+      text: `Décompensation de BPCO`,
+      correct: false,
+      justification: `La BPCO décompensée donne principalement une dyspnée expiratoire avec obstruction bronchique.`
+    },
+    {
+      label: "C",
+      text: `Pneumothorax`,
+      correct: false,
+      justification: `Le pneumothorax donne une dyspnée aiguë mais n'est pas typiquement responsable d'une dyspnée inspiratoire haute.`
+    },
+    {
+      label: "D",
+      text: `Œdème de Quincke`,
+      correct: true,
+      justification: `L'œdème laryngé peut provoquer une obstruction des voies aériennes supérieures avec dyspnée inspiratoire et stridor.`
+    },
+    {
+      label: "E",
+      text: `Œdème pulmonaire`,
+      correct: false,
+      justification: `L'œdème pulmonaire provoque plutôt une dyspnée avec crépitants et polypnée, sans caractère inspiratoire typique.`
+    }
+  ]
+},
+
+{
+  question: `14. Un homme de 62 ans BPCO présente une exacerbation. Quelle est la valeur cible de la SpO2 sous oxygène ?`,
+  choices: [
+    {
+      label: "A",
+      text: `100 %`,
+      correct: false,
+      justification: `Une hyperoxie excessive doit être évitée chez les patients BPCO à risque d'hypercapnie.`
+    },
+    {
+      label: "B",
+      text: `94–98 %`,
+      correct: false,
+      justification: `Cette cible est généralement utilisée chez les patients aigus sans risque particulier d'hypercapnie.`
+    },
+    {
+      label: "C",
+      text: `88–92 %`,
+      correct: true,
+      justification: `Chez un patient BPCO à risque d'insuffisance respiratoire hypercapnique, la cible habituelle de SpO2 est de 88–92 %.`
+    },
+    {
+      label: "D",
+      text: `80–85 %`,
+      correct: false,
+      justification: `Cette saturation est insuffisante et expose à l'hypoxémie.`
+    },
+    {
+      label: "E",
+      text: `70–75 %`,
+      correct: false,
+      justification: `Cette saturation correspond à une hypoxémie sévère et ne constitue pas une cible thérapeutique.`
+    }
+  ]
+},
+
+{
+  question: `Parmi les effets de la parathormone (PTH), on note :`,
+  choices: [
+    {
+      label: "A",
+      text: `Diminue le remodelage osseux`,
+      correct: false,
+      justification: `La PTH augmente le remodelage osseux et, lorsqu'elle est élevée de façon prolongée, favorise la résorption osseuse.`
+    },
+    {
+      label: "B",
+      text: `Augmente la réabsorption du Ca2+ au niveau rénal`,
+      correct: true,
+      justification: `La PTH augmente la réabsorption rénale du calcium, notamment au niveau du tube distal.`
+    },
+    {
+      label: "C",
+      text: `Augmente la réabsorption du phosphate`,
+      correct: false,
+      justification: `La PTH diminue la réabsorption tubulaire du phosphate, entraînant une phosphaturie.`
+    },
+    {
+      label: "D",
+      text: `Diminue l'absorption du Ca2+ au niveau intestinal`,
+      correct: false,
+      justification: `La PTH augmente indirectement l'absorption intestinale du calcium en stimulant la production rénale de calcitriol.`
+    }
+  ]
+},
+
+{
+  question: `Un infarctus myocardique latéral donne des signes directs dans quelles dérivations ECG ?`,
+  choices: [
+    {
+      label: "A",
+      text: `D1, aVL, V5, V6`,
+      correct: true,
+      justification: `Les dérivations D1, aVL, V5 et V6 explorent principalement la paroi latérale du ventricule gauche.`
+    },
+    {
+      label: "B",
+      text: `D2, D3, aVF`,
+      correct: false,
+      justification: `Ces dérivations explorent principalement la paroi inférieure.`
+    },
+    {
+      label: "C",
+      text: `V2, V3, V4`,
+      correct: false,
+      justification: `Ces dérivations correspondent principalement au territoire antérieur.`
+    },
+    {
+      label: "D",
+      text: `aVR, D2, aVF`,
+      correct: false,
+      justification: `Ce groupe ne correspond pas au territoire latéral.`
+    },
+    {
+      label: "E",
+      text: `V7, V8, V9`,
+      correct: false,
+      justification: `Ces dérivations explorent principalement la paroi postérieure.`
+    }
+  ]
+},
+
+{
+  question: `À propos de l'IDM antéro-septal, quelle est la proposition fausse ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Les signes électriques directs sont observés dans les dérivations précordiales droites (V1, V2, V3)`,
+      correct: false,
+      justification: `V1–V3 explorent le territoire septal et antérieur proximal ; l'affirmation est globalement compatible avec un IDM antéro-septal.`
+    },
+    {
+      label: "B",
+      text: `Il correspond habituellement à une occlusion de l'artère interventriculaire antérieure`,
+      correct: false,
+      justification: `L'IVA est l'artère classiquement responsable des IDM antérieurs et antéro-septaux.`
+    },
+    {
+      label: "C",
+      text: `Il peut se compliquer de rupture du septum interventriculaire`,
+      correct: false,
+      justification: `Une rupture septale est une complication mécanique possible d'un infarctus antérieur étendu.`
+    },
+    {
+      label: "D",
+      text: `Il peut se compliquer d'un syndrome péricardique aigu plusieurs semaines après le début de la nécrose`,
+      correct: false,
+      justification: `Une péricardite post-infarctus peut survenir après l'IDM, notamment sous forme de syndrome de Dressler à distance.`
+    },
+    {
+      label: "E",
+      text: `Il se complique assez souvent d'une extension vers le ventricule droit`,
+      correct: true,
+      justification: `L'extension au ventricule droit est surtout associée aux infarctus inférieurs, notamment par occlusion de la coronaire droite, et n'est pas une complication fréquente de l'IDM antéro-septal.`
+    }
+  ]
+},
+
+{
+  question: `Dans l'hypertension artérielle contrôlée, les modifications cardiaques sont caractérisées par :`,
+  choices: [
+    {
+      label: "A",
+      text: `Une dilatation ventriculaire gauche`,
+      correct: false,
+      justification: `L'HTA chronique entraîne principalement une hypertrophie ventriculaire gauche en réponse à la surcharge de pression.`
+    },
+    {
+      label: "B",
+      text: `Une diminution du relief des colonnes ventriculaires`,
+      correct: false,
+      justification: `Ce n'est pas une modification cardiaque caractéristique de l'HTA chronique.`
+    },
+    {
+      label: "C",
+      text: `Une fibrose myocardique efficace`,
+      correct: false,
+      justification: `L'HTA chronique peut favoriser une fibrose myocardique, mais celle-ci est pathologique et non une adaptation bénéfique.`
+    },
+    {
+      label: "D",
+      text: `Une hypertrophie concentrique du ventricule gauche`,
+      correct: true,
+      justification: `La surcharge chronique de pression liée à l'HTA favorise classiquement une hypertrophie concentrique du ventricule gauche.`
+    },
+    {
+      label: "E",
+      text: `Une hypertrophie isolée du septum interventriculaire`,
+      correct: false,
+      justification: `L'hypertrophie hypertensive concerne habituellement l'ensemble du ventricule gauche et n'est pas limitée au septum.`
+    }
+  ]
+},
+
+{
+  question: `QCM 5 — En cas d'agitation chez un patient vu en urgence, quelle est l'affirmation vraie ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Il faut prioritairement calmer la personne avec un sédatif incisif`,
+      correct: false,
+      justification: `La sédation peut être nécessaire en cas d'agitation sévère, mais il faut rechercher et traiter la cause tout en assurant la sécurité du patient et de l'équipe.`
+    },
+    {
+      label: "B",
+      text: `Il est inutile d'entrer en contact verbal avec l'intéressé`,
+      correct: false,
+      justification: `La désescalade verbale et l'établissement d'un contact avec le patient constituent des mesures initiales importantes lorsque la situation le permet.`
+    },
+    {
+      label: "C",
+      text: `La recherche d'une cause organique est primordiale pour orienter le traitement`,
+      correct: true,
+      justification: `Une agitation aiguë peut révéler une cause organique grave : hypoglycémie, hypoxie, infection, intoxication, trouble métabolique ou neurologique.`
+    },
+    {
+      label: "D",
+      text: `La recherche d'une intoxication aiguë se fera ultérieurement`,
+      correct: false,
+      justification: `Une intoxication aiguë doit être recherchée précocement parmi les causes potentielles d'agitation.`
+    }
+  ]
+},
+
+{
+  question: `QCM 10 — Lors d'une décompensation aiguë d'insuffisance respiratoire chronique obstructive avec bronchospasme et hypercapnie, lequel de ces traitements est contre-indiqué ?`,
+  choices: [
+    {
+      label: "A",
+      text: `La ventilation mécanique invasive`,
+      correct: false,
+      justification: `La ventilation invasive peut être nécessaire en cas d'échec ou de contre-indication de la VNI, notamment en cas d'épuisement ou d'altération de conscience.`
+    },
+    {
+      label: "B",
+      text: `La ventilation mécanique non invasive`,
+      correct: false,
+      justification: `La VNI est un traitement de référence de l'insuffisance respiratoire aiguë hypercapnique lors d'une exacerbation de BPCO, en l'absence de contre-indication.`
+    },
+    {
+      label: "C",
+      text: `Les bêta-2-mimétiques`,
+      correct: false,
+      justification: `Les bronchodilatateurs bêta-2-mimétiques font partie du traitement de l'exacerbation de BPCO avec bronchospasme.`
+    },
+    {
+      label: "D",
+      text: `L'oxygénothérapie à haut débit pour obtenir une SaO2 à 100 %`,
+      correct: true,
+      justification: `Une oxygénation excessive est à éviter chez le patient BPCO hypercapnique. La cible habituelle de SpO2 est 88–92 %, avec titration de l'oxygène.`
+    },
+    {
+      label: "E",
+      text: `Les anticholinergiques`,
+      correct: false,
+      justification: `Les bronchodilatateurs anticholinergiques, tels que l'ipratropium, sont utilisés dans les exacerbations de BPCO.`
+    }
+  ]
+},
+
+{
+  question: `QCM 11 — À propos de la pancréatite aiguë, laquelle de ces affirmations est vraie ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Le traitement est principalement chirurgical`,
+      correct: false,
+      justification: `La prise en charge initiale est principalement médicale et repose notamment sur le traitement symptomatique et la nutrition adaptée.`
+    },
+    {
+      label: "B",
+      text: `L'absence de lithiase vésiculaire à l'échographie élimine l'origine biliaire`,
+      correct: false,
+      justification: `Une échographie négative n'exclut pas une origine biliaire, notamment en cas de microlithiase ou de calcul déjà passé.`
+    },
+    {
+      label: "C",
+      text: `Le scanner abdominal doit être réalisé quotidiennement`,
+      correct: false,
+      justification: `Le scanner n'est pas réalisé systématiquement quotidiennement ; il est indiqué selon le contexte clinique et l'évolution.`
+    },
+    {
+      label: "D",
+      text: `Les complications surviennent toujours dans la première semaine`,
+      correct: false,
+      justification: `Les complications locales et systémiques peuvent apparaître à différents moments de l'évolution.`
+    },
+    {
+      label: "E",
+      text: `L'antibiothérapie n'est pas systématique`,
+      correct: true,
+      justification: `Les antibiotiques ne sont pas indiqués systématiquement dans la pancréatite aiguë ; ils sont réservés notamment aux infections documentées ou fortement suspectées.`
+    }
+  ]
+},
+
+{
+  question: `QCM 16 — Parmi les affirmations suivantes concernant les biofilms et leurs traitements, laquelle (lesquelles) est (sont) vraie(s) ?`,
+  choices: [
+    {
+      label: "A",
+      text: `À la surface d'un cathéter, les biofilms de Pseudomonas aeruginosa sont plus difficiles à éradiquer que ceux de Staphylococcus epidermidis`,
+      correct: true,
+      justification: `Pseudomonas aeruginosa peut former des biofilms particulièrement résistants aux antimicrobiens et difficiles à éradiquer.`
+    },
+    {
+      label: "B",
+      text: `Seules les bactéries à Gram positif forment des biofilms à la surface des cathéters`,
+      correct: false,
+      justification: `Les bactéries Gram positif et Gram négatif peuvent former des biofilms sur les cathéters.`
+    },
+    {
+      label: "C",
+      text: `Lors de verrous antibiotiques, la concentration d'antibiotique choisie est habituellement de 100 à 1000 fois la concentration minimale inhibitrice`,
+      correct: true,
+      justification: `Les solutions de verrou antibiotique utilisent des concentrations élevées afin d'obtenir une activité contre les bactéries présentes dans le biofilm.`
+    },
+    {
+      label: "D",
+      text: `Le taux de succès des traitements conservateurs, sans ablation du cathéter, est supérieur à 95 %`,
+      correct: false,
+      justification: `Le succès du traitement conservateur dépend du microorganisme, du type de cathéter et du contexte ; il n'est pas supérieur à 95 % de façon générale.`
+    },
+    {
+      label: "E",
+      text: `Sauf exception, il n'y a pas de place à un traitement conservateur en cas d'infection liée à un cathéter de courte durée`,
+      correct: true,
+      justification: `Pour les cathéters de courte durée, l'ablation du cathéter est généralement privilégiée en cas d'infection liée au cathéter, notamment dans les infections compliquées.`
+    }
+  ]
+},
+
+{
+  question: `QCM 18 — Concernant les pancréatites aiguës, citez la (les) proposition(s) exacte(s).`,
+  choices: [
+    {
+      label: "A",
+      text: `Le gold standard du diagnostic repose sur l'association d'un syndrome douloureux abdominal aigu intense et d'une élévation de la lipasémie supérieure à trois fois la normale dans les 48 heures qui suivent le début des symptômes`,
+      correct: false,
+      justification: `Le diagnostic repose sur au moins 2 des 3 critères suivants : douleur typique, lipase/amylase ≥3 fois la normale, ou imagerie compatible. Il n'est pas nécessaire d'attendre 48 heures.`
+    },
+    {
+      label: "B",
+      text: `L'échographie abdominale est l'examen de référence en urgence dans le diagnostic`,
+      correct: false,
+      justification: `L'échographie est particulièrement utile pour rechercher une origine biliaire, mais le diagnostic repose principalement sur les critères cliniques et biologiques.`
+    },
+    {
+      label: "C",
+      text: `Un taux > 150 mg/L de CRP au moment du diagnostic est retenu comme facteur pronostique`,
+      correct: false,
+      justification: `Une CRP élevée, notamment ≥150 mg/L vers 48–72 heures, peut être associée à une forme sévère, mais sa valeur pronostique est limitée au moment initial du diagnostic.`
+    },
+    {
+      label: "D",
+      text: `L'incidence des abcès atteint 80 % chez les malades de grade Balthazar E avec un indice de Ranson supérieur à 6`,
+      correct: false,
+      justification: `Cette fréquence de 80 % n'est pas une caractéristique générale de la pancréatite aiguë sévère.`
+    },
+    {
+      label: "E",
+      text: `La pancréatite aiguë alcoolique survient surtout en cas de consommation massive alcoolique occasionnelle`,
+      correct: false,
+      justification: `Elle est surtout associée à une consommation chronique importante d'alcool plutôt qu'à une consommation occasionnelle isolée.`
+    }
+  ]
+},
+
+{
+  question: `QCM 21 — Parmi les propositions suivantes concernant les préparations pour nutrition parentérale, laquelle (lesquelles) est (sont) exacte(s) ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Les solutions azotées ont une composition en acides aminés qui peut se rapprocher de celle de la sérum-albumine`,
+      correct: true,
+      justification: `Les solutions d'acides aminés utilisées en nutrition parentérale sont formulées pour fournir un profil d'acides aminés adapté aux besoins nutritionnels et peuvent se rapprocher du profil des protéines humaines.`
+    },
+    {
+      label: "B",
+      text: `Les préparations azotées peuvent être enrichies en valine, leucine et isoleucine`,
+      correct: true,
+      justification: `Les acides aminés à chaîne ramifiée, notamment la valine, la leucine et l'isoleucine, peuvent être utilisés dans des formulations spécifiques.`
+    },
+    {
+      label: "C",
+      text: `Les émulsions lipidiques peuvent fournir 1800 kcal par litre`,
+      correct: true,
+      justification: `Une émulsion lipidique à 20 % contient environ 200 g de lipides/L et fournit approximativement 1800 kcal/L selon la valeur énergétique utilisée pour les émulsions lipidiques.`
+    },
+    {
+      label: "D",
+      text: `Les électrolytes et les oligo-éléments sont ajoutés aux mélanges ternaires industriels juste avant l'emploi pour une meilleure stabilité`,
+      correct: false,
+      justification: `La stabilité des mélanges de nutrition parentérale dépend de leur formulation et de leur préparation ; cette affirmation générale sur l'ajout des électrolytes et oligo-éléments n'est pas correcte.`
+    },
+    {
+      label: "E",
+      text: `Les solutions glucidiques contiennent généralement du sorbitol`,
+      correct: false,
+      justification: `La principale source glucidique de la nutrition parentérale est le glucose, généralement sous forme de solutions de glucose à différentes concentrations.`
+    }
+  ]
+},
+
+{
+  question: `QCM 22 — En cas d'exposition au sang par blessure d'un personnel de santé avec un sujet dont le statut sérologique VIH, VHC et VHB est inconnu, quel(s) examen(s) réaliser en urgence ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Un dépistage VIH chez le sujet exposé`,
+      correct: true,
+      justification: `Un bilan initial chez la personne exposée permet notamment de documenter son statut VIH avant et après l'exposition.`
+    },
+    {
+      label: "B",
+      text: `Un dépistage VIH chez le sujet source`,
+      correct: true,
+      justification: `Le statut VIH du sujet source doit être recherché rapidement afin d'évaluer le risque et l'indication éventuelle d'une prophylaxie post-exposition.`
+    },
+    {
+      label: "C",
+      text: `Un dépistage VHC chez le sujet exposé`,
+      correct: true,
+      justification: `Une sérologie VHC de référence chez la personne exposée est utile pour le suivi post-exposition.`
+    },
+    {
+      label: "D",
+      text: `Un dépistage VHC chez le sujet source`,
+      correct: true,
+      justification: `Le dépistage du VHC chez le sujet source contribue à évaluer le risque de transmission et à organiser le suivi.`
+    },
+    {
+      label: "E",
+      text: `L'Ag HBs chez les sujets source et exposé`,
+      correct: true,
+      justification: `Le bilan VHB du sujet source et de la personne exposée permet d'évaluer le risque et de déterminer la nécessité d'une prophylaxie selon le statut vaccinal et sérologique.`
+    }
+  ]
+},
+
+{
+  question: `QCM 23 — Leptospirose : parmi les symptômes et signes habituels figurent :`,
+  choices: [
+    {
+      label: "A",
+      text: `Ictère et hépatomégalie douloureuse`,
+      correct: true,
+      justification: `Les formes sévères, notamment la maladie de Weil, peuvent associer ictère, atteinte hépatique et rénale.`
+    },
+    {
+      label: "B",
+      text: `Fièvre à début brutal et hémorragies conjonctivales`,
+      correct: true,
+      justification: `La leptospirose débute classiquement brutalement avec fièvre, céphalées et myalgies ; une suffusion conjonctivale est particulièrement évocatrice.`
+    },
+    {
+      label: "C",
+      text: `Râles crépitants dans les deux champs pulmonaires`,
+      correct: false,
+      justification: `Une atteinte pulmonaire est possible, notamment sous forme d'hémorragie pulmonaire, mais les râles crépitants bilatéraux ne constituent pas un signe habituel typique.`
+    },
+    {
+      label: "D",
+      text: `Myalgies aux mollets`,
+      correct: true,
+      justification: `Les myalgies importantes, notamment au niveau des mollets et des lombes, sont caractéristiques de la leptospirose.`
+    },
+    {
+      label: "E",
+      text: `Éruption cutanée`,
+      correct: false,
+      justification: `Une éruption peut exceptionnellement être observée mais n'est pas un signe habituel caractéristique de la leptospirose.`
+    }
+  ]
+},
+
+{
+  question: `QCM 24 — L'hypermagnésémie se manifeste par tous les signes cliniques suivants sauf :`,
+  choices: [
+    {
+      label: "A",
+      text: `Nausées, céphalées, léthargie`,
+      correct: false,
+      justification: `Ces manifestations peuvent être observées lors d'une hypermagnésémie.`
+    },
+    {
+      label: "B",
+      text: `Étourdissement, somnolence`,
+      correct: false,
+      justification: `La dépression neurologique avec somnolence peut accompagner l'hypermagnésémie.`
+    },
+    {
+      label: "C",
+      text: `Hyper-réflexie ostéo-tendineuse`,
+      correct: true,
+      justification: `L'hypermagnésémie entraîne au contraire une diminution des réflexes ostéo-tendineux, pouvant aller jusqu'à l'aréflexie.`
+    },
+    {
+      label: "D",
+      text: `Allongement de PR et QT et élargissement du QRS à l'ECG`,
+      correct: false,
+      justification: `Une hypermagnésémie sévère peut entraîner des troubles de conduction avec allongement du PR et du QT et élargissement du QRS.`
+    },
+    {
+      label: "E",
+      text: `Parfois paralysie musculaire voire respiratoire`,
+      correct: false,
+      justification: `Les formes sévères peuvent provoquer une faiblesse musculaire importante et une dépression respiratoire.`
+    }
+  ]
+},
+
+{
+  question: `QCM 25 — L'hypophosphatémie peut revêtir toutes les caractéristiques suivantes sauf :`,
+  choices: [
+    {
+      label: "A",
+      text: `Peut survenir en cas d'alcoolisme, de brûlures et de jeûne`,
+      correct: false,
+      justification: `L'alcoolisme, les brûlures et la dénutrition/jeûne peuvent favoriser une hypophosphatémie.`
+    },
+    {
+      label: "B",
+      text: `Elle est généralement asymptomatique`,
+      correct: false,
+      justification: `Les formes légères sont souvent asymptomatiques ; les manifestations apparaissent surtout lors d'une hypophosphatémie importante.`
+    },
+    {
+      label: "C",
+      text: `Peut être due à une hypoparathyroïdie et/ou une hyperthyroïdie`,
+      correct: false,
+      justification: `Les troubles endocriniens peuvent modifier la phosphatémie ; l'hyperparathyroïdie est notamment une cause classique par fuite rénale de phosphate.`
+    },
+    {
+      label: "D",
+      text: `Peut causer des troubles neuromusculaires graves voire une rhabdomyolyse`,
+      correct: false,
+      justification: `Une hypophosphatémie sévère peut provoquer faiblesse musculaire, insuffisance respiratoire, troubles neurologiques et rhabdomyolyse.`
+    },
+    {
+      label: "E",
+      text: `Les convulsions sont un symptôme fréquent`,
+      correct: true,
+      justification: `Les convulsions peuvent survenir dans les hypophosphatémies sévères mais ne constituent pas un symptôme fréquent.`
+    }
+  ]
+},
+
+{
+  question: `QCM 29 — En cas d'intoxication aiguë grave par le paracétamol vue précocement, quelle est l'affirmation vraie ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Les transaminases sont élevées à au moins 10 fois la normale dès l'admission`,
+      correct: false,
+      justification: `Au début de l'intoxication, les transaminases peuvent encore être normales ; leur élévation apparaît généralement secondairement.`
+    },
+    {
+      label: "B",
+      text: `Un ictère est fréquent dès le premier jour`,
+      correct: false,
+      justification: `L'ictère n'est généralement pas présent dès le premier jour et apparaît surtout en cas d'atteinte hépatique évoluée.`
+    },
+    {
+      label: "C",
+      text: `Une encéphalopathie hépatique est constante`,
+      correct: false,
+      justification: `L'encéphalopathie hépatique n'apparaît que dans les formes développant une insuffisance hépatique aiguë sévère.`
+    },
+    {
+      label: "D",
+      text: `On peut traiter les douleurs épigastriques par des anti-inflammatoires non stéroïdiens`,
+      correct: false,
+      justification: `Les AINS ne sont pas le traitement de référence des douleurs dans ce contexte et peuvent notamment augmenter les risques digestifs et rénaux.`
+    },
+    {
+      label: "E",
+      text: `Il faut administrer le plus tôt possible de la N-acétyl-cystéine`,
+      correct: true,
+      justification: `La N-acétyl-cystéine est l'antidote du paracétamol. Son efficacité est maximale lorsqu'elle est administrée précocement, idéalement dans les premières heures.`
+    }
+  ]
+},
+
+    ];
+
+    const container = document.getElementById('quiz-container');
+
+    let currentQuestion = 0;
+
+    /*
+     * Stockage des réponses de l'utilisateur.
+     * Chaque élément contient les indices des réponses sélectionnées.
+     */
+    const userAnswers = new Array(questions.length).fill(null);
+
+    /*
+     * Indique si la question a déjà été corrigée.
+     */
+    const validated = new Array(questions.length).fill(false);
+
+
+    function shuffleArray(array) {
+
+      const arr = array.slice();
+
+      for (let i = arr.length - 1; i > 0; i--) {
+
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+
+      return arr;
+    }
+
+
+    function replaceDoubleQuotesWithSingle(str) {
+
+      return String(str).replace(/"/g, "'");
+
+    }
+
+
+    function decodeHTML(html) {
+
+      const txt = document.createElement("textarea");
+
+      txt.innerHTML = html;
+
+      return replaceDoubleQuotesWithSingle(txt.value);
+
+    }
+
+
+    function renderQuestion() {
+
+      container.innerHTML = '';
+
+      const q = questions[currentQuestion];
+
+      /*
+       * Progression
+       */
+      const progress = document.createElement('div');
+
+      progress.className = 'progress';
+
+      progress.textContent =
+        `Question ${currentQuestion + 1} / ${questions.length}`;
+
+      container.appendChild(progress);
+
+
+      /*
+       * Question
+       */
+      const questionTitle = document.createElement('div');
+
+      questionTitle.className = 'question-title';
+
+      questionTitle.textContent =
+        decodeHTML(q.question);
+
+      container.appendChild(questionTitle);
+
+
+      /*
+       * Formulaire
+       */
+      const form = document.createElement('form');
+
+      form.id = 'qcm-form';
+
+
+      /*
+       * Randomisation des réponses
+       */
+      const shuffledChoices = shuffleArray(q.choices);
+
+
+      shuffledChoices.forEach((choice) => {
+
+        const originalIndex =
+          q.choices.indexOf(choice);
+
+        const label =
+          document.createElement('label');
+
+        label.className = 'choice';
+
+
+        const input =
+          document.createElement('input');
+
+        input.type = 'checkbox';
+
+        input.name = 'choice';
+
+        input.value = originalIndex;
+
+
+        /*
+         * Restaurer les réponses précédentes
+         */
+        if (
+          userAnswers[currentQuestion] &&
+          userAnswers[currentQuestion].includes(originalIndex)
+        ) {
+
+          input.checked = true;
+
+        }
+
+
+        const choiceLabel =
+          document.createElement('span');
+
+        choiceLabel.className =
+          'choice-label';
+
+        choiceLabel.textContent =
+          choice.label + '.';
+
+
+        label.appendChild(input);
+
+        label.appendChild(choiceLabel);
+
+        label.appendChild(
+          document.createTextNode(
+            ' ' + decodeHTML(choice.text)
+          )
+        );
+
+
+        form.appendChild(label);
+
+      });
+
+
+      container.appendChild(form);
+
+
+      /*
+       * Si la question a déjà été corrigée,
+       * afficher directement la correction.
+       */
+      if (validated[currentQuestion]) {
+
+        showCorrection(q, form);
+
+      }
+
+
+      /*
+       * Navigation
+       */
+      const navigation =
+        document.createElement('div');
+
+      navigation.className =
+        'navigation';
+
+
+      /*
+       * Bouton Previous
+       */
+      const btnPrevious =
+        document.createElement('button');
+
+      btnPrevious.type = 'button';
+
+      btnPrevious.textContent =
+        'Previous';
+
+      btnPrevious.disabled =
+        currentQuestion === 0;
+
+      btnPrevious.addEventListener(
+        'click',
+        () => {
+
+          saveCurrentAnswer(form);
+
+          currentQuestion--;
+
+          renderQuestion();
+
+        }
+      );
+
+
+      /*
+       * Bouton Valider
+       */
+      const btnValidate =
+        document.createElement('button');
+
+      btnValidate.type = 'button';
+
+      btnValidate.textContent =
+        validated[currentQuestion]
+          ? 'Validé'
+          : 'Valider';
+
+      btnValidate.disabled =
+        validated[currentQuestion];
+
+      btnValidate.addEventListener(
+        'click',
+        () => {
+
+          validateCurrentQuestion(
+            q,
+            form,
+            btnValidate
+          );
+
+        }
+      );
+
+
+      /*
+       * Bouton Next
+       */
+      const btnNext =
+        document.createElement('button');
+
+      btnNext.type = 'button';
+
+      btnNext.textContent =
+        currentQuestion === questions.length - 1
+          ? 'Terminer'
+          : 'Next';
+
+
+      btnNext.addEventListener(
+        'click',
+        () => {
+
+          /*
+           * Il faut valider avant de passer
+           * à la question suivante.
+           */
+          if (!validated[currentQuestion]) {
+
+            alert(
+              "Veuillez valider cette question avant de continuer."
+            );
+
+            return;
+
+          }
+
+
+          if (
+            currentQuestion <
+            questions.length - 1
+          ) {
+
+            currentQuestion++;
+
+            renderQuestion();
+
+          } else {
+
+            showFinalScore();
+
+          }
+
+        }
+      );
+
+
+      navigation.appendChild(btnPrevious);
+
+      navigation.appendChild(btnValidate);
+
+      navigation.appendChild(btnNext);
+
+      container.appendChild(navigation);
+
+    }
+
+
+    /*
+     * Sauvegarder les réponses cochées
+     */
+    function saveCurrentAnswer(form) {
+
+      const checked =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+      userAnswers[currentQuestion] =
+        checked.map(
+          input => parseInt(input.value)
+        );
+
+    }
+
+
+    /*
+     * Valider la question actuelle
+     */
+    function validateCurrentQuestion(
+      q,
+      form,
+      btnValidate
+    ) {
+
+      const checkedBoxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+
+      if (checkedBoxes.length === 0) {
+
+        alert(
+          "Veuillez choisir au moins une réponse."
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * Sauvegarder les réponses
+       */
+      userAnswers[currentQuestion] =
+        checkedBoxes.map(
+          input => parseInt(input.value)
+        );
+
+
+      /*
+       * Marquer comme validée
+       */
+      validated[currentQuestion] =
+        true;
+
+
+      /*
+       * Désactiver les cases
+       */
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(
+        input => {
+          input.disabled = true;
+        }
+      );
+
+
+      btnValidate.disabled = true;
+
+      btnValidate.textContent =
+        'Validé';
+
+
+      showCorrection(q, form);
+
+    }
+
+
+    /*
+     * Afficher la correction
+     */
+    function showCorrection(q, form) {
+
+      /*
+       * Empêcher la correction d'être
+       * ajoutée plusieurs fois.
+       */
+      if (
+        form.querySelector(
+          '.correction-container'
+        )
+      ) {
+
+        return;
+
+      }
+
+
+      const correctionContainer =
+        document.createElement('div');
+
+      correctionContainer.className =
+        'correction-container';
+
+
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(input => {
+
+        const originalIndex =
+          parseInt(input.value);
+
+        const choiceData =
+          q.choices[originalIndex];
+
+        const label =
+          input.parentElement;
+
+
+        /*
+         * Vérification de la réponse
+         */
+        if (
+          input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'correct-checked'
+          );
+
+        }
+
+        else if (
+          input.checked &&
+          !choiceData.correct
+        ) {
+
+          label.classList.add(
+            'incorrect-checked'
+          );
+
+        }
+
+        else if (
+          !input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'missed-correct'
+          );
+
+        }
+
+
+        /*
+         * Justification
+         */
+        const justification =
+          document.createElement('div');
+
+        justification.className =
+          'justification';
+
+
+        const symbol =
+          choiceData.correct
+            ? '✓'
+            : '✗';
+
+
+        justification.textContent =
+          `${symbol} : ${decodeHTML(
+            choiceData.justification
+          )}`;
+
+
+        label.appendChild(
+          justification
+        );
+
+      });
+
+
+      form.appendChild(
+        correctionContainer
+      );
+
+    }
+
+
+    /*
+     * Calcul du score final
+     */
+    function calculateFinalScore() {
+
+      let totalPoints = 0;
+
+      let totalPossiblePoints = 0;
+
+
+      questions.forEach(
+        (q, index) => {
+
+          const answers =
+            userAnswers[index] || [];
+
+
+          const correctAnswers =
+            q.choices
+              .map(
+                (choice, i) =>
+                  choice.correct
+                    ? i
+                    : null
+              )
+              .filter(
+                i => i !== null
+              );
+
+
+          /*
+           * Chaque bonne réponse sélectionnée
+           * rapporte un point.
+           */
+          answers.forEach(
+            answerIndex => {
+
+              if (
+                correctAnswers.includes(
+                  answerIndex
+                )
+              ) {
+
+                totalPoints++;
+
+              }
+
+            }
+          );
+
+
+          totalPossiblePoints +=
+            correctAnswers.length;
+
+        }
+      );
+
+
+      /*
+       * Note sur 5
+       */
+      const note =
+        Math.round(
+          (
+            totalPoints /
+            totalPossiblePoints
+          ) * 5 * 100
+        ) / 100;
+
+
+      return {
+        totalPoints,
+        totalPossiblePoints,
+        note
+      };
+
+    }
+
+
+    /*
+     * Afficher le score final
+     */
+    function showFinalScore() {
+
+      const result =
+        calculateFinalScore();
+
+
+      container.innerHTML = '';
+
+
+      const title =
+        document.createElement('div');
+
+      title.className =
+        'question-title';
+
+      title.textContent =
+        'QCM terminé';
+
+      container.appendChild(title);
+
+
+      const note =
+        document.createElement('div');
+
+      note.className =
+        'note';
+
+      note.textContent =
+        `Note : ${result.note} / 5`;
+
+      container.appendChild(note);
+
+
+      const details =
+        document.createElement('p');
+
+      details.textContent =
+        `Réponses correctes : ${result.totalPoints} / ${result.totalPossiblePoints}`;
+
+      container.appendChild(details);
+
+
+      /*
+       * Bouton pour recommencer
+       */
+      const restart =
+        document.createElement('button');
+
+      restart.type = 'button';
+
+      restart.textContent =
+        'Recommencer';
+
+
+      restart.addEventListener(
+        'click',
+        () => {
+
+          currentQuestion = 0;
+
+          userAnswers.fill(null);
+
+          validated.fill(false);
+
+          renderQuestion();
+
+        }
+      );
+
+
+      container.appendChild(restart);
+
+    }
+
+
+    /*
+     * Lancement du QCM
+     */
+    renderQuestion();
+
+  })();
+  </script>
+
+</body>
+</html>
