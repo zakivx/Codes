@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dysnatrémies</title>
+  <style>
+    #quiz-container {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1em;
+    }
+
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 0.8em;
+    }
+
+    .question-number {
+      font-weight: bold;
+      margin-bottom: 0.5em;
+    }
+
+    .choice {
+      margin: 0.4em 0;
+      cursor: pointer;
+      display: block;
+      line-height: 1.5;
+    }
+
+    .choice input {
+      margin-right: 0.4em;
+    }
+
+    .choice-label {
+      font-weight: bold;
+      margin-right: 0.3em;
+    }
+
+    .correct-checked {
+      color: green;
+      font-weight: bold;
+    }
+
+    .incorrect-checked {
+      color: red;
+      font-weight: bold;
+    }
+
+    .missed-correct {
+      color: blue;
+      font-weight: bold;
+    }
+
+    .justification {
+      font-size: 0.9em;
+      margin: 0.25em 0 0.5em 1.8em;
+      color: #555;
+      font-weight: normal;
+    }
+
+    .note {
+      margin-top: 1em;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    .navigation {
+      display: flex;
+      gap: 0.5em;
+      margin-top: 1em;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .progress {
+      margin-bottom: 1em;
+      font-weight: bold;
+    }
+
+    /* Mobile Font Size Adjustment */
+    @media (max-width: 768px) {
+      #quiz-container {
+        font-size: 1rem; /* Base size adjusted to 1rem */
+      }
+
+      button {
+        font-size: 1em;
+        padding: 0.5em 1em;
+      }
+
+      .choice input[type="checkbox"] {
+        transform: scale(1.1); /* Slightly adjusted checkbox scale for 1rem target */
+        margin-right: 0.4em;
+      }
+    }
+  </style>
+</head>
+<body>
+    <header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
+  <a href="https://zakivx.github.io/Codes/QCM/qcmList.html" 
+      style="color:#fff; text-decoration:none; font-weight:bold;">
+    ← Retour à la liste des QCM
+  </a>
+</header>
+  <div id="quiz-container"></div>
+
+  <script>
+  (() => {
+
+    const questions = [
+
+{
+  question: `6. Quelle est l'affirmation vraie ?`,
+  choices: [
+    {
+      label: "A",
+      text: `La natrémie est un bon reflet du volume extracellulaire`,
+      correct: false,
+      justification: `La natrémie reflète principalement le rapport entre le sodium corporel échangeable et l'eau corporelle totale, et ne constitue pas un bon reflet direct du volume extracellulaire.`
+    },
+    {
+      label: "B",
+      text: `La correction d'une hyponatrémie chronique doit être progressive`,
+      correct: true,
+      justification: `Une correction trop rapide d'une hyponatrémie chronique expose au risque de syndrome de démyélinisation osmotique ; la correction doit donc être contrôlée et limitée.`
+    },
+    {
+      label: "C",
+      text: `Une hémoconcentration (hématocrite et protidémie élevés) témoigne d'une déshydratation intracellulaire`,
+      correct: false,
+      justification: `L'hémoconcentration traduit surtout une diminution du volume plasmatique, classiquement observée lors d'une déshydratation extracellulaire.`
+    },
+    {
+      label: "D",
+      text: `Une glycosurie est constamment observée au cours du diabète insipide`,
+      correct: false,
+      justification: `Le diabète insipide entraîne une polyurie d'eau libre par déficit ou résistance à l'ADH, sans glycosurie caractéristique.`
+    }
+  ]
+},
+
+{
+  question: `5. Parmi les étiologies des vraies hyponatrémies, on cite :`,
+  choices: [
+    {
+      label: "A",
+      text: `L'insuffisance cardiaque`,
+      correct: true,
+      justification: `L'insuffisance cardiaque peut provoquer une hyponatrémie hypotone hypervolémique par rétention d'eau médiée notamment par l'ADH.`
+    },
+    {
+      label: "B",
+      text: `Le diabète insipide`,
+      correct: false,
+      justification: `Le diabète insipide entraîne une perte d'eau libre et peut favoriser une hypernatrémie plutôt qu'une hyponatrémie.`
+    },
+    {
+      label: "C",
+      text: `La sécrétion inappropriée d'ADH`,
+      correct: true,
+      justification: `Le SIADH entraîne une rétention d'eau libre responsable d'une hyponatrémie hypotone, généralement euvolémique.`
+    },
+    {
+      label: "D",
+      text: `Les hyperprotidémies`,
+      correct: false,
+      justification: `Les hyperprotidémies peuvent provoquer une pseudohyponatrémie avec certaines méthodes de dosage ; il ne s'agit pas d'une vraie hyponatrémie hypotone.`
+    },
+    {
+      label: "E",
+      text: `Les perfusions de mannitol`,
+      correct: false,
+      justification: `Le mannitol peut provoquer une hyponatrémie hypertonique ou translocutionnelle, qui n'est pas une hyponatrémie hypotone classique.`
+    }
+  ]
+},
+
+{
+  question: `Une hyponatrémie avec déplétion sodée s'observe au cours :`,
+  choices: [
+    {
+      label: "A",
+      text: `Du syndrome de sécrétion inappropriée d'ADH`,
+      correct: false,
+      justification: `Le SIADH est classiquement responsable d'une hyponatrémie hypotone avec euvolémie clinique, sans déplétion sodée primitive.`
+    },
+    {
+      label: "B",
+      text: `De l'insuffisance cardiaque congestive`,
+      correct: false,
+      justification: `L'insuffisance cardiaque provoque généralement une hyponatrémie de dilution avec hypervolémie, et non une déplétion sodée primitive.`
+    },
+    {
+      label: "C",
+      text: `De l'insuffisance surrénale aiguë`,
+      correct: true,
+      justification: `Le déficit en cortisol et en aldostérone entraîne une perte de sodium et d'eau, avec hyponatrémie et hypovolémie ; une hyperkaliémie peut également être présente.`
+    },
+    {
+      label: "D",
+      text: `Des traitements par diurétiques de l'anse`,
+      correct: true,
+      justification: `Les diurétiques de l'anse augmentent les pertes urinaires de sodium et d'eau et peuvent provoquer une hyponatrémie hypovolémique.`
+    },
+    {
+      label: "E",
+      text: `Du syndrome hépatorénal`,
+      correct: false,
+      justification: `Le syndrome hépatorénal s'accompagne typiquement d'une rétention hydrosodée et d'une hyponatrémie de dilution plutôt que d'une déplétion sodée primitive.`
+    }
+  ]
+},
+
+{
+  question: `QCM 28. En présence d'un sujet porteur d'une déshydratation globale à prédominance cellulaire avec natrémie à 155 mmol/L, kaliémie à 3,8 mmol/L, pH à 7,35 et glycémie à 6 mmol/L, quel est le geste thérapeutique le plus urgent à faire ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Réhydrater à l'aide d'eau distillée`,
+      correct: false,
+      justification: `L'eau distillée ne doit pas être administrée directement par voie intraveineuse en raison de son hypotonicité extrême et du risque d'hémolyse.`
+    },
+    {
+      label: "B",
+      text: `Réhydrater à l'aide de sérum bicarbonaté à 14 ‰`,
+      correct: false,
+      justification: `Il n'y a pas d'indication ici à une solution bicarbonatée puisque le pH est normal et qu'il n'existe pas d'acidose métabolique nécessitant du bicarbonate.`
+    },
+    {
+      label: "C",
+      text: `Administrer du potassium`,
+      correct: false,
+      justification: `La kaliémie est normale à 3,8 mmol/L ; la priorité est la correction du déficit hydrique.`
+    },
+    {
+      label: "D",
+      text: `Réhydrater à l'aide de sérum salé isotonique`,
+      correct: false,
+      justification: `En présence d'une déshydratation intracellulaire avec hypernatrémie et sans état de choc ou hypovolémie extracellulaire sévère, une solution isotone n'est pas le traitement de correction de l'eau libre en première intention.`
+    },
+    {
+      label: "E",
+      text: `Réhydrater à l'aide de sérum glucosé à 5 %`,
+      correct: true,
+      justification: `Le sérum glucosé à 5 % apporte essentiellement de l'eau libre après métabolisation du glucose et permet de corriger progressivement une hypernatrémie liée à un déficit en eau.`
+    }
+  ]
+},
+
+    ];
+
+    const container = document.getElementById('quiz-container');
+
+    let currentQuestion = 0;
+
+    /*
+     * Stockage des réponses de l'utilisateur.
+     * Chaque élément contient les indices des réponses sélectionnées.
+     */
+    const userAnswers = new Array(questions.length).fill(null);
+
+    /*
+     * Indique si la question a déjà été corrigée.
+     */
+    const validated = new Array(questions.length).fill(false);
+
+
+    function shuffleArray(array) {
+
+      const arr = array.slice();
+
+      for (let i = arr.length - 1; i > 0; i--) {
+
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+
+      return arr;
+    }
+
+
+    function replaceDoubleQuotesWithSingle(str) {
+
+      return String(str).replace(/"/g, "'");
+
+    }
+
+
+    function decodeHTML(html) {
+
+      const txt = document.createElement("textarea");
+
+      txt.innerHTML = html;
+
+      return replaceDoubleQuotesWithSingle(txt.value);
+
+    }
+
+
+    function renderQuestion() {
+
+      container.innerHTML = '';
+
+      const q = questions[currentQuestion];
+
+      /*
+       * Progression
+       */
+      const progress = document.createElement('div');
+
+      progress.className = 'progress';
+
+      progress.textContent =
+        `Question ${currentQuestion + 1} / ${questions.length}`;
+
+      container.appendChild(progress);
+
+
+      /*
+       * Question
+       */
+      const questionTitle = document.createElement('div');
+
+      questionTitle.className = 'question-title';
+
+      questionTitle.textContent =
+        decodeHTML(q.question);
+
+      container.appendChild(questionTitle);
+
+
+      /*
+       * Formulaire
+       */
+      const form = document.createElement('form');
+
+      form.id = 'qcm-form';
+
+
+      /*
+       * Randomisation des réponses
+       */
+      const shuffledChoices = shuffleArray(q.choices);
+
+
+      shuffledChoices.forEach((choice) => {
+
+        const originalIndex =
+          q.choices.indexOf(choice);
+
+        const label =
+          document.createElement('label');
+
+        label.className = 'choice';
+
+
+        const input =
+          document.createElement('input');
+
+        input.type = 'checkbox';
+
+        input.name = 'choice';
+
+        input.value = originalIndex;
+
+
+        /*
+         * Restaurer les réponses précédentes
+         */
+        if (
+          userAnswers[currentQuestion] &&
+          userAnswers[currentQuestion].includes(originalIndex)
+        ) {
+
+          input.checked = true;
+
+        }
+
+
+        const choiceLabel =
+          document.createElement('span');
+
+        choiceLabel.className =
+          'choice-label';
+
+        choiceLabel.textContent =
+          choice.label + '.';
+
+
+        label.appendChild(input);
+
+        label.appendChild(choiceLabel);
+
+        label.appendChild(
+          document.createTextNode(
+            ' ' + decodeHTML(choice.text)
+          )
+        );
+
+
+        form.appendChild(label);
+
+      });
+
+
+      container.appendChild(form);
+
+
+      /*
+       * Si la question a déjà été corrigée,
+       * afficher directement la correction.
+       */
+      if (validated[currentQuestion]) {
+
+        showCorrection(q, form);
+
+      }
+
+
+      /*
+       * Navigation
+       */
+      const navigation =
+        document.createElement('div');
+
+      navigation.className =
+        'navigation';
+
+
+      /*
+       * Bouton Previous
+       */
+      const btnPrevious =
+        document.createElement('button');
+
+      btnPrevious.type = 'button';
+
+      btnPrevious.textContent =
+        'Previous';
+
+      btnPrevious.disabled =
+        currentQuestion === 0;
+
+      btnPrevious.addEventListener(
+        'click',
+        () => {
+
+          saveCurrentAnswer(form);
+
+          currentQuestion--;
+
+          renderQuestion();
+
+        }
+      );
+
+
+      /*
+       * Bouton Valider
+       */
+      const btnValidate =
+        document.createElement('button');
+
+      btnValidate.type = 'button';
+
+      btnValidate.textContent =
+        validated[currentQuestion]
+          ? 'Validé'
+          : 'Valider';
+
+      btnValidate.disabled =
+        validated[currentQuestion];
+
+      btnValidate.addEventListener(
+        'click',
+        () => {
+
+          validateCurrentQuestion(
+            q,
+            form,
+            btnValidate
+          );
+
+        }
+      );
+
+
+      /*
+       * Bouton Next
+       */
+      const btnNext =
+        document.createElement('button');
+
+      btnNext.type = 'button';
+
+      btnNext.textContent =
+        currentQuestion === questions.length - 1
+          ? 'Terminer'
+          : 'Next';
+
+
+      btnNext.addEventListener(
+        'click',
+        () => {
+
+          /*
+           * Il faut valider avant de passer
+           * à la question suivante.
+           */
+          if (!validated[currentQuestion]) {
+
+            alert(
+              "Veuillez valider cette question avant de continuer."
+            );
+
+            return;
+
+          }
+
+
+          if (
+            currentQuestion <
+            questions.length - 1
+          ) {
+
+            currentQuestion++;
+
+            renderQuestion();
+
+          } else {
+
+            showFinalScore();
+
+          }
+
+        }
+      );
+
+
+      navigation.appendChild(btnPrevious);
+
+      navigation.appendChild(btnValidate);
+
+      navigation.appendChild(btnNext);
+
+      container.appendChild(navigation);
+
+    }
+
+
+    /*
+     * Sauvegarder les réponses cochées
+     */
+    function saveCurrentAnswer(form) {
+
+      const checked =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+      userAnswers[currentQuestion] =
+        checked.map(
+          input => parseInt(input.value)
+        );
+
+    }
+
+
+    /*
+     * Valider la question actuelle
+     */
+    function validateCurrentQuestion(
+      q,
+      form,
+      btnValidate
+    ) {
+
+      const checkedBoxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+
+      if (checkedBoxes.length === 0) {
+
+        alert(
+          "Veuillez choisir au moins une réponse."
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * Sauvegarder les réponses
+       */
+      userAnswers[currentQuestion] =
+        checkedBoxes.map(
+          input => parseInt(input.value)
+        );
+
+
+      /*
+       * Marquer comme validée
+       */
+      validated[currentQuestion] =
+        true;
+
+
+      /*
+       * Désactiver les cases
+       */
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(
+        input => {
+          input.disabled = true;
+        }
+      );
+
+
+      btnValidate.disabled = true;
+
+      btnValidate.textContent =
+        'Validé';
+
+
+      showCorrection(q, form);
+
+    }
+
+
+    /*
+     * Afficher la correction
+     */
+    function showCorrection(q, form) {
+
+      /*
+       * Empêcher la correction d'être
+       * ajoutée plusieurs fois.
+       */
+      if (
+        form.querySelector(
+          '.correction-container'
+        )
+      ) {
+
+        return;
+
+      }
+
+
+      const correctionContainer =
+        document.createElement('div');
+
+      correctionContainer.className =
+        'correction-container';
+
+
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(input => {
+
+        const originalIndex =
+          parseInt(input.value);
+
+        const choiceData =
+          q.choices[originalIndex];
+
+        const label =
+          input.parentElement;
+
+
+        /*
+         * Vérification de la réponse
+         */
+        if (
+          input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'correct-checked'
+          );
+
+        }
+
+        else if (
+          input.checked &&
+          !choiceData.correct
+        ) {
+
+          label.classList.add(
+            'incorrect-checked'
+          );
+
+        }
+
+        else if (
+          !input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'missed-correct'
+          );
+
+        }
+
+
+        /*
+         * Justification
+         */
+        const justification =
+          document.createElement('div');
+
+        justification.className =
+          'justification';
+
+
+        const symbol =
+          choiceData.correct
+            ? '✓'
+            : '✗';
+
+
+        justification.textContent =
+          `${symbol} : ${decodeHTML(
+            choiceData.justification
+          )}`;
+
+
+        label.appendChild(
+          justification
+        );
+
+      });
+
+
+      form.appendChild(
+        correctionContainer
+      );
+
+    }
+
+
+    /*
+     * Calcul du score final
+     */
+    function calculateFinalScore() {
+
+      let totalPoints = 0;
+
+      let totalPossiblePoints = 0;
+
+
+      questions.forEach(
+        (q, index) => {
+
+          const answers =
+            userAnswers[index] || [];
+
+
+          const correctAnswers =
+            q.choices
+              .map(
+                (choice, i) =>
+                  choice.correct
+                    ? i
+                    : null
+              )
+              .filter(
+                i => i !== null
+              );
+
+
+          /*
+           * Chaque bonne réponse sélectionnée
+           * rapporte un point.
+           */
+          answers.forEach(
+            answerIndex => {
+
+              if (
+                correctAnswers.includes(
+                  answerIndex
+                )
+              ) {
+
+                totalPoints++;
+
+              }
+
+            }
+          );
+
+
+          totalPossiblePoints +=
+            correctAnswers.length;
+
+        }
+      );
+
+
+      /*
+       * Note sur 5
+       */
+      const note =
+        Math.round(
+          (
+            totalPoints /
+            totalPossiblePoints
+          ) * 5 * 100
+        ) / 100;
+
+
+      return {
+        totalPoints,
+        totalPossiblePoints,
+        note
+      };
+
+    }
+
+
+    /*
+     * Afficher le score final
+     */
+    function showFinalScore() {
+
+      const result =
+        calculateFinalScore();
+
+
+      container.innerHTML = '';
+
+
+      const title =
+        document.createElement('div');
+
+      title.className =
+        'question-title';
+
+      title.textContent =
+        'QCM terminé';
+
+      container.appendChild(title);
+
+
+      const note =
+        document.createElement('div');
+
+      note.className =
+        'note';
+
+      note.textContent =
+        `Note : ${result.note} / 5`;
+
+      container.appendChild(note);
+
+
+      const details =
+        document.createElement('p');
+
+      details.textContent =
+        `Réponses correctes : ${result.totalPoints} / ${result.totalPossiblePoints}`;
+
+      container.appendChild(details);
+
+
+      /*
+       * Bouton pour recommencer
+       */
+      const restart =
+        document.createElement('button');
+
+      restart.type = 'button';
+
+      restart.textContent =
+        'Recommencer';
+
+
+      restart.addEventListener(
+        'click',
+        () => {
+
+          currentQuestion = 0;
+
+          userAnswers.fill(null);
+
+          validated.fill(false);
+
+          renderQuestion();
+
+        }
+      );
+
+
+      container.appendChild(restart);
+
+    }
+
+
+    /*
+     * Lancement du QCM
+     */
+    renderQuestion();
+
+  })();
+  </script>
+
+</body>
+</html>
