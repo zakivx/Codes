@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Physiologie respiratoire</title>
+  <style>
+    #quiz-container {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1em;
+    }
+
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 0.8em;
+    }
+
+    .question-number {
+      font-weight: bold;
+      margin-bottom: 0.5em;
+    }
+
+    .choice {
+      margin: 0.4em 0;
+      cursor: pointer;
+      display: block;
+      line-height: 1.5;
+    }
+
+    .choice input {
+      margin-right: 0.4em;
+    }
+
+    .choice-label {
+      font-weight: bold;
+      margin-right: 0.3em;
+    }
+
+    .correct-checked {
+      color: green;
+      font-weight: bold;
+    }
+
+    .incorrect-checked {
+      color: red;
+      font-weight: bold;
+    }
+
+    .missed-correct {
+      color: blue;
+      font-weight: bold;
+    }
+
+    .justification {
+      font-size: 0.9em;
+      margin: 0.25em 0 0.5em 1.8em;
+      color: #555;
+      font-weight: normal;
+    }
+
+    .note {
+      margin-top: 1em;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    .navigation {
+      display: flex;
+      gap: 0.5em;
+      margin-top: 1em;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .progress {
+      margin-bottom: 1em;
+      font-weight: bold;
+    }
+
+    /* Mobile Font Size Adjustment */
+    @media (max-width: 768px) {
+      #quiz-container {
+        font-size: 1rem; /* Base size adjusted to 1rem */
+      }
+
+      button {
+        font-size: 1em;
+        padding: 0.5em 1em;
+      }
+
+      .choice input[type="checkbox"] {
+        transform: scale(1.1); /* Slightly adjusted checkbox scale for 1rem target */
+        margin-right: 0.4em;
+      }
+    }
+  </style>
+</head>
+<body>
+    <header style="background:#007bff; color:#fff; padding:10px; text-align:center;">
+  <a href="https://zakivx.github.io/Codes/QCM/qcmList.html" 
+      style="color:#fff; text-decoration:none; font-weight:bold;">
+    ← Retour à la liste des QCM
+  </a>
+</header>
+  <div id="quiz-container"></div>
+
+  <script>
+  (() => {
+
+    const questions = [
+
+{
+  question: `Quelles sont les propositions correctes ? (Plusieurs réponses possibles.)`,
+  choices: [
+    {
+      label: "A",
+      text: `Compliance pulmonaire = Pression plateau / Volume courant`,
+      correct: false,
+      justification: `La compliance correspond au rapport entre la variation de volume et la variation de pression, et non l'inverse.`
+    },
+    {
+      label: "B",
+      text: `Élastance = 1 / Compliance pulmonaire`,
+      correct: true,
+      justification: `L'élastance est l'inverse de la compliance : E = 1/C.`
+    },
+    {
+      label: "C",
+      text: `Compliance pulmonaire = Volume courant / Pression plateau`,
+      correct: false,
+      justification: `La compliance dynamique ou statique doit tenir compte de la variation de pression. En ventilation mécanique, la compliance statique est calculée avec VT / (Pplat − PEEP).`
+    },
+    {
+      label: "D",
+      text: `Compliance pulmonaire = Volume courant / (Pression plateau − PEEP)`,
+      correct: true,
+      justification: `La compliance statique du système respiratoire est calculée par Cstat = VT / (Pplat − PEEP).`
+    },
+    {
+      label: "E",
+      text: `Compliance pulmonaire = 1 / Résistances des voies aériennes`,
+      correct: false,
+      justification: `La compliance et la résistance sont deux propriétés mécaniques différentes du système respiratoire.`
+    }
+  ]
+},
+
+{
+  question: `La contraction diaphragmatique entraîne l'augmentation :`,
+  choices: [
+    {
+      label: "A",
+      text: `Du volume pulmonaire`,
+      correct: true,
+      justification: `La contraction du diaphragme augmente le volume de la cage thoracique et permet l'inspiration.`
+    },
+    {
+      label: "B",
+      text: `De la pression alvéolaire`,
+      correct: false,
+      justification: `Lors de l'inspiration spontanée, l'augmentation du volume thoracique entraîne une diminution de la pression alvéolaire sous la pression atmosphérique.`
+    },
+    {
+      label: "C",
+      text: `Du diamètre bronchique`,
+      correct: true,
+      justification: `L'augmentation du volume pulmonaire exerce une traction radiale sur les petites voies aériennes et augmente leur calibre.`
+    },
+    {
+      label: "D",
+      text: `De la pression pleurale`,
+      correct: false,
+      justification: `La contraction diaphragmatique rend la pression pleurale plus négative pendant l'inspiration spontanée.`
+    }
+  ]
+},
+
+{
+  question: `Quels sont les paramètres qui reflètent l'affinité de l'hémoglobine pour l'oxygène ?`,
+  choices: [
+    {
+      label: "A",
+      text: `La P50`,
+      correct: true,
+      justification: `La P50 est la pression partielle d'oxygène correspondant à une saturation de l'hémoglobine de 50 %. Elle reflète l'affinité de l'hémoglobine pour l'oxygène.`
+    },
+    {
+      label: "B",
+      text: `La saturation artérielle en oxygène`,
+      correct: false,
+      justification: `La SaO2 dépend notamment de la PaO2 et de la relation entre PaO2 et saturation, mais elle ne constitue pas à elle seule un paramètre direct de l'affinité.`
+    },
+    {
+      label: "C",
+      text: `Le pouvoir oxyphorique`,
+      correct: false,
+      justification: `Le pouvoir oxyphorique correspond à la capacité de l'hémoglobine à fixer l'oxygène et ne mesure pas directement son affinité pour l'oxygène.`
+    },
+    {
+      label: "D",
+      text: `Le taux de bicarbonates`,
+      correct: false,
+      justification: `Le taux de bicarbonates renseigne principalement sur l'équilibre acido-basique et ne mesure pas directement l'affinité de l'hémoglobine pour l'oxygène.`
+    }
+  ]
+},
+
+{
+  question: `Les chémorécepteurs centraux sont stimulés par :`,
+  choices: [
+    {
+      label: "A",
+      text: `L'hypercapnie`,
+      correct: true,
+      justification: `Les chémorécepteurs centraux sont principalement sensibles aux variations de CO2 via les variations du pH du liquide extracellulaire cérébral.`
+    },
+    {
+      label: "B",
+      text: `L'acidose respiratoire`,
+      correct: true,
+      justification: `L'augmentation de la PaCO2 lors d'une acidose respiratoire augmente la concentration en H+ dans le liquide céphalorachidien et stimule les chémorécepteurs centraux.`
+    },
+    {
+      label: "C",
+      text: `L'acidose métabolique`,
+      correct: false,
+      justification: `Les chémorécepteurs centraux sont peu sensibles directement aux variations métaboliques des H+. La stimulation de la ventilation lors d'une acidose métabolique dépend surtout des chémorécepteurs périphériques.`
+    },
+    {
+      label: "D",
+      text: `L'hypoxémie`,
+      correct: false,
+      justification: `L'hypoxémie stimule principalement les chémorécepteurs périphériques des corpuscules carotidiens et aortiques.`
+    }
+  ]
+},
+
+{
+  question: `Concernant le transport de l'O2 :`,
+  choices: [
+    {
+      label: "A",
+      text: `La PAO2 témoigne de la quantité d'O2 dissous`,
+      correct: false,
+      justification: `La PaO2 représente la pression partielle de l'oxygène dissous dans le plasma, et non directement une quantité.`
+    },
+    {
+      label: "B",
+      text: `La forme dissoute est la principale forme de transport de l'O2`,
+      correct: false,
+      justification: `La majeure partie de l'oxygène sanguin est transportée sous forme liée à l'hémoglobine.`
+    },
+    {
+      label: "C",
+      text: `La saturation donne la quantité d'O2 combiné à l'Hb par rapport à la PAO2`,
+      correct: false,
+      justification: `La saturation correspond à la proportion des sites de liaison de l'hémoglobine occupés par l'oxygène, et non à un rapport avec la PaO2.`
+    },
+    {
+      label: "D",
+      text: `La quantité d'HbO2/Hb est d'environ 98 %`,
+      correct: true,
+      justification: `Chez un sujet sain au niveau de la mer, la saturation artérielle en oxygène est habituellement d'environ 97 à 100 %, souvent proche de 98 %.`
+    },
+    {
+      label: "E",
+      text: `Une anémie induit un effondrement de la saturation`,
+      correct: false,
+      justification: `L'anémie diminue principalement le contenu artériel en oxygène en réduisant la quantité d'hémoglobine disponible. La saturation peut rester normale si les poumons fonctionnent normalement.`
+    }
+  ]
+},
+
+{
+  question: `Concernant les anomalies des rapports ventilation/perfusion, cochez la ou les proposition(s) correcte(s).`,
+  choices: [
+    {
+      label: "A",
+      text: `Dans le shunt, les alvéoles sont ventilées mais non perfusées`,
+      correct: false,
+      justification: `Une alvéole ventilée mais non perfusée correspond à un effet espace mort, et non à un shunt.`
+    },
+    {
+      label: "B",
+      text: `Dans le shunt vrai, l'apport d'oxygène permet de corriger l'hypoxémie`,
+      correct: false,
+      justification: `Dans un shunt vrai, le sang contourne les alvéoles ventilées. L'hypoxémie est donc peu ou insuffisamment corrigée par l'oxygénothérapie seule.`
+    },
+    {
+      label: "C",
+      text: `Dans l'effet shunt, l'apport d'oxygène permet de corriger l'hypoxémie`,
+      correct: true,
+      justification: `Dans l'effet shunt, certaines unités pulmonaires sont mal ventilées mais restent perfusées. L'augmentation de la FiO2 améliore généralement l'oxygénation.`
+    },
+    {
+      label: "D",
+      text: `Dans le shunt, les alvéoles sont perfusées mais non ventilées`,
+      correct: true,
+      justification: `Le shunt correspond au passage de sang dans des territoires perfusés mais non ventilés, avec un rapport ventilation/perfusion égal à zéro.`
+    }
+  ]
+},
+
+{
+  question: `Qu'est-ce que la CRF ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Le volume d'air restant dans les poumons après une expiration forcée`,
+      correct: false,
+      justification: `Après une expiration forcée maximale, le volume restant correspond au volume résiduel.`
+    },
+    {
+      label: "B",
+      text: `Le volume d'air restant dans les poumons après une inspiration normale`,
+      correct: false,
+      justification: `Après une inspiration normale, le volume pulmonaire correspond à la CRF augmentée du volume courant.`
+    },
+    {
+      label: "C",
+      text: `Le volume d'air en dessous du volume courant mobilisable par une expiration forcée`,
+      correct: false,
+      justification: `Cette proposition ne correspond pas à la définition de la capacité résiduelle fonctionnelle.`
+    },
+    {
+      label: "D",
+      text: `Le volume d'air restant dans les poumons après une expiration normale`,
+      correct: true,
+      justification: `La capacité résiduelle fonctionnelle (CRF) est le volume d'air restant dans les poumons à la fin d'une expiration calme.`
+    }
+  ]
+},
+
+{
+  question: `Quelles sont les propositions correctes ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Compliance pulmonaire = Pression plateau / Volume courant`,
+      correct: false,
+      justification: `La compliance est le rapport entre une variation de volume et une variation de pression, et non l'inverse.`
+    },
+    {
+      label: "B",
+      text: `Élastance = 1 / Compliance pulmonaire`,
+      correct: true,
+      justification: `L'élastance est l'inverse de la compliance : E = 1/C.`
+    },
+    {
+      label: "C",
+      text: `Compliance pulmonaire = Volume courant / Pression plateau`,
+      correct: false,
+      justification: `La pression de référence doit correspondre à la variation de pression transpulmonaire. En ventilation mécanique, la compliance statique est calculée avec VT / (Pplat − PEEP).`
+    },
+    {
+      label: "D",
+      text: `Compliance pulmonaire = Volume courant / (Pression plateau - PEEP)`,
+      correct: true,
+      justification: `La compliance statique du système respiratoire est calculée par Cstat = VT / (Pplat − PEEP).`
+    }
+  ]
+},
+
+{
+  question: `Quelle est l’équation des résistances des voies aériennes ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Résistances = Pression crête / Débit`,
+      correct: false,
+      justification: `La résistance des voies aériennes correspond au gradient de pression lié aux résistances divisé par le débit.`
+    },
+    {
+      label: "B",
+      text: `Résistances = Pression plateau x Débit`,
+      correct: false,
+      justification: `Cette expression ne correspond pas à la définition de la résistance des voies aériennes.`
+    },
+    {
+      label: "C",
+      text: `Résistances = (Pression crête - Pression plateau) / Débit`,
+      correct: true,
+      justification: `En ventilation mécanique, la résistance des voies aériennes peut être estimée par Raw = (Pcrête − Pplateau) / débit inspiratoire.`
+    },
+    {
+      label: "D",
+      text: `Résistances = (Pression crête - Pression plateau) x Débit`,
+      correct: false,
+      justification: `Le gradient de pression doit être divisé par le débit et non multiplié par celui-ci.`
+    }
+  ]
+},
+
+{
+  question: `Les résistances des voies aériennes :`,
+  choices: [
+    {
+      label: "A",
+      text: `Sont maximales au niveau des voies aériennes distales, plus nombreuses et plus fines`,
+      correct: false,
+      justification: `Malgré leur petit calibre, les voies aériennes distales sont nombreuses et disposées en parallèle, ce qui réduit leur résistance globale.`
+    },
+    {
+      label: "B",
+      text: `Augmentent avec le débit ventilatoire`,
+      correct: true,
+      justification: `Dans certaines conditions, notamment lors d'un écoulement turbulent, la résistance augmente avec le débit.`
+    },
+    {
+      label: "C",
+      text: `Augmentent avec le volume pulmonaire`,
+      correct: false,
+      justification: `Lorsque le volume pulmonaire augmente, la traction radiale tend à augmenter le calibre des voies aériennes et à diminuer leur résistance.`
+    },
+    {
+      label: "D",
+      text: `Sont diminuées par l'acétylcholine`,
+      correct: false,
+      justification: `L'acétylcholine provoque une bronchoconstriction via les récepteurs muscariniques et augmente donc les résistances des voies aériennes.`
+    },
+    {
+      label: "E",
+      text: `Se répartissent pour 80% en intra-thoracique et pour 20% en extra-thoracique`,
+      correct: false,
+      justification: `Cette répartition chiffrée n'est pas une règle physiologique générale permettant de caractériser la distribution des résistances des voies aériennes.`
+    }
+  ]
+},
+
+{
+  question: `Quelles sont les conditions de déplacement de la courbe de dissociation de l'hémoglobine vers la droite ?`,
+  choices: [
+    {
+      label: "A",
+      text: `L'acidose`,
+      correct: true,
+      justification: `L'acidose diminue l'affinité de l'hémoglobine pour l'oxygène et déplace la courbe vers la droite (effet Bohr).`
+    },
+    {
+      label: "B",
+      text: `L'alcalose`,
+      correct: false,
+      justification: `L'alcalose augmente l'affinité de l'hémoglobine pour l'oxygène et déplace la courbe vers la gauche.`
+    },
+    {
+      label: "C",
+      text: `L'hypercapnie`,
+      correct: true,
+      justification: `L'augmentation de la PaCO2 diminue l'affinité de l'hémoglobine pour l'oxygène et déplace la courbe vers la droite.`
+    },
+    {
+      label: "D",
+      text: `L'hypocapnie`,
+      correct: false,
+      justification: `L'hypocapnie tend à déplacer la courbe vers la gauche en augmentant l'affinité de l'hémoglobine pour l'oxygène.`
+    },
+    {
+      label: "E",
+      text: `L'hypoxémie`,
+      correct: false,
+      justification: `L'hypoxémie en elle-même n'est pas un facteur classique de déplacement de la courbe de dissociation vers la droite.`
+    },
+    {
+      label: "F",
+      text: `La chaleur`,
+      correct: true,
+      justification: `L'augmentation de la température diminue l'affinité de l'hémoglobine pour l'oxygène et déplace la courbe vers la droite.`
+    },
+    {
+      label: "G",
+      text: `L'anémie`,
+      correct: false,
+      justification: `L'anémie diminue le contenu artériel en oxygène mais ne déplace pas directement la courbe de dissociation de l'hémoglobine.`
+    }
+  ]
+},
+
+{
+  question: `Dans la partie supérieure droite de la courbe de dissociation de l'hémoglobine :`,
+  choices: [
+    {
+      label: "A",
+      text: `Une différence importante de PaO2 entraîne une importante variation de la SaO2`,
+      correct: false,
+      justification: `Dans la partie supérieure de la courbe, la relation est relativement plate : d'importantes variations de PaO2 entraînent seulement de faibles variations de SaO2.`
+    },
+    {
+      label: "B",
+      text: `Une différence importante de PaO2 entraîne une faible variation de la SaO2`,
+      correct: true,
+      justification: `La partie supérieure de la courbe est relativement plate, ce qui assure une saturation élevée malgré certaines variations de PaO2.`
+    },
+    {
+      label: "C",
+      text: `Une faible différence de PaO2 entraîne une importante variation de la SaO2`,
+      correct: false,
+      justification: `Cette caractéristique correspond plutôt à la partie abrupte de la courbe, située à des PaO2 plus basses.`
+    },
+    {
+      label: "D",
+      text: `Une faible différence de PaO2 entraîne une faible variation de la SaO2`,
+      correct: false,
+      justification: `Dans la partie supérieure, une variation importante de PaO2 entraîne une faible variation de SaO2 ; cette proposition ne caractérise pas spécifiquement cette zone.`
+    }
+  ]
+},
+
+{
+  question: `La pression alvéolaire en oxygène est déterminée par :`,
+  choices: [
+    {
+      label: "A",
+      text: `La pression atmosphérique`,
+      correct: true,
+      justification: `La pression alvéolaire en oxygène dépend notamment de la pression atmosphérique et de la fraction inspirée en oxygène.`
+    },
+    {
+      label: "B",
+      text: `La pression en eau`,
+      correct: false,
+      justification: `La pression de vapeur d'eau intervient dans le calcul des pressions partielles des gaz inspirés après humidification, mais cette proposition isolée ne constitue pas le déterminant principal de la PAO2.`
+    },
+    {
+      label: "C",
+      text: `La pression en gaz carbonique`,
+      correct: true,
+      justification: `Selon l'équation des gaz alvéolaires, la PAO2 dépend également de la PaCO2, qui reflète notamment la ventilation alvéolaire.`
+    },
+    {
+      label: "D",
+      text: `La pression en azote`,
+      correct: false,
+      justification: `La pression partielle d'azote n'est pas un déterminant direct de la PAO2 dans l'équation des gaz alvéolaires.`
+    }
+  ]
+},
+
+{
+  question: `L'échange alvéolo-capillaire :`,
+  choices: [
+    {
+      label: "A",
+      text: `Est un mécanisme actif`,
+      correct: false,
+      justification: `Les échanges d'O2 et de CO2 à travers la membrane alvéolo-capillaire se font principalement par diffusion passive.`
+    },
+    {
+      label: "B",
+      text: `Est un mécanisme passif`,
+      correct: true,
+      justification: `Les gaz traversent la membrane alvéolo-capillaire par diffusion selon leurs gradients de pression partielle.`
+    },
+    {
+      label: "C",
+      text: `Est lié à un gradient de pression`,
+      correct: true,
+      justification: `La diffusion des gaz est déterminée par un gradient de pression partielle entre l'air alvéolaire et le sang capillaire.`
+    },
+    {
+      label: "D",
+      text: `Est lié à un gradient de débit`,
+      correct: false,
+      justification: `Les échanges gazeux dépendent principalement des gradients de pression partielle et non d'un gradient de débit.`
+    }
+  ]
+},
+
+{
+  question: `On peut faire le diagnostic d'hypoventilation alvéolaire devant l'association :`,
+  choices: [
+    {
+      label: "A",
+      text: `Hypoxémie - hypocapnie`,
+      correct: false,
+      justification: `L'hypocapnie traduit généralement une hyperventilation alvéolaire plutôt qu'une hypoventilation.`
+    },
+    {
+      label: "B",
+      text: `Hypoxémie - normocapnie`,
+      correct: false,
+      justification: `Une hypoventilation alvéolaire entraîne classiquement une augmentation de la PaCO2.`
+    },
+    {
+      label: "C",
+      text: `Hypoxémie - hypercapnie`,
+      correct: true,
+      justification: `L'hypoventilation alvéolaire entraîne une diminution de l'élimination du CO2, responsable d'une hypercapnie, généralement associée à une hypoxémie.`
+    },
+    {
+      label: "D",
+      text: `Hypoxémie - normocapnie`,
+      correct: false,
+      justification: `Une PaCO2 normale n'est pas caractéristique d'une hypoventilation alvéolaire isolée.`
+    },
+    {
+      label: "E",
+      text: `Normoxémie - hypercapnie`,
+      correct: false,
+      justification: `Une hypercapnie peut traduire une hypoventilation, mais l'association proposée ne correspond pas à la présentation classique d'une hypoventilation alvéolaire.`
+    }
+  ]
+},
+
+{
+  question: `Lors de l’inspiration d’1 litre d’air, la pression transpulmonaire a été mesurée chez un adulte de 40 ans. Cette pression passe de −4 cm H2O à −12 cm H2O. Sa compliance pulmonaire exprimée en L/cm H2O est égale à :`,
+  choices: [
+    {
+      label: "A",
+      text: `0,050`,
+      correct: false,
+      justification: `La variation de pression est de 8 cm H2O pour une variation de volume de 1 L, soit une compliance de 1/8 = 0,125 L/cm H2O.`
+    },
+    {
+      label: "B",
+      text: `0,100`,
+      correct: false,
+      justification: `La compliance se calcule par ΔV/ΔP. Ici, 1 L / 8 cm H2O = 0,125 L/cm H2O.`
+    },
+    {
+      label: "C",
+      text: `0,125`,
+      correct: true,
+      justification: `La variation de pression transpulmonaire est de 8 cm H2O (−12 − (−4)). La compliance est donc ΔV/ΔP = 1/8 = 0,125 L/cm H2O.`
+    },
+    {
+      label: "D",
+      text: `0,150`,
+      correct: false,
+      justification: `Cette valeur ne correspond pas au rapport entre la variation de volume et la variation de pression dans cet exercice.`
+    },
+    {
+      label: "E",
+      text: `0,250`,
+      correct: false,
+      justification: `Cette valeur ne correspond pas au calcul de la compliance : 1 L / 8 cm H2O = 0,125 L/cm H2O.`
+    }
+  ]
+},
+
+{
+  question: `Parmi les propositions suivantes, lesquelles peuvent conduire à un tel trouble ventilatoire ?`,
+  choices: [
+    {
+      label: "A",
+      text: `Augmentation de la distensibilité pariétale`,
+      correct: false,
+      justification: `Une augmentation de la distensibilité de la paroi thoracique facilite la ventilation et ne constitue pas une cause typique de trouble ventilatoire restrictif.`
+    },
+    {
+      label: "B",
+      text: `Diminution de la conductance des voies aériennes`,
+      correct: true,
+      justification: `Une diminution de la conductance des voies aériennes correspond à une augmentation des résistances et peut entraîner un trouble ventilatoire obstructif.`
+    },
+    {
+      label: "C",
+      text: `Augmentation de la réactivité bronchique`,
+      correct: true,
+      justification: `Une hyperréactivité bronchique peut entraîner une bronchoconstriction, une augmentation des résistances des voies aériennes et un trouble ventilatoire obstructif.`
+    },
+    {
+      label: "D",
+      text: `Diminution de la compliance pulmonaire`,
+      correct: true,
+      justification: `Une diminution de la compliance pulmonaire augmente le travail respiratoire et peut entraîner un trouble ventilatoire restrictif.`
+    },
+    {
+      label: "E",
+      text: `Augmentation de la résistance des voies aériennes`,
+      correct: true,
+      justification: `L'augmentation des résistances des voies aériennes peut entraîner une limitation des débits expiratoires et un trouble ventilatoire obstructif.`
+    }
+  ]
+},
+
+    ];
+
+    const container = document.getElementById('quiz-container');
+
+    let currentQuestion = 0;
+
+    /*
+     * Stockage des réponses de l'utilisateur.
+     * Chaque élément contient les indices des réponses sélectionnées.
+     */
+    const userAnswers = new Array(questions.length).fill(null);
+
+    /*
+     * Indique si la question a déjà été corrigée.
+     */
+    const validated = new Array(questions.length).fill(false);
+
+
+    function shuffleArray(array) {
+
+      const arr = array.slice();
+
+      for (let i = arr.length - 1; i > 0; i--) {
+
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+
+      return arr;
+    }
+
+
+    function replaceDoubleQuotesWithSingle(str) {
+
+      return String(str).replace(/"/g, "'");
+
+    }
+
+
+    function decodeHTML(html) {
+
+      const txt = document.createElement("textarea");
+
+      txt.innerHTML = html;
+
+      return replaceDoubleQuotesWithSingle(txt.value);
+
+    }
+
+
+    function renderQuestion() {
+
+      container.innerHTML = '';
+
+      const q = questions[currentQuestion];
+
+      /*
+       * Progression
+       */
+      const progress = document.createElement('div');
+
+      progress.className = 'progress';
+
+      progress.textContent =
+        `Question ${currentQuestion + 1} / ${questions.length}`;
+
+      container.appendChild(progress);
+
+
+      /*
+       * Question
+       */
+      const questionTitle = document.createElement('div');
+
+      questionTitle.className = 'question-title';
+
+      questionTitle.textContent =
+        decodeHTML(q.question);
+
+      container.appendChild(questionTitle);
+
+
+      /*
+       * Formulaire
+       */
+      const form = document.createElement('form');
+
+      form.id = 'qcm-form';
+
+
+      /*
+       * Randomisation des réponses
+       */
+      const shuffledChoices = shuffleArray(q.choices);
+
+
+      shuffledChoices.forEach((choice) => {
+
+        const originalIndex =
+          q.choices.indexOf(choice);
+
+        const label =
+          document.createElement('label');
+
+        label.className = 'choice';
+
+
+        const input =
+          document.createElement('input');
+
+        input.type = 'checkbox';
+
+        input.name = 'choice';
+
+        input.value = originalIndex;
+
+
+        /*
+         * Restaurer les réponses précédentes
+         */
+        if (
+          userAnswers[currentQuestion] &&
+          userAnswers[currentQuestion].includes(originalIndex)
+        ) {
+
+          input.checked = true;
+
+        }
+
+
+        const choiceLabel =
+          document.createElement('span');
+
+        choiceLabel.className =
+          'choice-label';
+
+        choiceLabel.textContent =
+          choice.label + '.';
+
+
+        label.appendChild(input);
+
+        label.appendChild(choiceLabel);
+
+        label.appendChild(
+          document.createTextNode(
+            ' ' + decodeHTML(choice.text)
+          )
+        );
+
+
+        form.appendChild(label);
+
+      });
+
+
+      container.appendChild(form);
+
+
+      /*
+       * Si la question a déjà été corrigée,
+       * afficher directement la correction.
+       */
+      if (validated[currentQuestion]) {
+
+        showCorrection(q, form);
+
+      }
+
+
+      /*
+       * Navigation
+       */
+      const navigation =
+        document.createElement('div');
+
+      navigation.className =
+        'navigation';
+
+
+      /*
+       * Bouton Previous
+       */
+      const btnPrevious =
+        document.createElement('button');
+
+      btnPrevious.type = 'button';
+
+      btnPrevious.textContent =
+        'Previous';
+
+      btnPrevious.disabled =
+        currentQuestion === 0;
+
+      btnPrevious.addEventListener(
+        'click',
+        () => {
+
+          saveCurrentAnswer(form);
+
+          currentQuestion--;
+
+          renderQuestion();
+
+        }
+      );
+
+
+      /*
+       * Bouton Valider
+       */
+      const btnValidate =
+        document.createElement('button');
+
+      btnValidate.type = 'button';
+
+      btnValidate.textContent =
+        validated[currentQuestion]
+          ? 'Validé'
+          : 'Valider';
+
+      btnValidate.disabled =
+        validated[currentQuestion];
+
+      btnValidate.addEventListener(
+        'click',
+        () => {
+
+          validateCurrentQuestion(
+            q,
+            form,
+            btnValidate
+          );
+
+        }
+      );
+
+
+      /*
+       * Bouton Next
+       */
+      const btnNext =
+        document.createElement('button');
+
+      btnNext.type = 'button';
+
+      btnNext.textContent =
+        currentQuestion === questions.length - 1
+          ? 'Terminer'
+          : 'Next';
+
+
+      btnNext.addEventListener(
+        'click',
+        () => {
+
+          /*
+           * Il faut valider avant de passer
+           * à la question suivante.
+           */
+          if (!validated[currentQuestion]) {
+
+            alert(
+              "Veuillez valider cette question avant de continuer."
+            );
+
+            return;
+
+          }
+
+
+          if (
+            currentQuestion <
+            questions.length - 1
+          ) {
+
+            currentQuestion++;
+
+            renderQuestion();
+
+          } else {
+
+            showFinalScore();
+
+          }
+
+        }
+      );
+
+
+      navigation.appendChild(btnPrevious);
+
+      navigation.appendChild(btnValidate);
+
+      navigation.appendChild(btnNext);
+
+      container.appendChild(navigation);
+
+    }
+
+
+    /*
+     * Sauvegarder les réponses cochées
+     */
+    function saveCurrentAnswer(form) {
+
+      const checked =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+      userAnswers[currentQuestion] =
+        checked.map(
+          input => parseInt(input.value)
+        );
+
+    }
+
+
+    /*
+     * Valider la question actuelle
+     */
+    function validateCurrentQuestion(
+      q,
+      form,
+      btnValidate
+    ) {
+
+      const checkedBoxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ];
+
+
+      if (checkedBoxes.length === 0) {
+
+        alert(
+          "Veuillez choisir au moins une réponse."
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * Sauvegarder les réponses
+       */
+      userAnswers[currentQuestion] =
+        checkedBoxes.map(
+          input => parseInt(input.value)
+        );
+
+
+      /*
+       * Marquer comme validée
+       */
+      validated[currentQuestion] =
+        true;
+
+
+      /*
+       * Désactiver les cases
+       */
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(
+        input => {
+          input.disabled = true;
+        }
+      );
+
+
+      btnValidate.disabled = true;
+
+      btnValidate.textContent =
+        'Validé';
+
+
+      showCorrection(q, form);
+
+    }
+
+
+    /*
+     * Afficher la correction
+     */
+    function showCorrection(q, form) {
+
+      /*
+       * Empêcher la correction d'être
+       * ajoutée plusieurs fois.
+       */
+      if (
+        form.querySelector(
+          '.correction-container'
+        )
+      ) {
+
+        return;
+
+      }
+
+
+      const correctionContainer =
+        document.createElement('div');
+
+      correctionContainer.className =
+        'correction-container';
+
+
+      const checkboxes =
+        [
+          ...form.querySelectorAll(
+            'input[type="checkbox"]'
+          )
+        ];
+
+
+      checkboxes.forEach(input => {
+
+        const originalIndex =
+          parseInt(input.value);
+
+        const choiceData =
+          q.choices[originalIndex];
+
+        const label =
+          input.parentElement;
+
+
+        /*
+         * Vérification de la réponse
+         */
+        if (
+          input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'correct-checked'
+          );
+
+        }
+
+        else if (
+          input.checked &&
+          !choiceData.correct
+        ) {
+
+          label.classList.add(
+            'incorrect-checked'
+          );
+
+        }
+
+        else if (
+          !input.checked &&
+          choiceData.correct
+        ) {
+
+          label.classList.add(
+            'missed-correct'
+          );
+
+        }
+
+
+        /*
+         * Justification
+         */
+        const justification =
+          document.createElement('div');
+
+        justification.className =
+          'justification';
+
+
+        const symbol =
+          choiceData.correct
+            ? '✓'
+            : '✗';
+
+
+        justification.textContent =
+          `${symbol} : ${decodeHTML(
+            choiceData.justification
+          )}`;
+
+
+        label.appendChild(
+          justification
+        );
+
+      });
+
+
+      form.appendChild(
+        correctionContainer
+      );
+
+    }
+
+
+    /*
+     * Calcul du score final
+     */
+    function calculateFinalScore() {
+
+      let totalPoints = 0;
+
+      let totalPossiblePoints = 0;
+
+
+      questions.forEach(
+        (q, index) => {
+
+          const answers =
+            userAnswers[index] || [];
+
+
+          const correctAnswers =
+            q.choices
+              .map(
+                (choice, i) =>
+                  choice.correct
+                    ? i
+                    : null
+              )
+              .filter(
+                i => i !== null
+              );
+
+
+          /*
+           * Chaque bonne réponse sélectionnée
+           * rapporte un point.
+           */
+          answers.forEach(
+            answerIndex => {
+
+              if (
+                correctAnswers.includes(
+                  answerIndex
+                )
+              ) {
+
+                totalPoints++;
+
+              }
+
+            }
+          );
+
+
+          totalPossiblePoints +=
+            correctAnswers.length;
+
+        }
+      );
+
+
+      /*
+       * Note sur 5
+       */
+      const note =
+        Math.round(
+          (
+            totalPoints /
+            totalPossiblePoints
+          ) * 5 * 100
+        ) / 100;
+
+
+      return {
+        totalPoints,
+        totalPossiblePoints,
+        note
+      };
+
+    }
+
+
+    /*
+     * Afficher le score final
+     */
+    function showFinalScore() {
+
+      const result =
+        calculateFinalScore();
+
+
+      container.innerHTML = '';
+
+
+      const title =
+        document.createElement('div');
+
+      title.className =
+        'question-title';
+
+      title.textContent =
+        'QCM terminé';
+
+      container.appendChild(title);
+
+
+      const note =
+        document.createElement('div');
+
+      note.className =
+        'note';
+
+      note.textContent =
+        `Note : ${result.note} / 5`;
+
+      container.appendChild(note);
+
+
+      const details =
+        document.createElement('p');
+
+      details.textContent =
+        `Réponses correctes : ${result.totalPoints} / ${result.totalPossiblePoints}`;
+
+      container.appendChild(details);
+
+
+      /*
+       * Bouton pour recommencer
+       */
+      const restart =
+        document.createElement('button');
+
+      restart.type = 'button';
+
+      restart.textContent =
+        'Recommencer';
+
+
+      restart.addEventListener(
+        'click',
+        () => {
+
+          currentQuestion = 0;
+
+          userAnswers.fill(null);
+
+          validated.fill(false);
+
+          renderQuestion();
+
+        }
+      );
+
+
+      container.appendChild(restart);
+
+    }
+
+
+    /*
+     * Lancement du QCM
+     */
+    renderQuestion();
+
+  })();
+  </script>
+
+</body>
+</html>
