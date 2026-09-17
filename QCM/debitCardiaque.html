@@ -122,109 +122,722 @@
     const questions = [
 
 {
-  question: `Chez un patient en insuffisance respiratoire aiguë, quelle est l'indication de la ventilation non invasive (VNI) ?`,
+  {
+  question: `La pression qui témoigne directement de la précharge du ventricule gauche est :`,
   choices: [
     {
       label: "A",
-      text: `Asthme aigu grave`,
+      text: `Pression protodiastolique ventriculaire gauche`,
       correct: false,
-      justification: `La VNI n'est pas une indication systématique de l'asthme aigu grave et son utilisation ne doit pas retarder l'intubation en cas d'épuisement ou d'aggravation.`
+      justification: `Ce n'est pas la pression de référence pour évaluer la précharge du ventricule gauche.`
     },
     {
       label: "B",
-      text: `OAP cardiogénique`,
-      correct: true,
-      justification: `La VNI, notamment la CPAP ou la ventilation à deux niveaux de pression, est indiquée dans l'œdème aigu pulmonaire cardiogénique avec détresse respiratoire.`
+      text: `Pression d'éjection systolique ventriculaire gauche`,
+      correct: false,
+      justification: `Elle reflète principalement la pression développée lors de l'éjection et non la précharge.`
     },
     {
       label: "C",
-      text: `Coma`,
+      text: `Pression moyenne dans l'oreillette gauche`,
       correct: false,
-      justification: `Un coma avec incapacité à protéger les voies aériennes constitue une contre-indication à la VNI et impose généralement une sécurisation des voies aériennes.`
+      justification: `Elle peut renseigner indirectement sur les pressions de remplissage, mais la pression télédiastolique ventriculaire gauche est plus directement liée à la précharge du VG.`
     },
     {
       label: "D",
-      text: `Arrêt respiratoire`,
+      text: `Pression maximum systolique dans le ventricule gauche`,
       correct: false,
-      justification: `L'arrêt respiratoire nécessite une ventilation invasive et la sécurisation immédiate des voies aériennes, et non une VNI.`
+      justification: `Elle ne témoigne pas de la précharge.`
     },
     {
       label: "E",
-      text: `Traumatisme facial`,
-      correct: false,
-      justification: `Un traumatisme facial important peut empêcher l'étanchéité du masque et constitue une contre-indication à la VNI.`
+      text: `Pression télédiastolique dans le ventricule gauche`,
+      correct: true,
+      justification: `La pression télédiastolique du VG est une estimation de la précharge ventriculaire gauche.`
     }
   ]
 },
 
 {
-  question: `Au cours d’une crise d’asthme sévère, quelle est l’affirmation vraie ?`,
+  question: `Les déterminants de la précharge sont :`,
   choices: [
     {
       label: "A",
-      text: `La radiographie standard n’est jamais normale`,
-      correct: false,
-      justification: `La radiographie thoracique peut être normale dans une crise d'asthme et n'est pas systématiquement anormale.`
+      text: `Le volume sanguin circulant`,
+      correct: true,
+      justification: `Une augmentation du volume circulant augmente le retour veineux et le remplissage ventriculaire.`
     },
     {
       label: "B",
-      text: `Le traitement repose sur oxygénation, bronchodilatateurs et corticoïdes`,
-      correct: true,
-      justification: `La prise en charge de l'exacerbation sévère repose notamment sur une oxygénothérapie adaptée, des bronchodilatateurs inhalés à forte dose et des corticoïdes systémiques.`
+      text: `La contractilité`,
+      correct: false,
+      justification: `La contractilité détermine principalement la performance systolique et non la précharge.`
     },
     {
       label: "C",
-      text: `Il faut absolument allonger le malade bien à plat`,
-      correct: false,
-      justification: `Le patient doit être installé dans une position confortable, généralement assise ou demi-assise, afin de faciliter la respiration.`
+      text: `Le tonus veineux`,
+      correct: true,
+      justification: `La vasoconstriction veineuse mobilise le sang vers le cœur et augmente le retour veineux.`
     },
     {
       label: "D",
-      text: `Les antibiotiques doivent être prescrits systématiquement`,
+      text: `La fréquence cardiaque`,
       correct: false,
-      justification: `Les antibiotiques ne sont pas indiqués systématiquement dans l'asthme aigu. Ils sont réservés aux situations où une infection bactérienne est suspectée ou documentée.`
+      justification: `La fréquence cardiaque n'est pas un déterminant primaire de la précharge.`
     },
     {
       label: "E",
-      text: `En cas de persistance de la crise, il ne faut surtout pas orienter le malade vers un secteur spécialisé de réanimation`,
-      correct: false,
-      justification: `Une crise persistante ou menaçant le pronostic vital peut nécessiter une prise en charge en réanimation, notamment en cas d'épuisement respiratoire ou d'aggravation des échanges gazeux.`
+      text: `La fonction diastolique (compliance ventriculaire et relaxation ventriculaire)`,
+      correct: true,
+      justification: `La compliance et la relaxation ventriculaires influencent le remplissage et donc les pressions télédiastoliques.`
     }
   ]
 },
 
 {
-  question: `Quelles sont les propositions exactes au sujet du décubitus ventral dans le syndrome de détresse respiratoire aiguë ?`,
+  question: `La postcharge est l'ensemble des contraintes qui s'exercent sur la paroi ventriculaire pendant sa contraction. Elle est fonction de :`,
   choices: [
     {
       label: "A",
-      text: `Pour des raisons de bonne tolérance cutanée, il est désormais bien validé que la durée d’une séance de décubitus ventral ne doit pas excéder quatre heures consécutives`,
-      correct: false,
-      justification: `Dans le SDRA sévère, les séances de décubitus ventral sont généralement prolongées, avec une durée recommandée d'au moins 12 heures par séance, et souvent autour de 16 heures.`
+      text: `La résistance artérielle périphérique`,
+      correct: true,
+      justification: `Une augmentation des résistances artérielles augmente la charge contre laquelle le ventricule éjecte.`
     },
     {
       label: "B",
-      text: `Afin de lutter contre les œdèmes faciaux et les régurgitations, il est recommandé de placer le patient en proclive à 20°`,
+      text: `La compliance aortique`,
       correct: true,
-      justification: `Une légère proclive du patient en décubitus ventral peut être utilisée afin de limiter notamment les complications liées au reflux et à l'œdème facial.`
+      justification: `La compliance artérielle influence la pression développée par le ventricule et donc sa postcharge.`
     },
     {
       label: "C",
-      text: `Les modalités pratiques de mise en décubitus ventral au sein d’un service s’appuient trop rarement sur un protocole écrit`,
+      text: `La viscosité sanguine`,
       correct: true,
-      justification: `La mise en décubitus ventral est une procédure à risque qui nécessite une organisation multidisciplinaire et bénéficie d'un protocole écrit précisant notamment la préparation, le retournement et la surveillance.`
+      justification: `La viscosité influence les résistances à l'écoulement et participe aux contraintes imposées au ventricule.`
     },
     {
       label: "D",
-      text: `Il n’est pas recommandé de poursuivre l’alimentation entérale en décubitus ventral`,
-      correct: false,
-      justification: `L'alimentation entérale peut généralement être poursuivie pendant le décubitus ventral avec des précautions adaptées, notamment une surveillance de la tolérance digestive et une position appropriée.`
+      text: `Le volume de sang contenu dans l'arbre artériel`,
+      correct: true,
+      justification: `Le volume artériel participe à la pression artérielle et influence la charge contre laquelle le VG éjecte.`
     },
     {
       label: "E",
-      text: `Il n’y a jamais d’augmentation des sécrétions bronchiques au décours immédiat de la mise en décubitus ventral`,
+      text: `La contraction auriculaire`,
       correct: false,
-      justification: `Une augmentation transitoire des sécrétions bronchiques peut être observée après la mise en décubitus ventral, notamment en raison de la mobilisation des sécrétions.`
+      justification: `La contraction auriculaire influence le remplissage ventriculaire mais ne constitue pas un déterminant direct de la postcharge.`
+    }
+  ]
+},
+
+{
+  question: `À l'état physiologique, le retour veineux diminue lors de l'élévation de :`,
+  choices: [
+    {
+      label: "A",
+      text: `La pression intrathoracique`,
+      correct: true,
+      justification: `L'augmentation de la pression intrathoracique augmente la pression auriculaire droite et diminue le gradient de retour veineux.`
+    },
+    {
+      label: "B",
+      text: `Le tonus veineux`,
+      correct: false,
+      justification: `Une augmentation du tonus veineux mobilise le sang veineux vers le cœur et tend à augmenter le retour veineux.`
+    },
+    {
+      label: "C",
+      text: `La contraction musculaire`,
+      correct: false,
+      justification: `La pompe musculaire favorise le retour veineux.`
+    },
+    {
+      label: "D",
+      text: `La pression de l'oreillette droite`,
+      correct: true,
+      justification: `L'augmentation de la pression auriculaire droite réduit le gradient entre la pression systémique moyenne et l'oreillette droite.`
+    },
+    {
+      label: "E",
+      text: `La pression intrapéricardique`,
+      correct: true,
+      justification: `Son augmentation augmente la pression autour du cœur et peut élever la pression auriculaire droite, diminuant ainsi le retour veineux.`
+    }
+  ]
+},
+
+{
+  question: `Le débit cardiaque diminue suite à la diminution de :`,
+  choices: [
+    {
+      label: "A",
+      text: `Volume télédiastolique`,
+      correct: true,
+      justification: `Une diminution du volume télédiastolique réduit la précharge et, selon Frank-Starling, le volume d'éjection.`
+    },
+    {
+      label: "B",
+      text: `La pression intrathoracique`,
+      correct: false,
+      justification: `Une diminution de la pression intrathoracique favorise généralement le retour veineux.`
+    },
+    {
+      label: "C",
+      text: `La pression intrapéricardique`,
+      correct: false,
+      justification: `Une diminution de la pression intrapéricardique ne diminue pas directement le débit cardiaque ; elle peut au contraire favoriser le remplissage.`
+    },
+    {
+      label: "D",
+      text: `La contractilité myocardique`,
+      correct: true,
+      justification: `Une diminution de la contractilité réduit la force de contraction et le volume d'éjection.`
+    },
+    {
+      label: "E",
+      text: `Des résistances vasculaires lors de l'éjection ventriculaire gauche`,
+      correct: false,
+      justification: `Une diminution de la postcharge tend à faciliter l'éjection ventriculaire et n'entraîne pas habituellement une diminution du débit cardiaque.`
+    }
+  ]
+},
+
+{
+  question: `Le volume télésystolique est le volume sanguin :`,
+  choices: [
+    {
+      label: "A",
+      text: `Éjecté à chaque cycle cardiaque`,
+      correct: false,
+      justification: `Le volume éjecté correspond au volume d'éjection systolique, égal au VTD moins le VTS.`
+    },
+    {
+      label: "B",
+      text: `De fin de remplissage`,
+      correct: false,
+      justification: `Le volume de fin de remplissage est le volume télédiastolique.`
+    },
+    {
+      label: "C",
+      text: `De fin de contraction`,
+      correct: true,
+      justification: `Le volume télésystolique est le volume restant dans le ventricule à la fin de la systole.`
+    },
+    {
+      label: "D",
+      text: `De fin d'éjection`,
+      correct: true,
+      justification: `Le VTS correspond au volume présent dans le ventricule à la fin de l'éjection.`
+    },
+    {
+      label: "E",
+      text: `Qui prévient l'accolement de l'endocarde`,
+      correct: true,
+      justification: `Le maintien d'un volume télésystolique contribue à éviter l'accolement des parois ventriculaires.`
+    }
+  ]
+},
+
+{
+  question: `Les barorécepteurs des sinus carotidiens et de la crosse de l'aorte sont :`,
+  choices: [
+    {
+      label: "A",
+      text: `Sensibles à la pression pariétale`,
+      correct: true,
+      justification: `Ils détectent l'étirement de la paroi artérielle, qui dépend notamment de la pression.`
+    },
+    {
+      label: "B",
+      text: `Des mécanorécepteurs`,
+      correct: true,
+      justification: `Les barorécepteurs sont des mécanorécepteurs sensibles à l'étirement de la paroi.`
+    },
+    {
+      label: "C",
+      text: `Aussi appelés récepteurs à basse pression`,
+      correct: false,
+      justification: `Les sinus carotidiens et la crosse aortique contiennent des récepteurs à haute pression.`
+    },
+    {
+      label: "D",
+      text: `Adressent par l'intermittence des influx nerveux modérateurs ou dépresseurs vers les centres`,
+      correct: true,
+      justification: `Leur fréquence de décharge varie avec la pression artérielle et participe au contrôle réflexe cardiovasculaire.`
+    },
+    {
+      label: "E",
+      text: `Mis en jeu dans les situations d'urgence de chute de pression artérielle`,
+      correct: true,
+      justification: `Le baroréflexe participe rapidement à la compensation d'une baisse aiguë de pression artérielle.`
+    }
+  ]
+},
+
+{
+  question: `La contraction isovolumique ventriculaire est à l'origine :`,
+  choices: [
+    {
+      label: "A",
+      text: `D'une diminution de la pression intra-auriculaire`,
+      correct: false,
+      justification: `La contraction ventriculaire augmente surtout la pression intraventriculaire.`
+    },
+    {
+      label: "B",
+      text: `D'une augmentation de la pression intraventriculaire`,
+      correct: true,
+      justification: `Pendant la contraction isovolumique, le volume reste constant tandis que la pression ventriculaire augmente rapidement.`
+    },
+    {
+      label: "C",
+      text: `De la fermeture de la valve aortique`,
+      correct: false,
+      justification: `La valve aortique se ferme à la fin de l'éjection, lors du début de la relaxation isovolumique.`
+    },
+    {
+      label: "D",
+      text: `De l'augmentation du temps d'éjection`,
+      correct: false,
+      justification: `La contraction isovolumique précède l'éjection ; elle ne constitue pas la phase d'éjection.`
+    },
+    {
+      label: "E",
+      text: `D'une consommation myocardique accrue d'énergie`,
+      correct: true,
+      justification: `La contraction ventriculaire nécessite une consommation d'ATP, même pendant la phase isovolumique.`
+    }
+  ]
+},
+
+{
+  question: `L'effet inotrope positif (+) est ajusté par :`,
+  choices: [
+    {
+      label: "A",
+      text: `Le système nerveux autonome parasympathique`,
+      correct: false,
+      justification: `Le parasympathique exerce surtout un effet chronotrope et dromotrope négatif ; son effet inotrope ventriculaire est faible.`
+    },
+    {
+      label: "B",
+      text: `Les catécholamines`,
+      correct: true,
+      justification: `Les catécholamines stimulent les récepteurs bêta-1 cardiaques et augmentent la contractilité.`
+    },
+    {
+      label: "C",
+      text: `La concentration du Ca2+`,
+      correct: true,
+      justification: `Le calcium intracellulaire joue un rôle central dans le couplage excitation-contraction et la force de contraction.`
+    },
+    {
+      label: "D",
+      text: `Le retour veineux`,
+      correct: false,
+      justification: `Le retour veineux détermine principalement la précharge et non directement l'inotropisme.`
+    },
+    {
+      label: "E",
+      text: `La postcharge`,
+      correct: false,
+      justification: `La postcharge influence l'éjection ventriculaire mais ne constitue pas un mécanisme d'inotropisme positif.`
+    }
+  ]
+},
+
+{
+  question: `La pression pulsée :`,
+  choices: [
+    {
+      label: "A",
+      text: `C'est la pression artérielle moyenne`,
+      correct: false,
+      justification: `La pression pulsée correspond à la différence entre la pression systolique et la pression diastolique.`
+    },
+    {
+      label: "B",
+      text: `C'est la différence entre la pression systolique et la pression artérielle moyenne`,
+      correct: false,
+      justification: `La pression pulsée est PAS − PAD, et non PAS − PAM.`
+    },
+    {
+      label: "C",
+      text: `Dépend du volume télédiastolique`,
+      correct: true,
+      justification: `Le volume d'éjection, lui-même influencé par le volume télédiastolique, participe à la détermination de la pression pulsée.`
+    },
+    {
+      label: "D",
+      text: `Dépend de la compliance des artères`,
+      correct: true,
+      justification: `À volume d'éjection donné, une faible compliance artérielle entraîne une pression pulsée plus élevée.`
+    },
+    {
+      label: "E",
+      text: `Toutes les réponses sont fausses`,
+      correct: false,
+      justification: `Les propositions C et D sont correctes.`
+    }
+  ]
+},
+
+{
+  question: `Le retour veineux dépend de :`,
+  choices: [
+    {
+      label: "A",
+      text: `La pression veineuse centrale`,
+      correct: true,
+      justification: `La pression auriculaire droite, souvent approchée par la pression veineuse centrale, influence le gradient de retour veineux.`
+    },
+    {
+      label: "B",
+      text: `La pression veineuse motrice`,
+      correct: true,
+      justification: `Le retour veineux dépend d'un gradient de pression entre le compartiment systémique et l'oreillette droite.`
+    },
+    {
+      label: "C",
+      text: `La gravité`,
+      correct: true,
+      justification: `La gravité modifie les pressions hydrostatiques et influence le retour veineux, notamment en position debout.`
+    },
+    {
+      label: "D",
+      text: `Les battements artériels`,
+      correct: false,
+      justification: `Les battements artériels peuvent contribuer à la propulsion veineuse localement, mais ne constituent pas un déterminant fondamental du retour veineux dans ce modèle.`
+    },
+    {
+      label: "E",
+      text: `Toutes les réponses sont fausses`,
+      correct: false,
+      justification: `Plusieurs propositions sont correctes.`
+    }
+  ]
+},
+
+{
+  question: `La loi de Frank-Starling peut être résumée comme étant :`,
+  choices: [
+    {
+      label: "A",
+      text: `La longueur de fibre myocardique est proportionnelle au volume ventriculaire en fin de systole`,
+      correct: false,
+      justification: `La relation concerne principalement la longueur initiale des fibres, liée au remplissage ventriculaire, et la force de contraction.`
+    },
+    {
+      label: "B",
+      text: `La longueur de la fibre est indépendante de la tension qu'elle exerce`,
+      correct: false,
+      justification: `La longueur initiale des fibres influence la force développée par le myocarde.`
+    },
+    {
+      label: "C",
+      text: `La longueur de la fibre ne joue aucun rôle dans l'énergie de contraction cardiaque`,
+      correct: false,
+      justification: `La longueur initiale des fibres influence la force et le volume d'éjection dans les limites physiologiques.`
+    },
+    {
+      label: "D",
+      text: `L'énergie de contraction est proportionnelle à la longueur initiale de la fibre myocardique`,
+      correct: true,
+      justification: `Dans les limites physiologiques, l'augmentation de la longueur initiale des fibres myocardiques augmente la force de contraction et le volume d'éjection.`
+    },
+    {
+      label: "E",
+      text: `Toutes les réponses sont fausses`,
+      correct: false,
+      justification: `La proposition D correspond au principe de Frank-Starling.`
+    }
+  ]
+},
+
+{
+  question: `Le système rénine-angiotensine intervient dans la régulation de la pression artérielle :`,
+  choices: [
+    {
+      label: "A",
+      text: `À court terme`,
+      correct: false,
+      justification: `Le système rénine-angiotensine-aldostérone intervient surtout dans la régulation à moyen et long terme plutôt que dans la réponse réflexe immédiate.`
+    },
+    {
+      label: "B",
+      text: `À moyen terme`,
+      correct: true,
+      justification: `L'angiotensine II et l'aldostérone participent à la régulation de la pression artérielle sur le moyen et long terme.`
+    },
+    {
+      label: "C",
+      text: `En provoquant une vasodilatation artérielle`,
+      correct: false,
+      justification: `L'angiotensine II provoque principalement une vasoconstriction artérielle.`
+    },
+    {
+      label: "D",
+      text: `En stimulant les barorécepteurs`,
+      correct: false,
+      justification: `Le système rénine-angiotensine n'agit pas principalement en stimulant les barorécepteurs.`
+    },
+    {
+      label: "E",
+      text: `En stimulant les chémorécepteurs`,
+      correct: false,
+      justification: `Les chémorécepteurs interviennent surtout dans la régulation ventilatoire et cardiovasculaire en réponse aux variations de gaz et de pH.`
+    }
+  ]
+},
+
+{
+  question: `La précharge peut être déterminée par :`,
+  choices: [
+    {
+      label: "A",
+      text: `La pression télédiastolique`,
+      correct: true,
+      justification: `La pression télédiastolique ventriculaire est une estimation de la précharge.`
+    },
+    {
+      label: "B",
+      text: `Les résistances vasculaires`,
+      correct: false,
+      justification: `Les résistances vasculaires déterminent principalement la postcharge et non la précharge.`
+    },
+    {
+      label: "C",
+      text: `La pression veineuse`,
+      correct: true,
+      justification: `Les pressions veineuses participent à l'évaluation du remplissage ventriculaire, de façon indirecte.`
+    },
+    {
+      label: "D",
+      text: `Le degré d'étirement de la fibre myocardique avant sa contraction`,
+      correct: true,
+      justification: `La précharge correspond physiologiquement à l'étirement initial des fibres myocardiques avant la contraction.`
+    },
+    {
+      label: "E",
+      text: `Le volume télédiastolique`,
+      correct: true,
+      justification: `Le volume télédiastolique est une mesure volumétrique classique de la précharge ventriculaire.`
+    }
+  ]
+},
+
+{
+  question: `La pression artérielle systolique d'un patient ayant une PAM à 120 mmHg et une PAD à 100 mmHg est :`,
+  choices: [
+    {
+      label: "A",
+      text: `160 mmHg`,
+      correct: true,
+      justification: `Avec PAM ≈ PAD + 1/3(PAS − PAD), on obtient 120 = 100 + (PAS − 100)/3, donc PAS = 160 mmHg.`
+    },
+    {
+      label: "B",
+      text: `120 mmHg`,
+      correct: false,
+      justification: `120 mmHg correspond ici à la PAM, pas à la PAS.`
+    },
+    {
+      label: "C",
+      text: `90 mmHg`,
+      correct: false,
+      justification: `Cette valeur est inférieure à la PAD et est donc impossible dans ce contexte.`
+    },
+    {
+      label: "D",
+      text: `110 mmHg`,
+      correct: false,
+      justification: `La PAS doit être supérieure à la PAD ; avec la formule approchée, elle est de 160 mmHg.`
+    },
+    {
+      label: "E",
+      text: `190 mmHg`,
+      correct: false,
+      justification: `Cette valeur ne correspond pas au calcul à partir de la PAM et de la PAD données.`
+    }
+  ]
+},
+
+{
+  question: `L'augmentation de la compliance ventriculaire se traduit sur une courbe pression-volume par :`,
+  choices: [
+    {
+      label: "A",
+      text: `Un déplacement vers le haut du point télésystolique`,
+      correct: false,
+      justification: `L'augmentation de compliance concerne principalement la relation pression-volume diastolique.`
+    },
+    {
+      label: "B",
+      text: `Un déplacement vers le bas du point télésystolique`,
+      correct: false,
+      justification: `Ce n'est pas la conséquence directe de l'augmentation de la compliance diastolique.`
+    },
+    {
+      label: "C",
+      text: `Un déplacement vers le haut du point télédiastolique`,
+      correct: false,
+      justification: `À volume donné, une meilleure compliance entraîne une pression télédiastolique plus faible.`
+    },
+    {
+      label: "D",
+      text: `Un déplacement vers le bas du point télédiastolique`,
+      correct: true,
+      justification: `À volume télédiastolique identique, une augmentation de la compliance diminue la pression télédiastolique.`
+    },
+    {
+      label: "E",
+      text: `Un déplacement vers le bas et à gauche du point télésystolique`,
+      correct: false,
+      justification: `La compliance diastolique n'entraîne pas directement ce déplacement du point télésystolique.`
+    }
+  ]
+},
+
+{
+  question: `La circulation veineuse :`,
+  choices: [
+    {
+      label: "A",
+      text: `La pression veineuse est élevée`,
+      correct: false,
+      justification: `Le système veineux est un système à basse pression.`
+    },
+    {
+      label: "B",
+      text: `La pression veineuse est pulsatile et de type dynamique`,
+      correct: false,
+      justification: `La pression veineuse est faible et beaucoup moins pulsatile que la pression artérielle.`
+    },
+    {
+      label: "C",
+      text: `Les résistances veineuses sont basses`,
+      correct: true,
+      justification: `Le système veineux est un compartiment à faible résistance et à forte capacitance.`
+    },
+    {
+      label: "D",
+      text: `La distensibilité du secteur veineux est faible`,
+      correct: false,
+      justification: `Les veines sont très distensibles et peuvent contenir une grande partie du volume sanguin.`
+    },
+    {
+      label: "E",
+      text: `La vitesse de la circulation veineuse augmente quand on se rapproche du cœur`,
+      correct: true,
+      justification: `La section transversale totale diminue en se rapprochant du cœur, ce qui contribue à augmenter la vitesse moyenne du sang.`
+    }
+  ]
+},
+
+{
+  question: `Le système artériel est caractérisé par :`,
+  choices: [
+    {
+      label: "A",
+      text: `Une compliance élevée`,
+      correct: false,
+      justification: `Les artères sont moins compliantes que les veines ; leur compliance diminue notamment avec l'âge et l'athérosclérose.`
+    },
+    {
+      label: "B",
+      text: `Une absence de variation de pression artérielle jusqu'à l'entrée des artérioles`,
+      correct: false,
+      justification: `La pression artérielle varie au cours du cycle cardiaque et diminue progressivement dans l'arbre artériel.`
+    },
+    {
+      label: "C",
+      text: `Son caractère résistif`,
+      correct: false,
+      justification: `Le caractère principalement résistif appartient surtout au réseau artériolaire.`
+    },
+    {
+      label: "D",
+      text: `Sa grande vasomotricité artériolaire`,
+      correct: true,
+      justification: `Les artérioles ont une importante capacité de vasoconstriction et de vasodilatation et constituent le principal site de résistance vasculaire.`
+    },
+    {
+      label: "E",
+      text: `Un contenu de 65 % de la masse sanguine`,
+      correct: false,
+      justification: `La majeure partie du volume sanguin est contenue dans le système veineux, et non dans le système artériel.`
+    }
+  ]
+},
+
+{
+  question: `L'hypertrophie cardiaque :`,
+  choices: [
+    {
+      label: "A",
+      text: `Est due à l'hyperplasie des cardiomyocytes`,
+      correct: false,
+      justification: `Chez l'adulte, l'hypertrophie cardiaque résulte principalement de l'augmentation de taille des cardiomyocytes plutôt que de leur multiplication.`
+    },
+    {
+      label: "B",
+      text: `Est un phénomène adaptatif`,
+      correct: true,
+      justification: `L'hypertrophie peut initialement constituer une adaptation à une surcharge de pression ou de volume, même si elle peut devenir pathologique.`
+    },
+    {
+      label: "C",
+      text: `Peut être excentrique ou concentrique`,
+      correct: true,
+      justification: `L'hypertrophie concentrique est typique d'une surcharge de pression, tandis que l'hypertrophie excentrique est associée à une surcharge de volume.`
+    },
+    {
+      label: "D",
+      text: `Est un exemple de remodelage myocardique`,
+      correct: true,
+      justification: `L'hypertrophie fait partie des mécanismes de remodelage myocardique en réponse aux contraintes hémodynamiques.`
+    },
+    {
+      label: "E",
+      text: `Toutes les réponses sont justes`,
+      correct: false,
+      justification: `La proposition A est fausse chez l'adulte ; les cardiomyocytes augmentent principalement de taille.`
+    }
+  ]
+},
+
+{
+  question: `Le retour veineux :`,
+  choices: [
+    {
+      label: "A",
+      text: `Est toujours égal au débit cardiaque à l'équilibre`,
+      correct: true,
+      justification: `À l'état stationnaire, le retour veineux est égal au débit cardiaque.`
+    },
+    {
+      label: "B",
+      text: `Est un débit déterminé par la pression motrice`,
+      correct: true,
+      justification: `Le retour veineux dépend du gradient de pression motrice entre le compartiment systémique et l'oreillette droite, ainsi que des résistances au retour veineux.`
+    },
+    {
+      label: "C",
+      text: `La pression motrice est la différence entre la pression artérielle moyenne (PAM) et la POD`,
+      correct: false,
+      justification: `Dans le modèle de Guyton, le gradient de pression est classiquement la pression systémique moyenne de remplissage moins la pression de l'oreillette droite : Pms − POD.`
+    },
+    {
+      label: "D",
+      text: `Pour augmenter le débit du retour veineux, on peut soit augmenter la POD, soit baisser la pression systémique moyenne`,
+      correct: false,
+      justification: `C'est l'inverse : augmenter la POD ou diminuer la pression systémique moyenne réduit le gradient de retour veineux.`
+    },
+    {
+      label: "E",
+      text: `Le volume non contraint sert à amorcer le circuit et générer un débit`,
+      correct: true,
+      justification: `Le volume non contraint remplit le compartiment vasculaire sans générer directement de pression ; le volume contraint participe à la pression systémique moyenne de remplissage.`
     }
   ]
 },
